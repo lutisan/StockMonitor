@@ -1,0 +1,101 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NuGetAudit>false</NuGetAudit>
+    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+    <SyncfusionAssemblyDir>C:\Program Files (x86)\Syncfusion\Essential Studio\WPF\31.1.17\precompiledassemblies\net9.0</SyncfusionAssemblyDir>
+    <WebView2AssemblyDir>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\PrivateAssemblies</WebView2AssemblyDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.17" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Syncfusion.SfGridConverter.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.SfGridConverter.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Windows11Dark.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Windows11Dark.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Windows11Light.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Windows11Light.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Material3Dark.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Material3Dark.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Material3Light.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Material3Light.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.MaterialDark.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.MaterialDarkBlue.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.MaterialDarkBlue.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.MaterialLight.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.MaterialLight.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.MaterialLightBlue.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.MaterialLightBlue.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019Black.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Office2019Black.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019Colorful.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Office2019Colorful.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019DarkGray.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Office2019DarkGray.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019White.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Office2019White.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Office2019HighContrast.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Office2019HighContrast.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.VisualStudio2015.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.VisualStudio2015.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.VisualStudio2013.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.VisualStudio2013.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Metro.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Metro.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Blend.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Blend.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Saffron.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Saffron.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Themes.Lime.WPF">
+      <HintPath>$(SyncfusionAssemblyDir)\Syncfusion.Themes.Lime.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.WebView2.Core">
+      <HintPath>$(WebView2AssemblyDir)\Microsoft.Web.WebView2.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.WebView2.Wpf">
+      <HintPath>$(WebView2AssemblyDir)\Microsoft.Web.WebView2.Wpf.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\xtb_seed.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(WebView2AssemblyDir)\WebView2Loader.dll" Condition="Exists('$(WebView2AssemblyDir)\WebView2Loader.dll')">
+      <Link>WebView2Loader.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

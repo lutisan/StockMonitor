@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- StockMonitor is a WPF desktop app and does not use Mono/MAUI/mobile workloads.
+         Disabling the workload resolver prevents MSB4019 when SDK 10.0.403 looks for
+         missing mono toolchain workload manifests (10.0.115) in Visual Studio. -->
+    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+  </PropertyGroup>
+</Project>

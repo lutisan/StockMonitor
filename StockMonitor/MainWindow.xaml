@@ -1,0 +1,164 @@
+﻿<Window x:Class="StockMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:behaviors="clr-namespace:StockMonitor.Behaviors"
+        xmlns:services="clr-namespace:StockMonitor.Services"
+        xmlns:views="clr-namespace:StockMonitor.Views"
+        mc:Ignorable="d"
+        behaviors:MvvmBehaviors.ThemeName="{Binding SelectedTheme}"
+        Title="{Binding [WindowTitle], Source={x:Static services:LocalizationService.Instance}}"
+        Height="920"
+        Width="1620"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- TOP HEADER BAR -->
+        <Border Grid.Row="0" Padding="10,6" Margin="0,0,0,6" BorderThickness="0,0,0,1">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="StockMonitor" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,14,0" />
+                    <TextBlock Text="{Binding [Lbl_Account], Source={x:Static services:LocalizationService.Instance}}"
+                               ToolTip="{Binding [Tip_Account], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
+                    <TextBlock Text="{Binding AccountNumber}"
+                               ToolTip="{Binding [Tip_Account], Source={x:Static services:LocalizationService.Instance}}"
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
+                    <TextBlock Text="{Binding [Lbl_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
+                               ToolTip="{Binding [Tip_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
+                    <TextBlock Text="{Binding OpenLotsCount}"
+                               ToolTip="{Binding [Tip_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <TextBlock Text="{Binding [Lbl_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
+                               ToolTip="{Binding [Tip_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
+                    <TextBlock Text="{Binding ClosedLotsCount}"
+                               ToolTip="{Binding [Tip_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <TextBlock Text="{Binding [Lbl_Tickers], Source={x:Static services:LocalizationService.Instance}}"
+                               ToolTip="{Binding [Tip_Tickers], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
+                    <TextBlock Text="{Binding DistinctInstrumentsCount}"
+                               ToolTip="{Binding [Tip_Tickers], Source={x:Static services:LocalizationService.Instance}}"
+                               FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [Lbl_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding AvailableCurrencies}"
+                              SelectedItem="{Binding SelectedBaseCurrency}"
+                              ToolTip="{Binding [Tip_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
+                              Width="72"
+                              VerticalAlignment="Center"
+                              Margin="0,0,12,0" />
+
+                    <TextBlock Text="{Binding [Lbl_Language], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                              SelectedItem="{Binding SelectedLanguage}"
+                              ToolTip="{Binding [Tip_Language], Source={x:Static services:LocalizationService.Instance}}"
+                              Width="62"
+                              VerticalAlignment="Center"
+                              Margin="0,0,12,0" />
+
+                    <TextBlock Text="{Binding [Lbl_Theme], Source={x:Static services:LocalizationService.Instance}}"
+                               VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox ItemsSource="{Binding AvailableThemes}"
+                              SelectedItem="{Binding SelectedTheme}"
+                              ToolTip="{Binding [Tip_Theme], Source={x:Static services:LocalizationService.Instance}}"
+                              Width="150"
+                              VerticalAlignment="Center"
+                              Margin="0,0,12,0" />
+
+                    <Button Content="{Binding [Btn_ImportXtb], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnImportXtb], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding ImportXtbCommand}"
+                            Padding="10,4"
+                            Margin="0,0,8,0" />
+                    <Button Content="{Binding [Btn_Export], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnExport], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding ExportPortfolioCommand}"
+                            Padding="10,4"
+                            Margin="0,0,8,0" />
+                    <Button Content="{Binding [Btn_SyncMarket], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnSyncMarket], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding RefreshMarketDataCommand}"
+                            Padding="10,4" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- MAIN TAB CONTROL -->
+        <syncfusion:TabControlExt Grid.Row="1"
+                                  CloseButtonType="Hide"
+                                  TabStripPlacement="Top"
+                                  EnableLabelEdit="False">
+            <syncfusion:TabItemExt Header="{Binding [Tab1_Header], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_Tab1], Source={x:Static services:LocalizationService.Instance}}">
+                <views:PositionsView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="{Binding [Tab2_Header], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_Tab2], Source={x:Static services:LocalizationService.Instance}}">
+                <views:SummaryView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="{Binding [Tab3_Header], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_Tab3], Source={x:Static services:LocalizationService.Instance}}">
+                <views:DividendsView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="{Binding [Tab4_Header], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_Tab4], Source={x:Static services:LocalizationService.Instance}}">
+                <views:HistoryView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="{Binding [Tab5_Header], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_Tab5], Source={x:Static services:LocalizationService.Instance}}">
+                <views:SettingsView />
+            </syncfusion:TabItemExt>
+        </syncfusion:TabControlExt>
+
+        <!-- STATUS BAR -->
+        <Border Grid.Row="2" Padding="8,4" Margin="0,6,0,0" BorderThickness="0,1,0,0">
+            <DockPanel>
+                <TextBlock Text="{Binding StorageFilePath, StringFormat='Local JSON: {0}'}"
+                           ToolTip="{Binding [Tip_StoragePath], Source={x:Static services:LocalizationService.Instance}}"
+                           DockPanel.Dock="Right"
+                           VerticalAlignment="Center"
+                           Opacity="0.65"
+                           FontSize="11" />
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <ProgressBar Width="85"
+                                 Height="10"
+                                 IsIndeterminate="True"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"
+                                 ToolTip="{Binding [Tip_StatusProgress], Source={x:Static services:LocalizationService.Instance}}"
+                                 VerticalAlignment="Center"
+                                 Margin="0,0,10,0" />
+                    <Border Padding="6,1" Margin="0,0,10,0" BorderThickness="1"
+                            ToolTip="{Binding [Tip_StatusTimer], Source={x:Static services:LocalizationService.Instance}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⏱ " FontSize="11" VerticalAlignment="Center" Opacity="0.8" />
+                            <TextBlock Text="{Binding OperationTimeText}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               ToolTip="{Binding [Tip_StatusMessage], Source={x:Static services:LocalizationService.Instance}}"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

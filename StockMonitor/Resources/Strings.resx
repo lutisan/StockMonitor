@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>StockMonitor — Syncfusion Portfolio &amp; XTB Analytics</value></data>
+  <data name="Lbl_Account" xml:space="preserve"><value>Account:</value></data>
+  <data name="Lbl_OpenLots" xml:space="preserve"><value>Open Lots:</value></data>
+  <data name="Lbl_ClosedLots" xml:space="preserve"><value>Closed Lots:</value></data>
+  <data name="Lbl_Tickers" xml:space="preserve"><value>Tickers:</value></data>
+  <data name="Lbl_MyCurrency" xml:space="preserve"><value>My Currency:</value></data>
+  <data name="Lbl_Language" xml:space="preserve"><value>Language:</value></data>
+  <data name="Lbl_Theme" xml:space="preserve"><value>Theme:</value></data>
+  <data name="Btn_ImportXtb" xml:space="preserve"><value>Import XTB (.xlsx / .csv)</value></data>
+  <data name="Btn_Export" xml:space="preserve"><value>Export (.xlsx / .csv)</value></data>
+  <data name="Btn_SyncMarket" xml:space="preserve"><value>Sync Yahoo &amp; ECB Rates</value></data>
+  <data name="Tip_Account" xml:space="preserve"><value>Broker account identifier imported from XTB report</value></data>
+  <data name="Tip_OpenLots" xml:space="preserve"><value>Total number of currently open stock/ETF purchase lots</value></data>
+  <data name="Tip_ClosedLots" xml:space="preserve"><value>Total number of closed (sold) stock/ETF lots</value></data>
+  <data name="Tip_Tickers" xml:space="preserve"><value>Count of distinct stock/ETF instruments in the portfolio</value></data>
+  <data name="Tip_MyCurrency" xml:space="preserve"><value>Select base currency (EUR, USD, CZK, CHF, GBP) to recalculate all values</value></data>
+  <data name="Tip_Language" xml:space="preserve"><value>Switch application interface language between English (EN) and Slovak (SK)</value></data>
+  <data name="Tip_Theme" xml:space="preserve"><value>Switch Syncfusion visual skin/theme for the application</value></data>
+  <data name="Tip_BtnImportXtb" xml:space="preserve"><value>Import an XTB account report (.xlsx, .xls, or .csv) and update positions, dividends, cash flows, and ticker mappings</value></data>
+  <data name="Tip_BtnExport" xml:space="preserve"><value>Export portfolio positions, dividends, history, and tax rules to Excel (.xlsx) or CSV (.csv)</value></data>
+  <data name="Tip_BtnSyncMarket" xml:space="preserve"><value>Fetch live stock quotes from Yahoo Finance and online ECB exchange rates (for today and all transaction dates)</value></data>
+  <data name="Tab1_Header" xml:space="preserve"><value>1. Positions (Open &amp; Closed)</value></data>
+  <data name="Tab2_Header" xml:space="preserve"><value>2. Summary &amp; Overview</value></data>
+  <data name="Tab3_Header" xml:space="preserve"><value>3. Dividends</value></data>
+  <data name="Tab4_Header" xml:space="preserve"><value>4. Portfolio History</value></data>
+  <data name="Tab5_Header" xml:space="preserve"><value>5. Tickers, Tax Rules, Cash Flow &amp; Settings</value></data>
+  <data name="Tip_Tab1" xml:space="preserve"><value>View open and closed lots, interactive stock price chart, lot overrides, and full-width Yahoo Finance page</value></data>
+  <data name="Tip_Tab2" xml:space="preserve"><value>Portfolio KPI cards, company/country allocation charts, and per-lot financial summary</value></data>
+  <data name="Tip_Tab3" xml:space="preserve"><value>Annual dividend charts and complete dividend &amp; withholding tax history</value></data>
+  <data name="Tip_Tab4" xml:space="preserve"><value>Historical portfolio value, active invested capital, and cumulative dividend timeline</value></data>
+  <data name="Tip_Tab5" xml:space="preserve"><value>Manage dynamic ticker mappings, country withholding tax rules, and inspect all XTB cash operations</value></data>
+  <data name="SubTab_Chart" xml:space="preserve"><value>Stock Price Chart &amp; Lot Details</value></data>
+  <data name="SubTab_Yahoo" xml:space="preserve"><value>Yahoo Finance Page (Full Width)</value></data>
+  <data name="Tip_SubTabChart" xml:space="preserve"><value>Interactive stock price chart (X-axis zoom only) alongside Selected Lot Details</value></data>
+  <data name="Tip_SubTabYahoo" xml:space="preserve"><value>Full-width embedded Chromium browser showing the Yahoo Finance quote page</value></data>
+  <data name="Lbl_Open" xml:space="preserve"><value>Open:</value></data>
+  <data name="Lbl_CurrentClose" xml:space="preserve"><value>Current/Close:</value></data>
+  <data name="Lbl_TotalProfit" xml:space="preserve"><value>Total Profit:</value></data>
+  <data name="Axis_DateDragZoom" xml:space="preserve"><value>Date (Drag horizontally on this axis bar to zoom X-axis)</value></data>
+  <data name="Axis_PriceNative" xml:space="preserve"><value>Price (Instrument Currency)</value></data>
+  <data name="Series_ClosePrice" xml:space="preserve"><value>Close Price</value></data>
+  <data name="Ctx_ResetZoom100" xml:space="preserve"><value>Reset 100% (Open Date → Close / Current Date)</value></data>
+  <data name="Ctx_UndoZoom" xml:space="preserve"><value>Undo Zoom</value></data>
+  <data name="Ctx_RedoZoom" xml:space="preserve"><value>Redo Zoom</value></data>
+  <data name="Tip_CtxResetZoom100" xml:space="preserve"><value>Reset X-axis zoom to 100% showing the exact range from Open Date to Close Date (or current date)</value></data>
+  <data name="Tip_CtxUndoZoom" xml:space="preserve"><value>Restore the previous X-axis zoom range</value></data>
+  <data name="Tip_CtxRedoZoom" xml:space="preserve"><value>Re-apply the next X-axis zoom range</value></data>
+  <data name="Tip_PriceChart" xml:space="preserve"><value>Historical stock price chart from Open Date to Close/Current Date. Drag on chart or drag horizontally on the X-axis title bar to zoom X-axis. Right-click for Reset 100% and Undo/Redo Zoom.</value></data>
+  <data name="Tip_VertSplitterChartDetails" xml:space="preserve"><value>Drag left or right to resize the Stock Price Chart and Selected Lot Details panels</value></data>
+  <data name="Tip_HorizSplitterPositions" xml:space="preserve"><value>Drag up or down to resize the top chart/details pane and bottom Positions table</value></data>
+  <data name="Btn_OpenExternalBrowser" xml:space="preserve"><value>Open in External Browser</value></data>
+  <data name="Btn_ReloadEmbeddedPage" xml:space="preserve"><value>Load / Refresh Embedded Page</value></data>
+  <data name="Tip_YahooUrlBox" xml:space="preserve"><value>Yahoo Finance URL for the currently selected position lot</value></data>
+  <data name="Tip_BtnOpenExternal" xml:space="preserve"><value>Open the Yahoo Finance quote page in your default external web browser</value></data>
+  <data name="Tip_BtnReloadEmbedded" xml:space="preserve"><value>Load or refresh the embedded Chromium WebView2 page for the selected ticker</value></data>
+  <data name="Tip_YahooBrowserHost" xml:space="preserve"><value>Embedded Chromium WebView2 browser displaying Yahoo Finance for the selected ticker</value></data>
+  <data name="Hdr_LotDetails" xml:space="preserve"><value>Selected Lot Details &amp; Manual Overrides</value></data>
+  <data name="Lbl_CompanyName" xml:space="preserve"><value>Company Name:</value></data>
+  <data name="Lbl_TickerYahoo" xml:space="preserve"><value>Ticker / Yahoo:</value></data>
+  <data name="Lbl_CountryCurrency" xml:space="preserve"><value>Country / Currency:</value></data>
+  <data name="Lbl_Quantity" xml:space="preserve"><value>Quantity:</value></data>
+  <data name="Lbl_OpenDateUtc" xml:space="preserve"><value>Open Date (UTC):</value></data>
+  <data name="Lbl_OpenPrice" xml:space="preserve"><value>Open Price:</value></data>
+  <data name="Lbl_CloseDateUtc" xml:space="preserve"><value>Close Date (UTC):</value></data>
+  <data name="Lbl_CurrClosePrice" xml:space="preserve"><value>Current / Close Price:</value></data>
+  <data name="Lbl_DivTaxOverride" xml:space="preserve"><value>Div Tax Override %:</value></data>
+  <data name="Lbl_XtbPosId" xml:space="preserve"><value>XTB Position ID:</value></data>
+  <data name="Lbl_Manual" xml:space="preserve"><value>Manual</value></data>
+  <data name="Lbl_CommentsNotes" xml:space="preserve"><value>Comments / Notes for Selected Line:</value></data>
+  <data name="Btn_SaveLotOverrides" xml:space="preserve"><value>Save &amp; Recalculate Selected Lot</value></data>
+  <data name="Tip_EditCompanyName" xml:space="preserve"><value>Edit the company or ETF instrument name for the selected lot and its ticker mapping</value></data>
+  <data name="Tip_EditTicker" xml:space="preserve"><value>Broker ticker symbol (e.g., AAPL.US, LYPG.DE)</value></data>
+  <data name="Tip_EditYahooSymbol" xml:space="preserve"><value>Yahoo Finance symbol used for live quotes and historical charts (e.g., AAPL, LYPG.DE)</value></data>
+  <data name="Tip_EditCountryCode" xml:space="preserve"><value>ISO two-letter country code of registration (e.g., US, DE, NL, FR, AT, CH, CZ, IE) used for withholding tax rules</value></data>
+  <data name="Tip_EditStockCurrency" xml:space="preserve"><value>Trading currency of the instrument (e.g., USD, EUR, CZK, CHF, GBP)</value></data>
+  <data name="Tip_EditQuantity" xml:space="preserve"><value>Number of shares or ETF units in this position lot</value></data>
+  <data name="Tip_EditOpenDate" xml:space="preserve"><value>UTC date and time when this position lot was opened</value></data>
+  <data name="Tip_EditOpenPrice" xml:space="preserve"><value>Purchase price per share in the instrument's native currency</value></data>
+  <data name="Tip_ChkOpenPriceManual" xml:space="preserve"><value>Lock manual Open Price so broker/API updates do not overwrite it</value></data>
+  <data name="Tip_EditCloseDate" xml:space="preserve"><value>UTC date and time when the position was closed (leave blank if still open)</value></data>
+  <data name="Tip_EditCurrentPrice" xml:space="preserve"><value>Current market price (for open lots) or executed close price (for closed lots) in instrument currency</value></data>
+  <data name="Tip_ChkClosePriceManual" xml:space="preserve"><value>Lock manual Current/Close Price so Yahoo Finance sync does not overwrite it</value></data>
+  <data name="Tip_EditDivTaxOverride" xml:space="preserve"><value>Optional custom dividend withholding tax % for this lot (leave blank to use Country Tax Rule)</value></data>
+  <data name="Tip_EffectiveDivTax" xml:space="preserve"><value>Effective withholding tax rate % applied to dividends of this lot</value></data>
+  <data name="Tip_XtbPositionId" xml:space="preserve"><value>Unique position identifier from XTB broker report (or manual lot ID)</value></data>
+  <data name="Tip_EditComment" xml:space="preserve"><value>Personal notes and comments stored in JSON for the selected position lot</value></data>
+  <data name="Tip_BtnSaveLotOverrides" xml:space="preserve"><value>Save changes to the selected lot, update dynamic ticker mapping, and recalculate portfolio</value></data>
+  <data name="Lbl_StatusFilter" xml:space="preserve"><value>Status Filter:</value></data>
+  <data name="Lbl_Search" xml:space="preserve"><value>Search:</value></data>
+  <data name="Btn_ExpandAll" xml:space="preserve"><value>Expand All Groups</value></data>
+  <data name="Btn_CollapseAll" xml:space="preserve"><value>Collapse All Groups</value></data>
+  <data name="Btn_AddPosition" xml:space="preserve"><value>+ Add Position</value></data>
+  <data name="Btn_DeleteSelected" xml:space="preserve"><value>Delete Selected</value></data>
+  <data name="Tip_StatusFilter" xml:space="preserve"><value>Filter positions by status: All, Open Only, or Closed Only</value></data>
+  <data name="Tip_SearchBox" xml:space="preserve"><value>Filter position lots by company name, ticker, Yahoo symbol, XTB Position ID, or comment</value></data>
+  <data name="Tip_BtnExpandAll" xml:space="preserve"><value>Expand all company groups in the Positions grid</value></data>
+  <data name="Tip_BtnCollapseAll" xml:space="preserve"><value>Collapse all company groups in the Positions grid</value></data>
+  <data name="Tip_BtnAddPosition" xml:space="preserve"><value>Add a new manual position lot to the portfolio</value></data>
+  <data name="Tip_BtnDeletePosition" xml:space="preserve"><value>Delete the currently selected position lot from the portfolio</value></data>
+  <data name="Tip_PositionsGrid" xml:space="preserve"><value>Grouped table of open and closed position lots. Click any row to load its price chart and details.</value></data>
+  <data name="Kpi_OpenInvested" xml:space="preserve"><value>Open Invested (Base)</value></data>
+  <data name="Kpi_OpenMarketVal" xml:space="preserve"><value>Open Market Value (Base)</value></data>
+  <data name="Kpi_CapitalGain" xml:space="preserve"><value>Capital Gain (Open + Closed)</value></data>
+  <data name="Kpi_NetDividends" xml:space="preserve"><value>Net Dividends (Base)</value></data>
+  <data name="Kpi_TotalProfit" xml:space="preserve"><value>Total Overall Profit (Base)</value></data>
+  <data name="Kpi_TotalReturn" xml:space="preserve"><value>Total Return % / Deposits</value></data>
+  <data name="Tip_KpiOpenInvested" xml:space="preserve"><value>Total purchase cost of all currently open position lots converted to your selected Base Currency</value></data>
+  <data name="Tip_KpiOpenMarketVal" xml:space="preserve"><value>Current market value of all open position lots in your selected Base Currency</value></data>
+  <data name="Tip_KpiCapitalGain" xml:space="preserve"><value>Combined unrealized capital gain on open lots plus realized profit/loss on closed lots in Base Currency</value></data>
+  <data name="Tip_KpiNetDividends" xml:space="preserve"><value>Total net dividends received after withholding tax in your selected Base Currency</value></data>
+  <data name="Tip_KpiTotalProfit" xml:space="preserve"><value>Total net profit combining capital gains, net dividends, spinoffs, and net free-funds interest in Base Currency</value></data>
+  <data name="Tip_KpiTotalReturn" xml:space="preserve"><value>Overall portfolio return percentage relative to active invested capital, plus total cash deposits</value></data>
+  <data name="Chart_AllocCompany" xml:space="preserve"><value>Open Holdings Allocation by Company</value></data>
+  <data name="Chart_AllocCountry" xml:space="preserve"><value>Open Holdings Allocation by Country</value></data>
+  <data name="Tip_ChartAllocCompany" xml:space="preserve"><value>Doughnut chart showing open market value share by company/instrument in Base Currency</value></data>
+  <data name="Tip_ChartAllocCountry" xml:space="preserve"><value>Doughnut chart showing open market value share by country of registration in Base Currency</value></data>
+  <data name="Tip_SummaryGrid" xml:space="preserve"><value>Per-lot financial summary table with totals for invested capital, market value, capital gains, dividends, and total profit</value></data>
+  <data name="Chart_AnnualDividends" xml:space="preserve"><value>Annual Net Dividends vs. Withholding Tax (Base Currency)</value></data>
+  <data name="Axis_Year" xml:space="preserve"><value>Year</value></data>
+  <data name="Axis_AmountBase" xml:space="preserve"><value>Amount (Base Currency)</value></data>
+  <data name="Series_NetDivBase" xml:space="preserve"><value>Net Dividends (Base)</value></data>
+  <data name="Series_WhtBase" xml:space="preserve"><value>Withholding Tax (Base)</value></data>
+  <data name="Tip_ChartAnnualDiv" xml:space="preserve"><value>Yearly comparison of net dividends received versus withholding tax paid in Base Currency</value></data>
+  <data name="Tip_DividendsGrid" xml:space="preserve"><value>Complete list of dividend payments and withholding tax adjustments converted on the exact payment date</value></data>
+  <data name="Chart_PortfolioHistory" xml:space="preserve"><value>Cumulative Investment vs. Portfolio Value &amp; Dividends Over Time</value></data>
+  <data name="Axis_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Axis_ValueBase" xml:space="preserve"><value>Value (Base Currency)</value></data>
+  <data name="Series_TotalPortValue" xml:space="preserve"><value>Total Portfolio Value (Base)</value></data>
+  <data name="Series_ActiveInvested" xml:space="preserve"><value>Active Invested Capital (Base)</value></data>
+  <data name="Series_CumNetDividends" xml:space="preserve"><value>Cumulative Net Dividends (Base)</value></data>
+  <data name="Tip_ChartHistory" xml:space="preserve"><value>Historical timeline comparing active invested capital, total portfolio value, and cumulative net dividends</value></data>
+  <data name="Tip_HistoryGrid" xml:space="preserve"><value>Quarterly and current historical valuation checkpoints in Base Currency</value></data>
+  <data name="Hdr_TickerMappings" xml:space="preserve"><value>Dynamic Ticker Mappings (JSON / XLS / Editable)</value></data>
+  <data name="Btn_AddTicker" xml:space="preserve"><value>+ Add Ticker</value></data>
+  <data name="Btn_DeleteTicker" xml:space="preserve"><value>Delete Selected</value></data>
+  <data name="Btn_SaveTickers" xml:space="preserve"><value>Save Tickers &amp; Recalculate</value></data>
+  <data name="Tip_BtnAddTicker" xml:space="preserve"><value>Add a new custom ticker mapping row</value></data>
+  <data name="Tip_BtnDeleteTicker" xml:space="preserve"><value>Remove the selected ticker mapping row</value></data>
+  <data name="Tip_BtnSaveTickers" xml:space="preserve"><value>Save all edited ticker mappings to JSON, lock manual overrides, and recalculate the portfolio</value></data>
+  <data name="Tip_TickersGrid" xml:space="preserve"><value>Dynamic list of broker tickers mapped to Yahoo Finance symbols, countries, and currencies. Stored in JSON and updated from XTB .xls/.xlsx imports.</value></data>
+  <data name="Hdr_TaxRules" xml:space="preserve"><value>Withholding Tax Rules by Country (Editable)</value></data>
+  <data name="Btn_ResetSeed" xml:space="preserve"><value>Reset to Bundled XTB Seed</value></data>
+  <data name="Btn_SaveTaxRules" xml:space="preserve"><value>Save Tax Rules &amp; Recalculate</value></data>
+  <data name="Tip_BtnResetSeed" xml:space="preserve"><value>Reload the bundled XTB seed report and reset portfolio data</value></data>
+  <data name="Tip_BtnSaveTaxRules" xml:space="preserve"><value>Save edited country withholding tax rates and recalculate dividend taxes</value></data>
+  <data name="Tip_TaxRulesGrid" xml:space="preserve"><value>Editable withholding tax rates by country of instrument registration</value></data>
+  <data name="Tip_SettingsSplitVert" xml:space="preserve"><value>Drag left or right to resize Dynamic Ticker Mappings and Country Tax Rules panels</value></data>
+  <data name="Tip_SettingsSplitHoriz" xml:space="preserve"><value>Drag up or down to resize the top mappings/tax rules area and bottom Cash Operations table</value></data>
+  <data name="Hdr_CashOperations" xml:space="preserve"><value>All Imported XTB Cash Operations (Deposits, Free-Funds Interest, Dividends, WHT, Stock Purchases/Sales, Fees)</value></data>
+  <data name="Tip_CashFlowsGrid" xml:space="preserve"><value>Complete ledger of cash operations imported from the XTB report, converted to Base Currency on each operation's exact date</value></data>
+  <data name="Tip_StatusProgress" xml:space="preserve"><value>Indeterminate indicator active while an asynchronous background operation is running</value></data>
+  <data name="Tip_StatusTimer" xml:space="preserve"><value>Elapsed execution time of the current or most recently completed asynchronous operation</value></data>
+  <data name="Tip_StatusMessage" xml:space="preserve"><value>Description of the current or most recently completed background operation</value></data>
+  <data name="Tip_StoragePath" xml:space="preserve"><value>File path of the local JSON portfolio database (%LocalAppData%\StockMonitor\portfolio.json)</value></data>
+  <data name="Col_CompanyName" xml:space="preserve"><value>Company Name</value></data>
+  <data name="Tip_Col_CompanyName" xml:space="preserve"><value>Full name of the company or ETF instrument</value></data>
+  <data name="Col_Ticker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="Tip_Col_Ticker" xml:space="preserve"><value>Broker ticker symbol (e.g., AAPL.US, LYPG.DE)</value></data>
+  <data name="Col_YahooSymbol" xml:space="preserve"><value>Yahoo Symbol</value></data>
+  <data name="Tip_Col_YahooSymbol" xml:space="preserve"><value>Yahoo Finance ticker symbol used for market data and charting</value></data>
+  <data name="Col_Category" xml:space="preserve"><value>Type</value></data>
+  <data name="Tip_Col_Category" xml:space="preserve"><value>Instrument category (STOCK or ETF)</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Tip_Col_Status" xml:space="preserve"><value>Position status (Open or Closed)</value></data>
+  <data name="Col_OpenDate" xml:space="preserve"><value>Open Date</value></data>
+  <data name="Tip_Col_OpenDate" xml:space="preserve"><value>Date when the position lot was purchased (UTC)</value></data>
+  <data name="Col_Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Tip_Col_Quantity" xml:space="preserve"><value>Number of shares or ETF units in the lot</value></data>
+  <data name="Col_Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Tip_Col_Currency" xml:space="preserve"><value>Native trading currency of the instrument</value></data>
+  <data name="Col_OpenPrice" xml:space="preserve"><value>Open Price</value></data>
+  <data name="Tip_Col_OpenPrice" xml:space="preserve"><value>Executed purchase price per share in the instrument's native currency</value></data>
+  <data name="Col_OpenCost" xml:space="preserve"><value>Open Cost</value></data>
+  <data name="Tip_Col_OpenCost" xml:space="preserve"><value>Total purchase cost in the instrument's native currency including commission</value></data>
+  <data name="Col_OpenPriceBase" xml:space="preserve"><value>Open Price (Base)</value></data>
+  <data name="Tip_Col_OpenPriceBase" xml:space="preserve"><value>Purchase price per share converted to your selected Base Currency on the Open Date</value></data>
+  <data name="Col_OpenCostBase" xml:space="preserve"><value>Open Cost (Base)</value></data>
+  <data name="Tip_Col_OpenCostBase" xml:space="preserve"><value>Total purchase cost converted to your selected Base Currency on the Open Date</value></data>
+  <data name="Col_CloseDate" xml:space="preserve"><value>Close Date</value></data>
+  <data name="Tip_Col_CloseDate" xml:space="preserve"><value>Date when the position lot was sold (blank if still Open)</value></data>
+  <data name="Col_CloseCurrPrice" xml:space="preserve"><value>Close / Curr Price</value></data>
+  <data name="Tip_Col_CloseCurrPrice" xml:space="preserve"><value>Current market price (if Open) or executed sale price (if Closed) in native currency</value></data>
+  <data name="Col_CloseCurrVal" xml:space="preserve"><value>Close / Curr Value</value></data>
+  <data name="Tip_Col_CloseCurrVal" xml:space="preserve"><value>Current market value (if Open) or sale proceeds (if Closed) in native currency</value></data>
+  <data name="Col_CloseCurrPriceBase" xml:space="preserve"><value>Close / Curr (Base)</value></data>
+  <data name="Tip_Col_CloseCurrPriceBase" xml:space="preserve"><value>Current or sale price per share converted to Base Currency</value></data>
+  <data name="Col_MarketValBase" xml:space="preserve"><value>Market Value (Base)</value></data>
+  <data name="Tip_Col_MarketValBase" xml:space="preserve"><value>Current market value (if Open) or sale value (if Closed) in Base Currency</value></data>
+  <data name="Col_DiffNative" xml:space="preserve"><value>Difference</value></data>
+  <data name="Tip_Col_DiffNative" xml:space="preserve"><value>Capital profit or loss in the instrument's native currency</value></data>
+  <data name="Col_DiffBase" xml:space="preserve"><value>Difference (Base)</value></data>
+  <data name="Tip_Col_DiffBase" xml:space="preserve"><value>Capital profit or loss in your selected Base Currency</value></data>
+  <data name="Col_GrossDivBase" xml:space="preserve"><value>Gross Div (Base)</value></data>
+  <data name="Tip_Col_GrossDivBase" xml:space="preserve"><value>Total gross dividends received for this lot in Base Currency</value></data>
+  <data name="Col_WhtBase" xml:space="preserve"><value>WHT (Base)</value></data>
+  <data name="Tip_Col_WhtBase" xml:space="preserve"><value>Total withholding tax deducted from dividends for this lot in Base Currency</value></data>
+  <data name="Col_NetDivBase" xml:space="preserve"><value>Net Div (Base)</value></data>
+  <data name="Tip_Col_NetDivBase" xml:space="preserve"><value>Total net dividends received after tax for this lot in Base Currency</value></data>
+  <data name="Col_SpinoffsBase" xml:space="preserve"><value>Spinoffs (Base)</value></data>
+  <data name="Tip_Col_SpinoffsBase" xml:space="preserve"><value>Spinoff proceeds allocated to this lot in Base Currency</value></data>
+  <data name="Col_TotalProfitBase" xml:space="preserve"><value>Total Profit (Base)</value></data>
+  <data name="Tip_Col_TotalProfitBase" xml:space="preserve"><value>Total profit (Capital Gain + Net Dividends + Spinoffs) in Base Currency</value></data>
+  <data name="Col_ReturnPct" xml:space="preserve"><value>Return %</value></data>
+  <data name="Tip_Col_ReturnPct" xml:space="preserve"><value>Total percentage return relative to the purchase cost in Base Currency</value></data>
+  <data name="Col_Sparkline" xml:space="preserve"><value>Sparkline (Base)</value></data>
+  <data name="Tip_Col_Sparkline" xml:space="preserve"><value>Mini performance trend chart of the lot's profit in Base Currency</value></data>
+  <data name="Col_Comment" xml:space="preserve"><value>Comment</value></data>
+  <data name="Tip_Col_Comment" xml:space="preserve"><value>Broker or user notes associated with the record</value></data>
+  <data name="Col_PayDate" xml:space="preserve"><value>Payment Date</value></data>
+  <data name="Tip_Col_PayDate" xml:space="preserve"><value>UTC date and time when the dividend was paid</value></data>
+  <data name="Col_DivPerShare" xml:space="preserve"><value>Dividend / Share</value></data>
+  <data name="Tip_Col_DivPerShare" xml:space="preserve"><value>Gross dividend amount paid per share in native currency</value></data>
+  <data name="Col_DivCcy" xml:space="preserve"><value>Dividend Ccy</value></data>
+  <data name="Tip_Col_DivCcy" xml:space="preserve"><value>Native currency in which the dividend was declared</value></data>
+  <data name="Col_TaxRatePct" xml:space="preserve"><value>Tax Rate %</value></data>
+  <data name="Tip_Col_TaxRatePct" xml:space="preserve"><value>Withholding tax percentage deducted at source</value></data>
+  <data name="Col_AnnualYieldPct" xml:space="preserve"><value>Annual Yield %</value></data>
+  <data name="Tip_Col_AnnualYieldPct" xml:space="preserve"><value>Estimated annualized gross dividend yield relative to lot cost</value></data>
+  <data name="Col_PosId" xml:space="preserve"><value>XTB Position ID</value></data>
+  <data name="Tip_Col_PosId" xml:space="preserve"><value>Linked broker position identifier</value></data>
+  <data name="Col_Source" xml:space="preserve"><value>Source</value></data>
+  <data name="Tip_Col_Source" xml:space="preserve"><value>Data origin of the dividend record (XTB Report or Yahoo API)</value></data>
+  <data name="Col_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Tip_Col_Date" xml:space="preserve"><value>Historical snapshot date</value></data>
+  <data name="Col_CumDeposits" xml:space="preserve"><value>Cumulative Deposits (Base)</value></data>
+  <data name="Tip_Col_CumDeposits" xml:space="preserve"><value>Total cash deposited into the account up to this date in Base Currency</value></data>
+  <data name="Col_ActiveInvested" xml:space="preserve"><value>Active Invested (Base)</value></data>
+  <data name="Tip_Col_ActiveInvested" xml:space="preserve"><value>Purchase cost of all open lots held on this date in Base Currency</value></data>
+  <data name="Col_HoldingsVal" xml:space="preserve"><value>Stock Market Value (Base)</value></data>
+  <data name="Tip_Col_HoldingsVal" xml:space="preserve"><value>Market value of open stock/ETF holdings on this date in Base Currency</value></data>
+  <data name="Col_RealizedPL" xml:space="preserve"><value>Realized Closed P/L (Base)</value></data>
+  <data name="Tip_Col_RealizedPL" xml:space="preserve"><value>Cumulative realized capital profit/loss from closed positions up to this date in Base Currency</value></data>
+  <data name="Col_CumNetDiv" xml:space="preserve"><value>Cumulative Net Dividends (Base)</value></data>
+  <data name="Tip_Col_CumNetDiv" xml:space="preserve"><value>Cumulative net dividends received up to this date in Base Currency</value></data>
+  <data name="Col_CumNetInterest" xml:space="preserve"><value>Net Free-Funds Interest (Base)</value></data>
+  <data name="Tip_Col_CumNetInterest" xml:space="preserve"><value>Cumulative net interest earned on uninvested cash up to this date in Base Currency</value></data>
+  <data name="Col_TotalPortVal" xml:space="preserve"><value>Total Value (Base)</value></data>
+  <data name="Tip_Col_TotalPortVal" xml:space="preserve"><value>Total portfolio valuation on this date in Base Currency</value></data>
+  <data name="Col_CountryCode" xml:space="preserve"><value>Country</value></data>
+  <data name="Tip_Col_CountryCode" xml:space="preserve"><value>Two-letter ISO country code of instrument registration</value></data>
+  <data name="Col_ManualLock" xml:space="preserve"><value>Manual Lock</value></data>
+  <data name="Tip_Col_ManualLock" xml:space="preserve"><value>When checked, XTB file imports will never overwrite this ticker's custom mapping</value></data>
+  <data name="Col_CountryName" xml:space="preserve"><value>Country Name</value></data>
+  <data name="Tip_Col_CountryName" xml:space="preserve"><value>Name of the country of registration</value></data>
+  <data name="Col_SampleTickers" xml:space="preserve"><value>Portfolio Tickers</value></data>
+  <data name="Tip_Col_SampleTickers" xml:space="preserve"><value>Tickers in your portfolio registered in this country (updated dynamically)</value></data>
+  <data name="Col_StatutoryTax" xml:space="preserve"><value>Statutory %</value></data>
+  <data name="Tip_Col_StatutoryTax" xml:space="preserve"><value>Statutory withholding tax rate % in the country of origin</value></data>
+  <data name="Col_AppliedTax" xml:space="preserve"><value>Applied %</value></data>
+  <data name="Tip_Col_AppliedTax" xml:space="preserve"><value>Effective withholding tax rate % applied to your account</value></data>
+  <data name="Col_TaxNotes" xml:space="preserve"><value>Notes &amp; Treaty Details</value></data>
+  <data name="Tip_Col_TaxNotes" xml:space="preserve"><value>Double-taxation treaty notes and special tax rules (e.g. W-8BEN, IFTT)</value></data>
+  <data name="Col_TimeUtc" xml:space="preserve"><value>Time (UTC)</value></data>
+  <data name="Tip_Col_TimeUtc" xml:space="preserve"><value>UTC timestamp of the cash operation</value></data>
+  <data name="Col_OpType" xml:space="preserve"><value>Operation Type</value></data>
+  <data name="Tip_Col_OpType" xml:space="preserve"><value>Type of broker cash operation (Deposit, Dividend, Withholding Tax, Stock Purchase/Sale, Interest)</value></data>
+  <data name="Col_AmountEur" xml:space="preserve"><value>Amount (EUR)</value></data>
+  <data name="Tip_Col_AmountEur" xml:space="preserve"><value>Cash operation amount in account currency (EUR) from XTB report</value></data>
+  <data name="Col_AmountBase" xml:space="preserve"><value>Amount (Base)</value></data>
+  <data name="Tip_Col_AmountBase" xml:space="preserve"><value>Cash operation amount converted to Base Currency using the online ECB rate on the operation date</value></data>
+  <data name="Col_CashOpId" xml:space="preserve"><value>Cash Op ID</value></data>
+  <data name="Tip_Col_CashOpId" xml:space="preserve"><value>Unique XTB cash operation identifier</value></data>
+  <data name="Col_BaseCurrency" xml:space="preserve"><value>Base Ccy</value></data>
+  <data name="Tip_Col_BaseCurrency" xml:space="preserve"><value>Selected base currency used for all converted (Base) columns</value></data>
+  <data name="Err_DialogTitle" xml:space="preserve"><value>StockMonitor Error</value></data>
+  <data name="Err_LogSavedTo" xml:space="preserve"><value>Details saved to:</value></data>
+  <data name="Btn_OpenLogInExplorer" xml:space="preserve"><value>Open log file in File Explorer</value></data>
+  <data name="Btn_Ok" xml:space="preserve"><value>OK</value></data>
+</root>
