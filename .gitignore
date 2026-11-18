@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Data
+/docs/ARCHITECTURE_AND_HANDOFF.md
+/docs/PREHLAD3_SPECIFICATION.md
