@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,6 +22,31 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly XtbWorkbookImportService _xtbImportService;
     private readonly ExportService _exportService;
     private readonly IFileDialogService _fileDialogService;
+
+    private static readonly HashSet<string> EditableLotProperties = new(StringComparer.Ordinal)
+    {
+        nameof(PositionLot.CompanyName),
+        nameof(PositionLot.Ticker),
+        nameof(PositionLot.YahooSymbol),
+        nameof(PositionLot.Category),
+        nameof(PositionLot.CountryCode),
+        nameof(PositionLot.StockCurrency),
+        nameof(PositionLot.Quantity),
+        nameof(PositionLot.OpenDate),
+        nameof(PositionLot.CloseDate),
+        nameof(PositionLot.OpenPrice),
+        nameof(PositionLot.ClosePrice),
+        nameof(PositionLot.CurrentMarketPrice),
+        nameof(PositionLot.IsOpenPriceManual),
+        nameof(PositionLot.IsClosePriceManual),
+        nameof(PositionLot.EditableOpenPrice),
+        nameof(PositionLot.EditableCloseOrCurrentPrice),
+        nameof(PositionLot.ManualDividendTaxRate),
+        nameof(PositionLot.Comment)
+    };
+
+    private readonly List<INotifyPropertyChanged> _trackedEntities = [];
+    private int _dirtyTrackingSuppressionCount;
 
     private PortfolioDocument _document = new();
     private string? _currentFilePath;
@@ -454,9 +480,73 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SetEncryptionKey(null);
     }
 
+    private void DetachDocumentDirtyTracking()
+    {
+        foreach (INotifyPropertyChanged entity in _trackedEntities)
+        {
+            entity.PropertyChanged -= OnEditableEntityPropertyChanged;
+        }
+
+        _trackedEntities.Clear();
+    }
+
+    private void AttachDocumentDirtyTracking()
+    {
+        DetachDocumentDirtyTracking();
+
+        foreach (PositionLot lot in _document.Lots)
+        {
+            lot.PropertyChanged += OnEditableEntityPropertyChanged;
+            _trackedEntities.Add(lot);
+        }
+
+        foreach (TickerMapping mapping in _document.TickerMappings)
+        {
+            mapping.PropertyChanged += OnEditableEntityPropertyChanged;
+            _trackedEntities.Add(mapping);
+        }
+
+        foreach (CountryTaxRule rule in _document.TaxRules)
+        {
+            rule.PropertyChanged += OnEditableEntityPropertyChanged;
+            _trackedEntities.Add(rule);
+        }
+    }
+
+    private void OnEditableEntityPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (_isInitializing || Volatile.Read(ref _dirtyTrackingSuppressionCount) > 0)
+        {
+            return;
+        }
+
+        string? prop = e.PropertyName;
+        if (string.IsNullOrEmpty(prop))
+        {
+            return;
+        }
+
+        if (sender is PositionLot)
+        {
+            if (EditableLotProperties.Contains(prop))
+            {
+                MarkDirty();
+            }
+        }
+        else if (sender is TickerMapping)
+        {
+            MarkDirty();
+        }
+        else if (sender is CountryTaxRule && !string.Equals(prop, nameof(CountryTaxRule.SampleTickers), StringComparison.Ordinal))
+        {
+            MarkDirty();
+        }
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {
+        DetachDocumentDirtyTracking();
         ClearEncryptionKey();
         _chartLoadCts?.Dispose();
         _filterCts?.Dispose();
@@ -516,6 +606,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
+    /// Displays the unsaved-changes prompt (Save / Close without saving / Cancel) for the active document.
+    /// </summary>
+    public UnsavedChangesChoice PromptUnsavedChanges()
+    {
+        return _fileDialogService.ShowUnsavedChangesPrompt(GetDisplayDocumentName());
+    }
+
+    /// <summary>
+    /// Saves the active document (prompting Save As if untitled) and returns whether saving succeeded.
+    /// </summary>
+    public Task<bool> SaveCurrentDocumentAsync() => SaveFileInternalAsync();
+
+    /// <summary>
     /// Prompts the user to save unsaved changes if <see cref="IsDirty"/> is true.
     /// Returns <see langword="true"/> if it is safe to proceed (saved, discarded, or not dirty);
     /// returns <see langword="false"/> if the user cancelled or saving failed.
@@ -527,7 +630,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return true;
         }
 
-        UnsavedChangesChoice choice = _fileDialogService.ShowUnsavedChangesPrompt(GetDisplayDocumentName());
+        UnsavedChangesChoice choice = PromptUnsavedChanges();
         return choice switch
         {
             UnsavedChangesChoice.Discard => true,
@@ -536,8 +639,42 @@ public partial class MainViewModel : ObservableObject, IDisposable
         };
     }
 
+    private bool CanRunWhenNotBusy() => !IsBusy;
+    private bool CanModifySelectedLot() => !IsBusy && SelectedLot != null;
+    private bool CanDeleteSelectedTickerMapping() => !IsBusy && SelectedTickerMapping != null;
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        NotifyBusyDependentCommandsCanExecuteChanged();
+    }
+
+    partial void OnSelectedTickerMappingChanged(TickerMapping? value)
+    {
+        DeleteSelectedTickerMappingCommand.NotifyCanExecuteChanged();
+    }
+
+    private void NotifyBusyDependentCommandsCanExecuteChanged()
+    {
+        NewFileCommand.NotifyCanExecuteChanged();
+        OpenFileCommand.NotifyCanExecuteChanged();
+        SaveFileCommand.NotifyCanExecuteChanged();
+        SaveFileAsCommand.NotifyCanExecuteChanged();
+        ManagePasswordCommand.NotifyCanExecuteChanged();
+        ImportXtbCommand.NotifyCanExecuteChanged();
+        ExportPortfolioCommand.NotifyCanExecuteChanged();
+        RefreshMarketDataCommand.NotifyCanExecuteChanged();
+        AddNewPositionCommand.NotifyCanExecuteChanged();
+        DeleteSelectedPositionCommand.NotifyCanExecuteChanged();
+        SaveSelectedLotOverridesCommand.NotifyCanExecuteChanged();
+        SaveTaxRulesCommand.NotifyCanExecuteChanged();
+        AddTickerMappingCommand.NotifyCanExecuteChanged();
+        DeleteSelectedTickerMappingCommand.NotifyCanExecuteChanged();
+        SaveTickerMappingsCommand.NotifyCanExecuteChanged();
+        ResetToBundledXtbReportCommand.NotifyCanExecuteChanged();
+    }
+
     /// <summary>Creates a new empty portfolio document (prompts to save unsaved changes first).</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task NewFileAsync()
     {
         if (!await ConfirmSaveIfDirtyAsync())
@@ -567,7 +704,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Opens an existing StockMonitor JSON portfolio file (plain or password-encrypted).</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task OpenFileAsync()
     {
         if (!await ConfirmSaveIfDirtyAsync())
@@ -627,11 +764,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Saves the current portfolio document to its active file path (or prompts Save As if untitled).</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private Task SaveFileAsync() => SaveFileInternalAsync();
 
     /// <summary>Prompts for a destination file path and saves the current portfolio document.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private Task SaveFileAsAsync() => SaveFileAsInternalAsync();
 
     private async Task<bool> SaveFileInternalAsync()
@@ -695,7 +832,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Opens the Document Password dialog to set, change, or remove the in-memory derived encryption key.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task ManagePasswordAsync()
     {
         DocumentEncryptionKey? existingKey = _currentEncryptionKey;
@@ -873,6 +1010,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     partial void OnSelectedLotChanged(PositionLot? value)
     {
+        DeleteSelectedPositionCommand.NotifyCanExecuteChanged();
+        SaveSelectedLotOverridesCommand.NotifyCanExecuteChanged();
+
         _chartLoadCts?.Cancel();
         _chartLoadCts?.Dispose();
         _chartLoadCts = null;
@@ -1069,61 +1209,78 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <param name="cancellationToken">Cancellation token.</param>
     public async Task ReloadFromDocumentAsync(bool reloadSelectedChart = true, CancellationToken cancellationToken = default)
     {
-        AccountNumber = _document.AccountNumber;
-        ReportDateUtc = _document.ReportGeneratedUtc;
-
-        List<TickerMapping> sortedMappings = await Task.Run(() =>
+        Interlocked.Increment(ref _dirtyTrackingSuppressionCount);
+        try
         {
-            TickerMappingHelper.SynchronizeDocumentMappings(_document);
-            return _document.TickerMappings
-                .OrderBy(m => m.Ticker, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }, cancellationToken);
+            AccountNumber = _document.AccountNumber;
+            ReportDateUtc = _document.ReportGeneratedUtc;
 
-        TickerMappings = new ObservableCollection<TickerMapping>(sortedMappings);
-        TaxRules = new ObservableCollection<CountryTaxRule>(_document.TaxRules);
+            List<TickerMapping> sortedMappings = await Task.Run(() =>
+            {
+                TickerMappingHelper.SynchronizeDocumentMappings(_document);
+                return _document.TickerMappings
+                    .OrderBy(m => m.Ticker, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }, cancellationToken);
 
-        await RecalculateAndRefreshAsync(reloadSelectedChart, cancellationToken);
+            TickerMappings = new ObservableCollection<TickerMapping>(sortedMappings);
+            TaxRules = new ObservableCollection<CountryTaxRule>(_document.TaxRules);
+
+            await RecalculateAndRefreshAsync(reloadSelectedChart, cancellationToken);
+            AttachDocumentDirtyTracking();
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _dirtyTrackingSuppressionCount);
+        }
     }
 
     private async Task RecalculateAndRefreshAsync(bool reloadSelectedChart = true, CancellationToken cancellationToken = default)
     {
-        string statusFilter = SelectedStatusFilter;
-        string search = SearchText;
-
-        var computed = await Task.Run(() =>
+        Interlocked.Increment(ref _dirtyTrackingSuppressionCount);
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            _calculationService.RecalculateAll(_document);
+            string statusFilter = SelectedStatusFilter;
+            string search = SearchText;
 
-            List<PositionLot> filtered = FilterLotsInternal(_document.Lots, statusFilter, search);
-            List<DividendRecord> sortedDivs = _document.Dividends.OrderByDescending(x => x.PayDate).ToList();
-            List<AccountCashFlowRecord> sortedCash = _document.CashFlows.OrderByDescending(x => x.TimeUtc).ToList();
-            List<PortfolioHistoryPoint> historyPoints = _calculationService.BuildPortfolioHistory(_document);
-            SummarySnapshot summary = ComputeSummarySnapshot(_document);
-
-            return (filtered, sortedDivs, sortedCash, historyPoints, summary);
-        }, cancellationToken);
-
-        Guid? prevId = SelectedLot?.Id;
-        FilteredLots = new ObservableCollection<PositionLot>(computed.filtered);
-        Dividends = new ObservableCollection<DividendRecord>(computed.sortedDivs);
-        CashFlows = new ObservableCollection<AccountCashFlowRecord>(computed.sortedCash);
-        PortfolioHistory = new ObservableCollection<PortfolioHistoryPoint>(computed.historyPoints);
-
-        ApplySummarySnapshot(computed.summary);
-
-        PositionLot? nextLot = FilteredLots.FirstOrDefault(l => l.Id == prevId) ?? FilteredLots.FirstOrDefault();
-        if (ReferenceEquals(SelectedLot, nextLot))
-        {
-            if (reloadSelectedChart && nextLot != null)
+            var computed = await Task.Run(() =>
             {
-                OnSelectedLotChanged(nextLot);
+                cancellationToken.ThrowIfCancellationRequested();
+                _calculationService.RecalculateAll(_document);
+
+                List<PositionLot> filtered = FilterLotsInternal(_document.Lots, statusFilter, search);
+                List<DividendRecord> sortedDivs = _document.Dividends.OrderByDescending(x => x.PayDate).ToList();
+                List<AccountCashFlowRecord> sortedCash = _document.CashFlows.OrderByDescending(x => x.TimeUtc).ToList();
+                List<PortfolioHistoryPoint> historyPoints = _calculationService.BuildPortfolioHistory(_document);
+                SummarySnapshot summary = ComputeSummarySnapshot(_document);
+
+                return (filtered, sortedDivs, sortedCash, historyPoints, summary);
+            }, cancellationToken);
+
+            Guid? prevId = SelectedLot?.Id;
+            FilteredLots = new ObservableCollection<PositionLot>(computed.filtered);
+            Dividends = new ObservableCollection<DividendRecord>(computed.sortedDivs);
+            CashFlows = new ObservableCollection<AccountCashFlowRecord>(computed.sortedCash);
+            PortfolioHistory = new ObservableCollection<PortfolioHistoryPoint>(computed.historyPoints);
+
+            ApplySummarySnapshot(computed.summary);
+
+            PositionLot? nextLot = FilteredLots.FirstOrDefault(l => l.Id == prevId) ?? FilteredLots.FirstOrDefault();
+            if (ReferenceEquals(SelectedLot, nextLot))
+            {
+                if (reloadSelectedChart && nextLot != null)
+                {
+                    OnSelectedLotChanged(nextLot);
+                }
+            }
+            else
+            {
+                SelectedLot = nextLot;
             }
         }
-        else
+        finally
         {
-            SelectedLot = nextLot;
+            Interlocked.Decrement(ref _dirtyTrackingSuppressionCount);
         }
     }
 
@@ -1358,7 +1515,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Saves manual edits on <see cref="SelectedLot"/>, fetches any cleared/missing prices and dividends, recalculates the portfolio, and persists to JSON.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanModifySelectedLot))]
     private async Task SaveSelectedLotOverridesAsync()
     {
         if (SelectedLot == null)
@@ -1424,7 +1581,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Adds a new manual position lot with blank prices (ready for automatic online price and dividend fetch on save).</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task AddNewPositionAsync()
     {
         await RunWithStatusTimerAsync(
@@ -1458,7 +1615,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Deletes <see cref="SelectedLot"/> from the portfolio and recalculates metrics.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanModifySelectedLot))]
     private async Task DeleteSelectedPositionAsync()
     {
         if (SelectedLot == null)
@@ -1480,7 +1637,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Applies edited country withholding tax rules and recalculates dividend taxes.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task SaveTaxRulesAsync()
     {
         await RunWithStatusTimerAsync(
@@ -1495,7 +1652,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Adds a new editable dynamic ticker mapping row in Settings.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task AddTickerMappingAsync()
     {
         await RunWithStatusTimerAsync(
@@ -1516,13 +1673,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 _document.TickerMappings.Add(newMapping);
                 TickerMappings.Insert(0, newMapping);
                 SelectedTickerMapping = newMapping;
+                AttachDocumentDirtyTracking();
                 MarkDirty();
                 return "Added new ticker mapping row. Edit its fields and click 'Save Tickers & Recalculate'";
             });
     }
 
     /// <summary>Deletes <see cref="SelectedTickerMapping"/> from the dynamic ticker mapping table.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanDeleteSelectedTickerMapping))]
     private async Task DeleteSelectedTickerMappingAsync()
     {
         if (SelectedTickerMapping == null)
@@ -1545,7 +1703,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Applies all dynamic ticker mapping edits, synchronizes lots, and recalculates the portfolio.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task SaveTickerMappingsAsync()
     {
         await RunWithStatusTimerAsync(
@@ -1567,7 +1725,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Synchronizes live open-lot prices, missing historical prices, Yahoo dividends, and online ECB FX rates, then recalculates through today.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task RefreshMarketDataAsync()
     {
         await RunWithStatusTimerAsync(
@@ -1586,7 +1744,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Reloads the bundled XTB seed report into the active document in memory.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task ResetToBundledXtbReportAsync()
     {
         await RunWithStatusTimerAsync(
@@ -1608,7 +1766,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Opens a file picker to import an XTB Excel (<c>.xls</c>/<c>.xlsx</c>) or CSV report. Prompts whether to replace or append if the document is not empty.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task ImportXtbAsync()
     {
         string? filePath = _fileDialogService.ShowOpenXtbFileDialog();
@@ -1642,7 +1800,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Opens a save dialog to export the current portfolio positions, dividends, and history to Excel (<c>.xlsx</c>) or CSV.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task ExportPortfolioAsync()
     {
         string defaultFileName = $"StockMonitor_{SelectedBaseCurrency}_{DateTime.Now:yyyyMMdd}";

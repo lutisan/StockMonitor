@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using StockMonitor.Services;
 using StockMonitor.ViewModels;
 
 namespace StockMonitor;
@@ -37,8 +38,18 @@ public partial class MainWindow : Window
             return;
         }
 
+        UnsavedChangesChoice choice = _viewModel.PromptUnsavedChanges();
+        if (choice == UnsavedChangesChoice.Discard)
+        {
+            _isClosingConfirmed = true;
+            return;
+        }
+
         e.Cancel = true;
-        _ = ConfirmAndCloseAsync();
+        if (choice == UnsavedChangesChoice.Save)
+        {
+            _ = SaveAndCloseAsync();
+        }
     }
 
     private void OnWindowClosed(object? sender, EventArgs e)
@@ -46,12 +57,12 @@ public partial class MainWindow : Window
         _viewModel.ClearEncryptionKey();
     }
 
-    private async Task ConfirmAndCloseAsync()
+    private async Task SaveAndCloseAsync()
     {
-        if (await _viewModel.ConfirmSaveIfDirtyAsync())
+        if (await _viewModel.SaveCurrentDocumentAsync())
         {
             _isClosingConfirmed = true;
-            Close();
+            _ = Dispatcher.BeginInvoke(Close);
         }
     }
 }

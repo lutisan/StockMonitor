@@ -64,20 +64,66 @@ public sealed class WpfFileDialogService : IFileDialogService
     public UnsavedChangesChoice ShowUnsavedChangesPrompt(string documentName)
     {
         LocalizationService loc = LocalizationService.Instance;
-        string title = loc.Get("Dlg_UnsavedTitle");
-        string message = string.Format(loc.Get("Dlg_UnsavedMessage"), documentName);
+        Window dialog = CreateThemedModalWindow(loc.Get("Dlg_UnsavedTitle"), width: 460);
 
-        Window? owner = GetActiveOwnerWindow();
-        MessageBoxResult result = owner != null
-            ? MessageBox.Show(owner, message, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Warning)
-            : MessageBox.Show(message, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+        UnsavedChangesChoice choice = UnsavedChangesChoice.Cancel;
 
-        return result switch
+        StackPanel root = new() { Margin = new Thickness(16) };
+        root.Children.Add(new TextBlock
         {
-            MessageBoxResult.Yes => UnsavedChangesChoice.Save,
-            MessageBoxResult.No => UnsavedChangesChoice.Discard,
-            _ => UnsavedChangesChoice.Cancel
+            Text = string.Format(loc.Get("Dlg_UnsavedMessage"), documentName),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 0, 0, 16)
+        });
+
+        StackPanel buttons = new()
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right
         };
+
+        Button saveBtn = new()
+        {
+            Content = loc.Get("Btn_Save"),
+            Padding = new Thickness(14, 6, 14, 6),
+            Margin = new Thickness(0, 0, 8, 0),
+            IsDefault = true
+        };
+        saveBtn.Click += (_, _) =>
+        {
+            choice = UnsavedChangesChoice.Save;
+            dialog.DialogResult = true;
+            dialog.Close();
+        };
+
+        Button discardBtn = new()
+        {
+            Content = loc.Get("Btn_DontSave"),
+            Padding = new Thickness(14, 6, 14, 6),
+            Margin = new Thickness(0, 0, 8, 0)
+        };
+        discardBtn.Click += (_, _) =>
+        {
+            choice = UnsavedChangesChoice.Discard;
+            dialog.DialogResult = true;
+            dialog.Close();
+        };
+
+        Button cancelBtn = new()
+        {
+            Content = loc.Get("Btn_Cancel"),
+            Padding = new Thickness(14, 6, 14, 6),
+            IsCancel = true
+        };
+
+        buttons.Children.Add(saveBtn);
+        buttons.Children.Add(discardBtn);
+        buttons.Children.Add(cancelBtn);
+        root.Children.Add(buttons);
+
+        dialog.Content = root;
+        dialog.ShowDialog();
+        return choice;
     }
 
     /// <inheritdoc />

@@ -327,6 +327,8 @@
   <data name="Btn_OpenLogInExplorer" xml:space="preserve"><value>Open log file in File Explorer</value></data>
   <data name="Btn_Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Btn_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Btn_DontSave" xml:space="preserve"><value>Close without saving</value></data>
   <data name="Btn_RemovePassword" xml:space="preserve"><value>Remove Password</value></data>
   <data name="Menu_File" xml:space="preserve"><value>_File</value></data>
   <data name="Menu_New" xml:space="preserve"><value>_New</value></data>

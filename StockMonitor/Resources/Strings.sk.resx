@@ -327,6 +327,8 @@
   <data name="Btn_OpenLogInExplorer" xml:space="preserve"><value>Otvoriť súbor denníka v Prieskumníkovi</value></data>
   <data name="Btn_Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Btn_Cancel" xml:space="preserve"><value>Zrušiť</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Uložiť</value></data>
+  <data name="Btn_DontSave" xml:space="preserve"><value>Zavrieť bez uloženia</value></data>
   <data name="Btn_RemovePassword" xml:space="preserve"><value>Odstrániť heslo</value></data>
   <data name="Menu_File" xml:space="preserve"><value>_Súbor</value></data>
   <data name="Menu_New" xml:space="preserve"><value>_Nový</value></data>
