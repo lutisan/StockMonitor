@@ -8,7 +8,7 @@ public sealed class PortfolioDocument
     /// <summary>
     /// Gets or sets the broker account number.
     /// </summary>
-    public string AccountNumber { get; set; } = "1576650";
+    public string AccountNumber { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the UTC timestamp when the imported broker report was generated.

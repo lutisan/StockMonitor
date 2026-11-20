@@ -251,4 +251,62 @@ public sealed class PortfolioCalculationServiceTests
         Assert.Equal(1200m, history[^1].HoldingsMarketValueBase);
         Assert.Equal(200m, history[^1].TotalProfitBase);
     }
+
+    /// <summary>
+    /// Verifies that updating a country's <see cref="CountryTaxRule.AppliedRatePercent"/> recalculates
+    /// withholding tax and net dividend amounts for broker-imported dividends as well.
+    /// </summary>
+    [Fact]
+    public async Task RecalculateAll_UpdatesBrokerDividendTaxes_WhenCountryTaxRuleChanges()
+    {
+        using TempTestDirectory tempDir = new();
+        FrankfurterFxRateProvider fx = await CreateSeededFxProviderAsync(tempDir);
+        PortfolioCalculationService calc = new(fx);
+
+        PositionLot lot = new()
+        {
+            ExternalPositionId = "XTB-1",
+            CompanyName = "Apple Inc.",
+            Ticker = "AAPL.US",
+            CountryCode = "US",
+            StockCurrency = "USD",
+            Quantity = 10m,
+            OpenDate = new DateTime(2025, 1, 15),
+            OpenPrice = 100m,
+            CurrentMarketPrice = 120m,
+            Source = DataSource.XtbImport
+        };
+
+        DividendRecord brokerDiv = new()
+        {
+            PositionLotId = lot.Id,
+            Ticker = "AAPL.US",
+            PayDate = new DateTime(2025, 6, 15),
+            GrossAmountEur = 100m,
+            WithholdingTaxEur = 15m,
+            NetAmountEur = 85m,
+            TaxRatePercent = 15m,
+            IsFromBrokerReport = true
+        };
+
+        List<CountryTaxRule> taxRules = TickerMappingHelper.CreateDefaultTaxRules();
+        taxRules.Single(r => r.CountryCode == "US").AppliedRatePercent = 30m;
+
+        PortfolioDocument doc = new()
+        {
+            Settings = new AppSettings { BaseCurrency = "EUR" },
+            TaxRules = taxRules,
+            Lots = [lot],
+            Dividends = [brokerDiv]
+        };
+
+        calc.RecalculateAll(doc);
+
+        Assert.Equal(30m, brokerDiv.TaxRatePercent);
+        Assert.Equal(30m, brokerDiv.WithholdingTaxEur);
+        Assert.Equal(70m, brokerDiv.NetAmountEur);
+        Assert.Equal(30m, brokerDiv.WithholdingTaxBase);
+        Assert.Equal(70m, brokerDiv.NetAmountBase);
+        Assert.Equal(70m, lot.NetDividendsBase);
+    }
 }

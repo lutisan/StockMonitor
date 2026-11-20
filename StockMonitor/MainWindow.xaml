@@ -47,6 +47,10 @@
                                                 InputGestureText="Ctrl+O"
                                                 Command="{Binding OpenFileCommand}"
                                                 AutomationProperties.AutomationId="MenuItemOpen" />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_Demo], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_Menu_Demo], Source={x:Static services:LocalizationService.Instance}}"
+                                                Command="{Binding LoadDemoPortfolioCommand}"
+                                                AutomationProperties.AutomationId="MenuItemDemo" />
                         <syncfusion:MenuItemAdv Header="{Binding [Menu_Save], Source={x:Static services:LocalizationService.Instance}}"
                                                 ToolTip="{Binding [Tip_Menu_Save], Source={x:Static services:LocalizationService.Instance}}"
                                                 InputGestureText="Ctrl+S"

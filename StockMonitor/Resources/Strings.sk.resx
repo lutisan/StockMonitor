@@ -367,4 +367,13 @@
   <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>Aktuálny dokument už obsahuje dáta. Ako chcete importovať súbor „{0}“?</value></data>
   <data name="Btn_ImportReplace" xml:space="preserve"><value>Nahradiť aktuálny obsah</value></data>
   <data name="Btn_ImportAppend" xml:space="preserve"><value>Pridať k aktuálnemu obsahu</value></data>
+  <data name="Menu_Demo" xml:space="preserve"><value>_Demo</value></data>
+  <data name="Tip_Menu_Demo" xml:space="preserve"><value>Načítať anonymizované demo portfólio (US a EU akcie, dlhopisy a ETF fondy) ako nový neuložený dokument</value></data>
+  <data name="Btn_AddCountry" xml:space="preserve"><value>Pridať</value></data>
+  <data name="Tip_BtnAddCountry" xml:space="preserve"><value>Pridať nové pravidlo zrážkovej dane pre krajinu</value></data>
+  <data name="Btn_DeleteCountry" xml:space="preserve"><value>Odstrániť</value></data>
+  <data name="Tip_BtnDeleteCountry" xml:space="preserve"><value>Odstrániť vybrané pravidlo zrážkovej dane pre krajinu</value></data>
+  <data name="Btn_ResetTaxRules" xml:space="preserve"><value>Reset</value></data>
+  <data name="Tip_BtnResetTaxRules" xml:space="preserve"><value>Obnoviť iba preddefinovaný zoznam zrážkových daní podľa krajín bez zmeny portfólia</value></data>
+  <data name="Lbl_TaxRulesMemo" xml:space="preserve"><value>Poznámka k overeniu daní (nenájdené na Yahoo / ECB alebo neznáma daň):</value></data>
 </root>

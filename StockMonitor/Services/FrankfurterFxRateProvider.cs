@@ -52,6 +52,40 @@ public sealed class FrankfurterFxRateProvider
     public static IReadOnlyList<string> SupportedCurrencies { get; } = ["EUR", "USD", "CZK", "CHF", "GBP"];
 
     /// <summary>
+    /// Returns <see langword="true"/> if the currency is EUR or has an ECB exchange rate available in the fetched/cached ECB table.
+    /// Returns <see langword="true"/> before any ECB rates have been fetched so offline/initial states do not produce false warnings.
+    /// </summary>
+    public bool HasEcbRateForCurrency(string? currency)
+    {
+        if (string.IsNullOrWhiteSpace(currency))
+        {
+            return false;
+        }
+
+        string code = currency.Trim().ToUpperInvariant();
+        if (code == "EUR")
+        {
+            return true;
+        }
+
+        lock (_syncLock)
+        {
+            if (_eurRatesByDate.Count == 0)
+            {
+                return true;
+            }
+
+            if (_eurRatesByDate.TryGetValue("LATEST", out Dictionary<string, decimal>? latest) &&
+                latest.ContainsKey(code))
+            {
+                return true;
+            }
+
+            return _eurRatesByDate.Values.Any(dict => dict.ContainsKey(code));
+        }
+    }
+
+    /// <summary>
     /// Ensures online ECB exchange rates are fetched for today (current day) and for every transaction date
     /// (lot open dates, lot close dates, dividend payment dates, and cash operation dates) in the document.
     /// </summary>

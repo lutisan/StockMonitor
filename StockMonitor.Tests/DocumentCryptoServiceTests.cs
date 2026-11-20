@@ -12,14 +12,14 @@ public sealed class DocumentCryptoServiceTests
     [Fact]
     public void EncryptAndDecrypt_RoundTripsUnicodeJsonAndDetectsEnvelope()
     {
-        const string plaintext = """{"AccountNumber":"1576650","Note":"Portfólio — Žluťoučký kůň 🚀"}""";
+        const string plaintext = """{"AccountNumber":"DEMO-0001","Note":"Portfólio — Žluťoučký kůň 🚀"}""";
         const string password = "Strong!Password#2026";
 
         string encrypted = DocumentCryptoService.Encrypt(plaintext, password);
 
         Assert.True(DocumentCryptoService.IsEncryptedJson(encrypted));
         Assert.False(DocumentCryptoService.IsEncryptedJson(plaintext));
-        Assert.DoesNotContain("1576650", encrypted, StringComparison.Ordinal);
+        Assert.DoesNotContain("DEMO-0001", encrypted, StringComparison.Ordinal);
         Assert.DoesNotContain(password, encrypted, StringComparison.Ordinal);
 
         string decrypted = DocumentCryptoService.Decrypt(encrypted, password);

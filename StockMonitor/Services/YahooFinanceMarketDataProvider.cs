@@ -7,6 +7,23 @@ using StockMonitor.Models;
 namespace StockMonitor.Services;
 
 /// <summary>
+/// Metadata resolved from Yahoo Finance for a portfolio ticker (exchange, currency, instrument type, and inferred country).
+/// </summary>
+/// <param name="YahooSymbol">Queried Yahoo Finance symbol.</param>
+/// <param name="FoundOnYahoo">Whether Yahoo Finance returned valid metadata for the symbol.</param>
+/// <param name="ExchangeName">Yahoo exchange code (e.g. <c>NMS</c>, <c>GER</c>, <c>PAR</c>, <c>PRA</c>).</param>
+/// <param name="Currency">Trading currency reported by Yahoo Finance.</param>
+/// <param name="InstrumentType">Instrument type reported by Yahoo Finance (e.g. <c>EQUITY</c>, <c>ETF</c>).</param>
+/// <param name="InferredCountryCode">Two-letter ISO country code inferred from Yahoo metadata, or <see langword="null"/> if unknown.</param>
+public sealed record YahooTickerMetadata(
+    string YahooSymbol,
+    bool FoundOnYahoo,
+    string? ExchangeName,
+    string? Currency,
+    string? InstrumentType,
+    string? InferredCountryCode);
+
+/// <summary>
 /// Fetches historical OHLCV series, live quotes, and dividend events from the Yahoo Finance v8 Chart API.
 /// Uses in-memory and disk caching plus background thread parsing to keep UI row selection fast and non-blocking.
 /// </summary>
@@ -16,6 +33,8 @@ public sealed class YahooFinanceMarketDataProvider
     private readonly HttpClient _http;
     private readonly string _cacheDir;
     private readonly ConcurrentDictionary<string, List<StockPricePoint>> _memorySeriesCache =
+        new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, YahooTickerMetadata> _metadataCache =
         new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -82,6 +101,163 @@ public sealed class YahooFinanceMarketDataProvider
             _memorySeriesCache[cacheKey] = result;
             return result;
         }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Analyzes all active portfolio tickers against Yahoo Finance chart metadata to verify exchange, currency,
+    /// and country of listing, updating non-locked <see cref="TickerMapping"/> rows and returning lookup status per ticker.
+    /// </summary>
+    public async Task<Dictionary<string, YahooTickerMetadata>> AnalyzePortfolioTickersAsync(
+        PortfolioDocument doc,
+        Action<string>? progressCallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        Dictionary<string, YahooTickerMetadata> results = new(StringComparer.OrdinalIgnoreCase);
+        List<PositionLot> distinctLots = doc.Lots
+            .Where(l => !string.IsNullOrWhiteSpace(l.Ticker))
+            .GroupBy(l => l.Ticker.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+
+        int index = 0;
+        foreach (PositionLot lot in distinctLots)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            index++;
+
+            string ticker = lot.Ticker.Trim();
+            string yahooSym = ResolveYahooSymbol(lot);
+            progressCallback?.Invoke($"Analyzing ticker on Yahoo Finance ({index}/{distinctLots.Count}): {ticker} ({yahooSym})...");
+
+            YahooTickerMetadata meta = await FetchTickerMetadataAsync(yahooSym, lot.Category, cancellationToken).ConfigureAwait(false);
+            results[ticker] = meta;
+
+            if (meta.FoundOnYahoo)
+            {
+                TickerMapping? mapping = doc.TickerMappings.FirstOrDefault(m =>
+                    m.Ticker.Equals(ticker, StringComparison.OrdinalIgnoreCase));
+                if (mapping != null && !mapping.IsManualOverride)
+                {
+                    if (!string.IsNullOrWhiteSpace(meta.InferredCountryCode))
+                    {
+                        mapping.CountryCode = meta.InferredCountryCode;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(meta.Currency) &&
+                        !meta.Currency.Equals("GBp", StringComparison.Ordinal))
+                    {
+                        mapping.Currency = meta.Currency.Trim().ToUpperInvariant();
+                    }
+                    else if (string.Equals(meta.Currency, "GBp", StringComparison.Ordinal))
+                    {
+                        mapping.Currency = "GBP";
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
+    private async Task<YahooTickerMetadata> FetchTickerMetadataAsync(
+        string yahooSymbol,
+        string? categoryHint,
+        CancellationToken cancellationToken)
+    {
+        if (_metadataCache.TryGetValue(yahooSymbol, out YahooTickerMetadata? cached))
+        {
+            return cached;
+        }
+
+        try
+        {
+            string url = $"https://query1.finance.yahoo.com/v8/finance/chart/{Uri.EscapeDataString(yahooSymbol)}?range=5d&interval=1d";
+            using HttpResponseMessage response = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                YahooTickerMetadata notFound = new(yahooSymbol, false, null, null, null, null);
+                _metadataCache[yahooSymbol] = notFound;
+                return notFound;
+            }
+
+            string json = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            using JsonDocument doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("chart", out JsonElement chart) ||
+                !chart.TryGetProperty("result", out JsonElement resultArr) ||
+                resultArr.ValueKind != JsonValueKind.Array ||
+                resultArr.GetArrayLength() == 0)
+            {
+                YahooTickerMetadata notFound = new(yahooSymbol, false, null, null, null, null);
+                _metadataCache[yahooSymbol] = notFound;
+                return notFound;
+            }
+
+            JsonElement meta = resultArr[0].GetProperty("meta");
+            string? exchange = meta.TryGetProperty("exchangeName", out JsonElement exProp) && exProp.ValueKind == JsonValueKind.String
+                ? exProp.GetString()
+                : null;
+            string? currency = meta.TryGetProperty("currency", out JsonElement ccyProp) && ccyProp.ValueKind == JsonValueKind.String
+                ? ccyProp.GetString()
+                : null;
+            string? instrumentType = meta.TryGetProperty("instrumentType", out JsonElement typeProp) && typeProp.ValueKind == JsonValueKind.String
+                ? typeProp.GetString()
+                : null;
+
+            bool isEtf = string.Equals(instrumentType, "ETF", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(categoryHint, "ETF", StringComparison.OrdinalIgnoreCase);
+
+            string? country = MapYahooExchangeToCountry(exchange, isEtf);
+            YahooTickerMetadata resolved = new(yahooSymbol, true, exchange, currency, instrumentType, country);
+            _metadataCache[yahooSymbol] = resolved;
+            return resolved;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            YahooTickerMetadata notFound = new(yahooSymbol, false, null, null, null, null);
+            return notFound;
+        }
+    }
+
+    private static string? MapYahooExchangeToCountry(string? exchange, bool isEtf)
+    {
+        if (string.IsNullOrWhiteSpace(exchange))
+        {
+            return null;
+        }
+
+        return exchange.Trim().ToUpperInvariant() switch
+        {
+            "NMS" or "NYQ" or "ASE" or "PCX" or "NGM" or "NCM" or "BTS" or "NAS" => "US",
+            "GER" or "FRA" or "XETRA" or "STU" or "MUN" or "DUS" or "HAM" or "BER" => isEtf ? "IE" : "DE",
+            "PAR" => isEtf ? "IE" : "FR",
+            "AMS" => isEtf ? "IE" : "NL",
+            "LSE" or "IOB" => isEtf ? "IE" : "GB",
+            "SWX" or "EBS" => "CH",
+            "VIE" => "AT",
+            "PRA" => "CZ",
+            "WAR" => "PL",
+            "MIL" => isEtf ? "IE" : "IT",
+            "MCE" => "ES",
+            "BRU" => "BE",
+            "STO" => "SE",
+            "CPH" => "DK",
+            "HEL" => "FI",
+            "OSL" => "NO",
+            "TOR" or "VAN" or "CNQ" => "CA",
+            "MEX" => "MX",
+            "SAO" => "BR",
+            "TYO" or "JPX" => "JP",
+            "ASX" => "AU",
+            "HKG" => "HK",
+            "SES" => "SG",
+            "KSC" or "KOE" => "KR",
+            "TAI" or "TWO" => "TW",
+            _ => null
+        };
     }
 
     /// <summary>

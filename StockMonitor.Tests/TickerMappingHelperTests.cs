@@ -135,4 +135,39 @@ public sealed class TickerMappingHelperTests
         Assert.Contains("MSFT.US", usRule.SampleTickers);
         Assert.Contains("CEZ.CZ", czRule.SampleTickers);
     }
+
+    /// <summary>
+    /// Verifies that <see cref="TickerMappingHelper.RefreshTaxRuleSampleTickers"/> resets stale tickers on unused countries,
+    /// auto-adds unknown countries with 0% tax and <see cref="CountryTaxRule.IsTaxUnknown"/> = true,
+    /// and clears <see cref="CountryTaxRule.IsTaxUnknown"/> when the user enters a positive tax rate.
+    /// </summary>
+    [Fact]
+    public void RefreshTaxRuleSampleTickers_AutoAddsUnknownCountryInRedAndClearsStaleTickers()
+    {
+        PortfolioDocument doc = new()
+        {
+            TaxRules = TickerMappingHelper.CreateDefaultTaxRules(),
+            Lots =
+            [
+                new PositionLot { Ticker = "TENCENT.HK", CompanyName = "Tencent", CountryCode = "HK", StockCurrency = "HKD" }
+            ]
+        };
+        doc.TaxRules.Single(r => r.CountryCode == "US").SampleTickers = "OLD.US";
+
+        TickerMappingHelper.RefreshTaxRuleSampleTickers(doc);
+
+        // Stale US ticker cleared
+        Assert.Equal("-", doc.TaxRules.Single(r => r.CountryCode == "US").SampleTickers);
+
+        // Unknown country HK auto-added with 0% and IsTaxUnknown = true
+        CountryTaxRule hk = doc.TaxRules.Single(r => r.CountryCode == "HK");
+        Assert.Equal("TENCENT.HK", hk.SampleTickers);
+        Assert.Equal(0m, hk.StandardRatePercent);
+        Assert.Equal(0m, hk.AppliedRatePercent);
+        Assert.True(hk.IsTaxUnknown);
+
+        // Editing tax rate clears IsTaxUnknown
+        hk.AppliedRatePercent = 10m;
+        Assert.False(hk.IsTaxUnknown);
+    }
 }

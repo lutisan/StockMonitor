@@ -46,6 +46,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     };
 
     private readonly List<INotifyPropertyChanged> _trackedEntities = [];
+    private Dictionary<string, YahooTickerMetadata> _lastYahooMetadata = new(StringComparer.OrdinalIgnoreCase);
     private int _dirtyTrackingSuppressionCount;
 
     private PortfolioDocument _document = new();
@@ -70,6 +71,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private TickerMapping? _selectedTickerMapping;
 
+    /// <summary>Gets or sets the currently selected country tax rule row in Settings.</summary>
+    [ObservableProperty]
+    private CountryTaxRule? _selectedTaxRule;
+
     /// <summary>Gets or sets the filtered collection of position lots bound to the Positions grid.</summary>
     [ObservableProperty]
     private ObservableCollection<PositionLot> _filteredLots = [];
@@ -89,6 +94,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Gets or sets the editable country withholding tax rules bound to the Settings grid.</summary>
     [ObservableProperty]
     private ObservableCollection<CountryTaxRule> _taxRules = [];
+
+    /// <summary>Gets or sets the read-only memo text listing active portfolio tickers requiring manual country/tax verification.</summary>
+    [ObservableProperty]
+    private string _taxRulesMemoText = string.Empty;
+
+    /// <summary>Gets or sets a value indicating whether <see cref="TaxRulesMemoText"/> contains any warnings.</summary>
+    [ObservableProperty]
+    private bool _hasTaxRulesMemo;
 
     /// <summary>Gets or sets the broker account cash-flow records (deposits, withdrawals, interest).</summary>
     [ObservableProperty]
@@ -164,7 +177,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>Gets or sets the broker account number displayed in the top header bar.</summary>
     [ObservableProperty]
-    private string _accountNumber = "1576650";
+    private string _accountNumber = string.Empty;
 
     /// <summary>Gets or sets the UTC timestamp when the last imported XTB report was generated.</summary>
     [ObservableProperty]
@@ -642,6 +655,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private bool CanRunWhenNotBusy() => !IsBusy;
     private bool CanModifySelectedLot() => !IsBusy && SelectedLot != null;
     private bool CanDeleteSelectedTickerMapping() => !IsBusy && SelectedTickerMapping != null;
+    private bool CanDeleteSelectedTaxRule() => !IsBusy && SelectedTaxRule != null;
 
     partial void OnIsBusyChanged(bool value)
     {
@@ -653,10 +667,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         DeleteSelectedTickerMappingCommand.NotifyCanExecuteChanged();
     }
 
+    partial void OnSelectedTaxRuleChanged(CountryTaxRule? value)
+    {
+        DeleteSelectedTaxRuleCommand.NotifyCanExecuteChanged();
+    }
+
     private void NotifyBusyDependentCommandsCanExecuteChanged()
     {
         NewFileCommand.NotifyCanExecuteChanged();
         OpenFileCommand.NotifyCanExecuteChanged();
+        LoadDemoPortfolioCommand.NotifyCanExecuteChanged();
         SaveFileCommand.NotifyCanExecuteChanged();
         SaveFileAsCommand.NotifyCanExecuteChanged();
         ManagePasswordCommand.NotifyCanExecuteChanged();
@@ -666,11 +686,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         AddNewPositionCommand.NotifyCanExecuteChanged();
         DeleteSelectedPositionCommand.NotifyCanExecuteChanged();
         SaveSelectedLotOverridesCommand.NotifyCanExecuteChanged();
+        AddTaxRuleCommand.NotifyCanExecuteChanged();
+        DeleteSelectedTaxRuleCommand.NotifyCanExecuteChanged();
+        ResetTaxRulesCommand.NotifyCanExecuteChanged();
         SaveTaxRulesCommand.NotifyCanExecuteChanged();
         AddTickerMappingCommand.NotifyCanExecuteChanged();
         DeleteSelectedTickerMappingCommand.NotifyCanExecuteChanged();
         SaveTickerMappingsCommand.NotifyCanExecuteChanged();
-        ResetToBundledXtbReportCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>Creates a new empty portfolio document (prompts to save unsaved changes first).</summary>
@@ -1227,12 +1249,63 @@ public partial class MainViewModel : ObservableObject, IDisposable
             TaxRules = new ObservableCollection<CountryTaxRule>(_document.TaxRules);
 
             await RecalculateAndRefreshAsync(reloadSelectedChart, cancellationToken);
+            RebuildTaxRulesMemo();
             AttachDocumentDirtyTracking();
         }
         finally
         {
             Interlocked.Decrement(ref _dirtyTrackingSuppressionCount);
         }
+    }
+
+    private void RebuildTaxRulesMemo()
+    {
+        List<string> lines = [];
+
+        HashSet<string> unknownTaxCountries = _document.TaxRules
+            .Where(r => r.IsTaxUnknown && !string.IsNullOrWhiteSpace(r.CountryCode))
+            .Select(r => r.CountryCode.Trim().ToUpperInvariant())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        Dictionary<string, TickerMapping> mappingsByTicker = _document.TickerMappings
+            .Where(m => !string.IsNullOrWhiteSpace(m.Ticker))
+            .GroupBy(m => m.Ticker.Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+        List<PositionLot> activeTickers = _document.Lots
+            .Where(l => !string.IsNullOrWhiteSpace(l.Ticker))
+            .GroupBy(l => l.Ticker.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .OrderBy(l => l.Ticker, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        foreach (PositionLot lot in activeTickers)
+        {
+            string ticker = lot.Ticker.Trim();
+            string country = string.IsNullOrWhiteSpace(lot.CountryCode) ? "?" : lot.CountryCode.Trim().ToUpperInvariant();
+            string currency = string.IsNullOrWhiteSpace(lot.StockCurrency) ? "?" : lot.StockCurrency.Trim().ToUpperInvariant();
+            bool isManualLocked = mappingsByTicker.TryGetValue(ticker, out TickerMapping? map) && map.IsManualOverride;
+
+            if (unknownTaxCountries.Contains(country))
+            {
+                lines.Add($"• {ticker} ({country}): Unknown dividend withholding tax rate (defaulted to 0%) — enter tax rate manually.");
+            }
+
+            if (!isManualLocked &&
+                _lastYahooMetadata.TryGetValue(ticker, out YahooTickerMetadata? meta) &&
+                !meta.FoundOnYahoo)
+            {
+                lines.Add($"• {ticker} ({meta.YahooSymbol}): Not found on Yahoo Finance — country ({country}) inferred from suffix; verify country & tax manually.");
+            }
+
+            if (!_fxRateProvider.HasEcbRateForCurrency(currency))
+            {
+                lines.Add($"• {ticker} ({currency}): Currency not available in ECB FX feed — verify FX conversion & tax manually.");
+            }
+        }
+
+        HasTaxRulesMemo = lines.Count > 0;
+        TaxRulesMemoText = string.Join(Environment.NewLine, lines);
     }
 
     private async Task RecalculateAndRefreshAsync(bool reloadSelectedChart = true, CancellationToken cancellationToken = default)
@@ -1636,18 +1709,95 @@ public partial class MainViewModel : ObservableObject, IDisposable
             });
     }
 
-    /// <summary>Applies edited country withholding tax rules and recalculates dividend taxes.</summary>
+    /// <summary>Adds a new editable country withholding tax rule row in Settings.</summary>
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
+    private async Task AddTaxRuleAsync()
+    {
+        await RunWithStatusTimerAsync(
+            "Adding new country withholding tax rule...",
+            (_, _) =>
+            {
+                CountryTaxRule newRule = new()
+                {
+                    CountryCode = "XX",
+                    CountryName = "New Country",
+                    SampleTickers = "-",
+                    StandardRatePercent = 15m,
+                    AppliedRatePercent = 15m,
+                    Notes = string.Empty
+                };
+
+                _document.TaxRules.Add(newRule);
+                TaxRules.Insert(0, newRule);
+                SelectedTaxRule = newRule;
+                AttachDocumentDirtyTracking();
+                MarkDirty();
+                return Task.FromResult("Added new country tax rule row. Edit its fields and click 'Save Tax Rules & Recalculate'");
+            });
+    }
+
+    /// <summary>Deletes <see cref="SelectedTaxRule"/> from the country withholding tax rules table and recalculates dividend taxes.</summary>
+    [RelayCommand(CanExecute = nameof(CanDeleteSelectedTaxRule))]
+    private async Task DeleteSelectedTaxRuleAsync()
+    {
+        if (SelectedTaxRule == null)
+        {
+            return;
+        }
+
+        CountryTaxRule toDelete = SelectedTaxRule;
+        string label = $"{toDelete.CountryCode} ({toDelete.CountryName})";
+        await RunWithStatusTimerAsync(
+            $"Deleting country tax rule '{label}' and recalculating portfolio...",
+            async (_, ct) =>
+            {
+                _document.TaxRules.Remove(toDelete);
+                TaxRules.Remove(toDelete);
+                SelectedTaxRule = TaxRules.FirstOrDefault();
+                await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
+                RebuildTaxRulesMemo();
+                AttachDocumentDirtyTracking();
+                MarkDirty();
+                return $"Deleted country tax rule '{label}' and recalculated portfolio";
+            });
+    }
+
+    /// <summary>Resets only the country withholding tax rules list back to predefined defaults without altering portfolio holdings.</summary>
+    [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
+    private async Task ResetTaxRulesAsync()
+    {
+        await RunWithStatusTimerAsync(
+            "Resetting country withholding tax rules to predefined defaults and recalculating dividend taxes...",
+            async (_, ct) =>
+            {
+                _document.TaxRules = TickerMappingHelper.CreateDefaultTaxRules();
+                TickerMappingHelper.RefreshTaxRuleSampleTickers(_document);
+                TaxRules = new ObservableCollection<CountryTaxRule>(_document.TaxRules);
+                SelectedTaxRule = TaxRules.FirstOrDefault();
+                await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
+                RebuildTaxRulesMemo();
+                AttachDocumentDirtyTracking();
+                MarkDirty();
+                return $"Reset {_document.TaxRules.Count} predefined country withholding tax rules and recalculated dividend taxes";
+            });
+    }
+
+    /// <summary>Applies edited country withholding tax rules and recalculates all dividend taxes, lots, KPIs, and charts.</summary>
     [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
     private async Task SaveTaxRulesAsync()
     {
         await RunWithStatusTimerAsync(
-            "Updating country withholding tax rules and recalculating portfolio...",
+            "Updating country withholding tax rules and recalculating all dividend taxes and charts...",
             async (_, ct) =>
             {
                 _document.TaxRules = TaxRules.ToList();
+                TickerMappingHelper.RefreshTaxRuleSampleTickers(_document);
+                TaxRules = new ObservableCollection<CountryTaxRule>(_document.TaxRules);
                 await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
+                RebuildTaxRulesMemo();
+                AttachDocumentDirtyTracking();
                 MarkDirty();
-                return "Updated country withholding tax rules and recalculated portfolio";
+                return "Updated country withholding tax rules and recalculated all dividend taxes, KPIs, and charts";
             });
     }
 
@@ -1733,35 +1883,49 @@ public partial class MainViewModel : ObservableObject, IDisposable
             async (progress, ct) =>
             {
                 (int updatedPrices, int fetchedDividends) = await _marketDataProvider.RefreshAllMarketDataAsync(_document, progress, ct);
+                _lastYahooMetadata = await _marketDataProvider.AnalyzePortfolioTickersAsync(_document, progress, ct);
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 _document.Settings.LastMarketSyncUtc = DateTime.UtcNow;
 
                 progress("Recalculating portfolio, dividends, and history through today...");
-                await RecalculateAndRefreshAsync(reloadSelectedChart: true, ct);
+                await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
                 MarkDirty();
                 return $"Market sync finished: updated {updatedPrices} price(s), {fetchedDividends} Yahoo dividend(s), and online ECB exchange rates";
             });
     }
 
-    /// <summary>Reloads the bundled XTB seed report into the active document in memory.</summary>
+    /// <summary>Loads the anonymized demo portfolio as a fresh unsaved document (prompts to save unsaved changes first).</summary>
     [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
-    private async Task ResetToBundledXtbReportAsync()
+    private async Task LoadDemoPortfolioAsync()
     {
+        if (!await ConfirmSaveIfDirtyAsync())
+        {
+            return;
+        }
+
         await RunWithStatusTimerAsync(
-            "Reloading bundled XTB seed report and rebuilding dynamic ticker mappings...",
+            "Loading anonymized demo portfolio...",
             async (progress, ct) =>
             {
-                PortfolioDocument seeded = await _storageService.CreateSeededDocumentAsync(ct, saveToDisk: false);
-                seeded.Settings.BaseCurrency = SelectedBaseCurrency;
-                seeded.Settings.Language = SelectedLanguage;
-                seeded.Settings.ThemeName = SelectedTheme;
-                _document = seeded;
+                PortfolioDocument demoDoc = await _storageService.CreateSeededDocumentAsync(ct, saveToDisk: false);
+                demoDoc.Settings.BaseCurrency = SelectedBaseCurrency;
+                demoDoc.Settings.Language = SelectedLanguage;
+                demoDoc.Settings.ThemeName = SelectedTheme;
+
+                _document = demoDoc;
+                _currentFilePath = null;
+                _storageService.CurrentFilePath = null;
+                SetEncryptionKey(null);
+                IsDirty = false;
+                ResetAllGridFilters();
+                UpdateDocumentTitleAndPath();
 
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
-                progress("Recalculating seeded portfolio...");
+                progress("Recalculating demo portfolio...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
-                MarkDirty();
-                return $"Reloaded bundled XTB report ({_document.Lots.Count} lots, {_document.Dividends.Count} dividends)";
+                IsDirty = false;
+                UpdateDocumentTitleAndPath();
+                return $"Loaded demo portfolio ({_document.Lots.Count} lots, {_document.Dividends.Count} dividends)";
             });
     }
 

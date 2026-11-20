@@ -42,4 +42,27 @@ public partial class CountryTaxRule : ObservableObject
     /// </summary>
     [ObservableProperty]
     private string _notes = string.Empty;
+
+    /// <summary>
+    /// Backing field for <see cref="IsTaxUnknown"/> indicating that this country was auto-added from the active portfolio
+    /// with an unknown withholding tax rate (defaulted to 0%) and should be highlighted in red until reviewed.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isTaxUnknown;
+
+    partial void OnStandardRatePercentChanged(decimal value)
+    {
+        if (value > 0m)
+        {
+            IsTaxUnknown = false;
+        }
+    }
+
+    partial void OnAppliedRatePercentChanged(decimal value)
+    {
+        if (value > 0m)
+        {
+            IsTaxUnknown = false;
+        }
+    }
 }

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             xmlns:sfgrid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
              xmlns:behaviors="clr-namespace:StockMonitor.Behaviors"
              xmlns:services="clr-namespace:StockMonitor.Services"
              mc:Ignorable="d"
@@ -93,6 +94,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <DockPanel Grid.Row="0" Margin="0,0,0,6">
@@ -102,9 +104,19 @@
                                VerticalAlignment="Center"
                                DockPanel.Dock="Left" />
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Button Content="{Binding [Btn_ResetSeed], Source={x:Static services:LocalizationService.Instance}}"
-                                ToolTip="{Binding [Tip_BtnResetSeed], Source={x:Static services:LocalizationService.Instance}}"
-                                Command="{Binding ResetToBundledXtbReportCommand}"
+                        <Button Content="{Binding [Btn_AddCountry], Source={x:Static services:LocalizationService.Instance}}"
+                                ToolTip="{Binding [Tip_BtnAddCountry], Source={x:Static services:LocalizationService.Instance}}"
+                                Command="{Binding AddTaxRuleCommand}"
+                                Padding="8,4"
+                                Margin="0,0,6,0" />
+                        <Button Content="{Binding [Btn_DeleteCountry], Source={x:Static services:LocalizationService.Instance}}"
+                                ToolTip="{Binding [Tip_BtnDeleteCountry], Source={x:Static services:LocalizationService.Instance}}"
+                                Command="{Binding DeleteSelectedTaxRuleCommand}"
+                                Padding="8,4"
+                                Margin="0,0,6,0" />
+                        <Button Content="{Binding [Btn_ResetTaxRules], Source={x:Static services:LocalizationService.Instance}}"
+                                ToolTip="{Binding [Tip_BtnResetTaxRules], Source={x:Static services:LocalizationService.Instance}}"
+                                Command="{Binding ResetTaxRulesCommand}"
                                 Padding="8,4"
                                 Margin="0,0,6,0" />
                         <Button Content="{Binding [Btn_SaveTaxRules], Source={x:Static services:LocalizationService.Instance}}"
@@ -117,22 +129,60 @@
 
                 <syncfusion:SfDataGrid Grid.Row="1"
                                        ItemsSource="{Binding TaxRules}"
+                                       SelectedItem="{Binding SelectedTaxRule, Mode=TwoWay}"
                                        behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                        ToolTip="{Binding [Tip_TaxRulesGrid], Source={x:Static services:LocalizationService.Instance}}"
                                        AutoGenerateColumns="False"
                                        AllowEditing="True"
                                        AllowSorting="True"
                                        AllowResizingColumns="True"
+                                       SelectionMode="Single"
                                        NavigationMode="Cell">
+                    <syncfusion:SfDataGrid.CellStyle>
+                        <Style TargetType="sfgrid:GridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsTaxUnknown}" Value="True">
+                                    <Setter Property="Foreground" Value="#EF4444" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </syncfusion:SfDataGrid.CellStyle>
                     <syncfusion:SfDataGrid.Columns>
                         <syncfusion:GridTextColumn MappingName="CountryCode" HeaderText="{Binding [Col_CountryCode], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CountryCode" Width="75" />
                         <syncfusion:GridTextColumn MappingName="CountryName" HeaderText="{Binding [Col_CountryName], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CountryName" Width="145" />
-                        <syncfusion:GridTextColumn MappingName="SampleTickers" HeaderText="{Binding [Col_SampleTickers], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_SampleTickers" Width="220" />
+                        <syncfusion:GridTextColumn MappingName="SampleTickers" HeaderText="{Binding [Col_SampleTickers], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_SampleTickers" AllowEditing="False" Width="220" />
                         <syncfusion:GridNumericColumn MappingName="StandardRatePercent" HeaderText="{Binding [Col_StatutoryTax], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_StatutoryTax" NumberDecimalDigits="3" Width="95" />
                         <syncfusion:GridNumericColumn MappingName="AppliedRatePercent" HeaderText="{Binding [Col_AppliedTax], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_AppliedTax" NumberDecimalDigits="3" Width="95" />
                         <syncfusion:GridTextColumn MappingName="Notes" HeaderText="{Binding [Col_TaxNotes], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TaxNotes" Width="280" />
                     </syncfusion:SfDataGrid.Columns>
                 </syncfusion:SfDataGrid>
+
+                <!-- Unresolved Tickers / Manual Tax Verification Memo -->
+                <Border Grid.Row="2"
+                        Margin="0,6,0,0"
+                        Padding="6,4"
+                        BorderThickness="1"
+                        BorderBrush="#88EF4444"
+                        Visibility="{Binding HasTaxRulesMemo, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [Lbl_TaxRulesMemo], Source={x:Static services:LocalizationService.Instance}}"
+                                   Foreground="#EF4444"
+                                   FontWeight="SemiBold"
+                                   FontSize="11"
+                                   Margin="0,0,0,3" />
+                        <TextBox Text="{Binding TaxRulesMemoText, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 MaxHeight="72"
+                                 VerticalScrollBarVisibility="Auto"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 FontSize="11"
+                                 AutomationProperties.AutomationId="TxtTaxRulesMemo" />
+                    </StackPanel>
+                </Border>
             </Grid>
         </Grid>
 

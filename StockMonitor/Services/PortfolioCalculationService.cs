@@ -66,15 +66,31 @@ public sealed class PortfolioCalculationService
                 div.IsPositionClosed = false;
             }
 
+            string divCountry = linkedLot != null && !string.IsNullOrWhiteSpace(linkedLot.CountryCode)
+                ? linkedLot.CountryCode
+                : TickerMappingHelper.Resolve(div.Ticker, div.Category, doc.TickerMappings).CountryCode;
+
+            decimal countryRuleRate = 0m;
+            bool hasCountryRule = !string.IsNullOrWhiteSpace(divCountry) &&
+                                  countryTaxLookup.TryGetValue(divCountry, out countryRuleRate);
+            decimal resolvedCountryRate = hasCountryRule ? countryRuleRate : 15m;
+
             // Compute EUR amounts dynamically for Yahoo Finance fetched dividends using PayDate ECB FX rate and Country/Lot Tax Rule
             if (!div.IsFromBrokerReport && div.DividendPerShareNative is > 0m && linkedLot != null)
             {
                 decimal grossNative = div.DividendPerShareNative.Value * linkedLot.Quantity;
                 decimal nativeToEurAtPay = _fxProvider.GetConversionRate(div.NativeCurrency, "EUR", div.PayDate);
-                decimal taxRate = linkedLot.ManualDividendTaxRate ?? countryTaxLookup.GetValueOrDefault(linkedLot.CountryCode, 15m);
+                decimal taxRate = linkedLot.ManualDividendTaxRate ?? resolvedCountryRate;
 
                 div.TaxRatePercent = taxRate;
                 div.GrossAmountEur = Math.Round(grossNative * nativeToEurAtPay, 2);
+                div.WithholdingTaxEur = Math.Round(div.GrossAmountEur * (taxRate / 100m), 2);
+                div.NetAmountEur = Math.Round(div.GrossAmountEur - div.WithholdingTaxEur, 2);
+            }
+            else if (div.GrossAmountEur > 0m && (linkedLot?.ManualDividendTaxRate.HasValue == true || hasCountryRule))
+            {
+                decimal taxRate = linkedLot?.ManualDividendTaxRate ?? resolvedCountryRate;
+                div.TaxRatePercent = taxRate;
                 div.WithholdingTaxEur = Math.Round(div.GrossAmountEur * (taxRate / 100m), 2);
                 div.NetAmountEur = Math.Round(div.GrossAmountEur - div.WithholdingTaxEur, 2);
             }

@@ -367,4 +367,13 @@
   <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>The current document already contains data. How would you like to import "{0}"?</value></data>
   <data name="Btn_ImportReplace" xml:space="preserve"><value>Replace Current Content</value></data>
   <data name="Btn_ImportAppend" xml:space="preserve"><value>Add to Current Content</value></data>
+  <data name="Menu_Demo" xml:space="preserve"><value>_Demo</value></data>
+  <data name="Tip_Menu_Demo" xml:space="preserve"><value>Load the anonymized demo portfolio (US &amp; EU stocks, bonds, and ETFs) as a fresh unsaved document</value></data>
+  <data name="Btn_AddCountry" xml:space="preserve"><value>Add</value></data>
+  <data name="Tip_BtnAddCountry" xml:space="preserve"><value>Add a new country dividend withholding tax rule</value></data>
+  <data name="Btn_DeleteCountry" xml:space="preserve"><value>Delete</value></data>
+  <data name="Tip_BtnDeleteCountry" xml:space="preserve"><value>Delete the selected country withholding tax rule</value></data>
+  <data name="Btn_ResetTaxRules" xml:space="preserve"><value>Reset</value></data>
+  <data name="Tip_BtnResetTaxRules" xml:space="preserve"><value>Reset only the country withholding tax rules list to predefined defaults without altering portfolio holdings</value></data>
+  <data name="Lbl_TaxRulesMemo" xml:space="preserve"><value>Manual Tax Verification Memo (Unresolved on Yahoo / ECB or Unknown Tax):</value></data>
 </root>
