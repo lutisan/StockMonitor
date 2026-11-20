@@ -168,8 +168,18 @@ public sealed partial class XtbWorkbookImportService
     /// <param name="replaceExistingXtbData">When <see langword="true"/>, replaces previously imported XTB rows while keeping manual entries.</param>
     public void ImportRows(List<List<string>> rows, PortfolioDocument document, bool replaceExistingXtbData = true)
     {
+        Dictionary<string, (string Comment, decimal? ManualTaxRate)> preservedOverrides = new(StringComparer.OrdinalIgnoreCase);
+
         if (replaceExistingXtbData)
         {
+            foreach (PositionLot existing in document.Lots.Where(l => l.Source == DataSource.XtbImport && !string.IsNullOrWhiteSpace(l.ExternalPositionId)))
+            {
+                if (!string.IsNullOrWhiteSpace(existing.Comment) || existing.ManualDividendTaxRate.HasValue)
+                {
+                    preservedOverrides[existing.ExternalPositionId] = (existing.Comment, existing.ManualDividendTaxRate);
+                }
+            }
+
             document.Lots.RemoveAll(l => l.Source == DataSource.XtbImport);
             document.Dividends.RemoveAll(d => d.IsFromBrokerReport);
             document.CashFlows.Clear();
@@ -269,6 +279,25 @@ public sealed partial class XtbWorkbookImportService
                 case "CASH":
                     ParseCashOperationRow(row, headerMap, document);
                     break;
+            }
+        }
+
+        if (preservedOverrides.Count > 0)
+        {
+            foreach (PositionLot lot in document.Lots.Where(l => l.Source == DataSource.XtbImport && !string.IsNullOrWhiteSpace(l.ExternalPositionId)))
+            {
+                if (preservedOverrides.TryGetValue(lot.ExternalPositionId, out (string Comment, decimal? ManualTaxRate) saved))
+                {
+                    if (!string.IsNullOrWhiteSpace(saved.Comment))
+                    {
+                        lot.Comment = saved.Comment;
+                    }
+
+                    if (saved.ManualTaxRate.HasValue)
+                    {
+                        lot.ManualDividendTaxRate = saved.ManualTaxRate;
+                    }
+                }
             }
         }
 

@@ -22,13 +22,28 @@ public sealed class PortfolioStorageService
     /// </summary>
     /// <param name="xtbImportService">Importer used to seed initial data from <c>xtb_seed.csv</c>.</param>
     public PortfolioStorageService(XtbWorkbookImportService xtbImportService)
+        : this(xtbImportService, Path.Combine(ResolveDefaultDataDirectory(), "portfolio.json"))
+    {
+    }
+
+    internal static string ResolveDefaultDataDirectory()
+    {
+        string? envOverride = Environment.GetEnvironmentVariable("STOCKMONITOR_DATA_DIR");
+        return !string.IsNullOrWhiteSpace(envOverride)
+            ? envOverride.Trim()
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StockMonitor");
+    }
+
+    internal PortfolioStorageService(XtbWorkbookImportService xtbImportService, string storageFilePath)
     {
         _xtbImportService = xtbImportService;
-        string dir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "StockMonitor");
-        Directory.CreateDirectory(dir);
-        StorageFilePath = Path.Combine(dir, "portfolio.json");
+        string? dir = Path.GetDirectoryName(storageFilePath);
+        if (!string.IsNullOrWhiteSpace(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        StorageFilePath = storageFilePath;
     }
 
     /// <summary>

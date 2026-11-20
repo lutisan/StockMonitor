@@ -51,9 +51,11 @@ public sealed class PortfolioCalculationService
         foreach (DividendRecord div in doc.Dividends)
         {
             div.BaseCurrency = baseCcy;
-            if (div.PositionLotId.HasValue && lotsById.TryGetValue(div.PositionLotId.Value, out PositionLot? linkedLot))
+            PositionLot? linkedLot = null;
+            if (div.PositionLotId.HasValue && lotsById.TryGetValue(div.PositionLotId.Value, out PositionLot? foundLot))
             {
-                div.IsPositionClosed = linkedLot.CloseDate.HasValue;
+                linkedLot = foundLot;
+                div.IsPositionClosed = foundLot.CloseDate.HasValue;
             }
             else if (!string.IsNullOrWhiteSpace(div.Ticker) && tickerAllClosedLookup.TryGetValue(div.Ticker, out bool allClosed))
             {
@@ -62,6 +64,19 @@ public sealed class PortfolioCalculationService
             else
             {
                 div.IsPositionClosed = false;
+            }
+
+            // Compute EUR amounts dynamically for Yahoo Finance fetched dividends using PayDate ECB FX rate and Country/Lot Tax Rule
+            if (!div.IsFromBrokerReport && div.DividendPerShareNative is > 0m && linkedLot != null)
+            {
+                decimal grossNative = div.DividendPerShareNative.Value * linkedLot.Quantity;
+                decimal nativeToEurAtPay = _fxProvider.GetConversionRate(div.NativeCurrency, "EUR", div.PayDate);
+                decimal taxRate = linkedLot.ManualDividendTaxRate ?? countryTaxLookup.GetValueOrDefault(linkedLot.CountryCode, 15m);
+
+                div.TaxRatePercent = taxRate;
+                div.GrossAmountEur = Math.Round(grossNative * nativeToEurAtPay, 2);
+                div.WithholdingTaxEur = Math.Round(div.GrossAmountEur * (taxRate / 100m), 2);
+                div.NetAmountEur = Math.Round(div.GrossAmountEur - div.WithholdingTaxEur, 2);
             }
 
             decimal eurToBaseAtPay = _fxProvider.GetConversionRate("EUR", baseCcy, div.PayDate);
@@ -231,7 +246,12 @@ public sealed class PortfolioCalculationService
         }
 
         DateTime minDate = doc.Lots.Min(l => l.OpenDate).Date;
-        DateTime maxDate = doc.ReportGeneratedUtc > minDate ? doc.ReportGeneratedUtc.Date : DateTime.UtcNow.Date;
+        DateTime todayUtc = DateTime.UtcNow.Date;
+        DateTime maxDate = doc.ReportGeneratedUtc.Date > todayUtc ? doc.ReportGeneratedUtc.Date : todayUtc;
+        if (maxDate < minDate)
+        {
+            maxDate = minDate;
+        }
 
         // Generate quarter-end checkpoints plus final report date
         List<DateTime> checkpoints = [];

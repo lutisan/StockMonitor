@@ -12,7 +12,8 @@ namespace StockMonitor.Services;
 /// </summary>
 public sealed class YahooFinanceMarketDataProvider
 {
-    private static readonly HttpClient Http = CreateHttpClient();
+    private static readonly HttpClient DefaultHttp = CreateHttpClient();
+    private readonly HttpClient _http;
     private readonly string _cacheDir;
     private readonly ConcurrentDictionary<string, List<StockPricePoint>> _memorySeriesCache =
         new(StringComparer.OrdinalIgnoreCase);
@@ -21,11 +22,14 @@ public sealed class YahooFinanceMarketDataProvider
     /// Initializes a new instance of the <see cref="YahooFinanceMarketDataProvider"/> class and ensures the cache directory exists.
     /// </summary>
     public YahooFinanceMarketDataProvider()
+        : this(DefaultHttp, Path.Combine(PortfolioStorageService.ResolveDefaultDataDirectory(), "YahooCache"))
     {
-        _cacheDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "StockMonitor",
-            "YahooCache");
+    }
+
+    internal YahooFinanceMarketDataProvider(HttpClient httpClient, string cacheDir)
+    {
+        _http = httpClient;
+        _cacheDir = cacheDir;
         Directory.CreateDirectory(_cacheDir);
     }
 
@@ -81,8 +85,12 @@ public sealed class YahooFinanceMarketDataProvider
     }
 
     /// <summary>
-    /// Refreshes the latest market price for open positions from Yahoo Finance.
+    /// Refreshes the latest market price for open positions from Yahoo Finance and clears stale broker snapshot values.
     /// </summary>
+    /// <param name="lots">Portfolio position lots.</param>
+    /// <param name="progressCallback">Optional progress message callback.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Number of open position lots updated with live prices.</returns>
     public async Task<int> RefreshOpenPositionQuotesAsync(
         IEnumerable<PositionLot> lots,
         Action<string>? progressCallback = null,
@@ -91,9 +99,7 @@ public sealed class YahooFinanceMarketDataProvider
         int updatedCount = 0;
         List<IGrouping<string, PositionLot>> openGroups = lots
             .Where(l => !l.CloseDate.HasValue && !l.IsClosePriceManual)
-            .GroupBy(l => string.IsNullOrWhiteSpace(l.YahooSymbol)
-                ? TickerMappingHelper.Resolve(l.Ticker, l.Category).YahooSymbol
-                : l.YahooSymbol, StringComparer.OrdinalIgnoreCase)
+            .GroupBy(l => ResolveYahooSymbol(l), StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         int index = 0;
@@ -103,12 +109,14 @@ public sealed class YahooFinanceMarketDataProvider
             index++;
             progressCallback?.Invoke($"Syncing Yahoo Finance quote ({index}/{openGroups.Count}): {group.Key}...");
 
-            decimal? latestPrice = await TryFetchLatestPriceAsync(group.Key, cancellationToken).ConfigureAwait(false);
+            (decimal? latestPrice, string? yahooCcy) = await TryFetchLatestPriceAsync(group.Key, cancellationToken).ConfigureAwait(false);
             if (latestPrice is > 0)
             {
                 foreach (PositionLot lot in group)
                 {
-                    lot.CurrentMarketPrice = latestPrice.Value;
+                    lot.CurrentMarketPrice = NormalizePriceForLotCurrency(latestPrice.Value, yahooCcy, lot.StockCurrency);
+                    lot.BrokerSaleOrCurrentValueEur = null;
+                    lot.CloseConversionRate = null;
                     updatedCount++;
                 }
             }
@@ -118,15 +126,227 @@ public sealed class YahooFinanceMarketDataProvider
         return updatedCount;
     }
 
-    private async Task<decimal?> TryFetchLatestPriceAsync(string symbol, CancellationToken cancellationToken)
+    /// <summary>
+    /// Populates any missing (cleared or unset) historical Open Prices, historical Close Prices, live Current Prices,
+    /// and Yahoo Finance dividend events without overwriting manual or fixed XTB values.
+    /// </summary>
+    /// <param name="doc">Target portfolio document.</param>
+    /// <param name="progressCallback">Optional progress message callback.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Tuple of (updatedPricesCount, fetchedDividendsCount).</returns>
+    public async Task<(int UpdatedPrices, int FetchedDividends)> PopulateMissingPricesAndDividendsAsync(
+        PortfolioDocument doc,
+        Action<string>? progressCallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        int updatedPrices = await FetchMissingHistoricalPricesAsync(doc.Lots, progressCallback, cancellationToken).ConfigureAwait(false);
+
+        // Fetch live price for open lots that currently have no price set
+        List<PositionLot> openMissingPrice = doc.Lots
+            .Where(l => !l.CloseDate.HasValue && !l.IsClosePriceManual && l.CurrentMarketPrice <= 0m)
+            .ToList();
+        if (openMissingPrice.Count > 0)
+        {
+            updatedPrices += await RefreshOpenPositionQuotesAsync(openMissingPrice, progressCallback, cancellationToken).ConfigureAwait(false);
+        }
+
+        int fetchedDivs = await RefreshYahooDividendsAsync(doc, progressCallback, cancellationToken).ConfigureAwait(false);
+        return (updatedPrices, fetchedDivs);
+    }
+
+    /// <summary>
+    /// Performs a full online market sync: populates any missing historical open/close prices, refreshes live prices
+    /// for all open non-manual lots, and fetches Yahoo Finance dividends for manual lots and post-XTB periods.
+    /// </summary>
+    /// <param name="doc">Target portfolio document.</param>
+    /// <param name="progressCallback">Optional progress message callback.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Tuple of (updatedPricesCount, fetchedDividendsCount).</returns>
+    public async Task<(int UpdatedPrices, int FetchedDividends)> RefreshAllMarketDataAsync(
+        PortfolioDocument doc,
+        Action<string>? progressCallback = null,
+        CancellationToken cancellationToken = default)
+    {
+        int updatedPrices = await FetchMissingHistoricalPricesAsync(doc.Lots, progressCallback, cancellationToken).ConfigureAwait(false);
+        updatedPrices += await RefreshOpenPositionQuotesAsync(doc.Lots, progressCallback, cancellationToken).ConfigureAwait(false);
+        int fetchedDivs = await RefreshYahooDividendsAsync(doc, progressCallback, cancellationToken).ConfigureAwait(false);
+        return (updatedPrices, fetchedDivs);
+    }
+
+    private async Task<int> FetchMissingHistoricalPricesAsync(
+        IEnumerable<PositionLot> lots,
+        Action<string>? progressCallback,
+        CancellationToken cancellationToken)
+    {
+        int updated = 0;
+        foreach (PositionLot lot in lots)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            string sym = ResolveYahooSymbol(lot);
+
+            // 1. Missing Open Price (manual entry or cleared XTB open price)
+            if (!lot.IsOpenPriceManual && lot.OpenPrice <= 0m && lot.OpenDate > DateTime.MinValue)
+            {
+                progressCallback?.Invoke($"Fetching Yahoo historical Open Price for {sym} on {lot.OpenDate:yyyy-MM-dd}...");
+                (decimal? price, string? yahooCcy) = await TryFetchClosePriceOnDateAsync(sym, lot.OpenDate.Date, cancellationToken).ConfigureAwait(false);
+                if (price is > 0m)
+                {
+                    lot.OpenPrice = NormalizePriceForLotCurrency(price.Value, yahooCcy, lot.StockCurrency);
+                    lot.BrokerPurchaseValueEur = null;
+                    lot.OpenConversionRate = null;
+                    updated++;
+                }
+            }
+
+            // 2. Missing Close Price on a Closed lot (manually closed without close price, or cleared close price)
+            if (lot.CloseDate.HasValue && !lot.IsClosePriceManual && (!lot.ClosePrice.HasValue || lot.ClosePrice.Value <= 0m))
+            {
+                progressCallback?.Invoke($"Fetching Yahoo historical Close Price for {sym} on {lot.CloseDate.Value:yyyy-MM-dd}...");
+                (decimal? price, string? yahooCcy) = await TryFetchClosePriceOnDateAsync(sym, lot.CloseDate.Value.Date, cancellationToken).ConfigureAwait(false);
+                if (price is > 0m)
+                {
+                    decimal normalized = NormalizePriceForLotCurrency(price.Value, yahooCcy, lot.StockCurrency);
+                    lot.ClosePrice = normalized;
+                    lot.CurrentMarketPrice = normalized;
+                    lot.BrokerSaleOrCurrentValueEur = null;
+                    lot.CloseConversionRate = null;
+                    updated++;
+                }
+            }
+        }
+
+        return updated;
+    }
+
+    private async Task<int> RefreshYahooDividendsAsync(
+        PortfolioDocument doc,
+        Action<string>? progressCallback,
+        CancellationToken cancellationToken)
+    {
+        bool hasAnyXtbDividends = doc.Dividends.Any(d => d.IsFromBrokerReport);
+        DateTime todayUtc = DateTime.UtcNow.Date;
+
+        List<IGrouping<string, PositionLot>> tickerGroups = doc.Lots
+            .Where(l => !string.IsNullOrWhiteSpace(l.Ticker) && l.Quantity > 0m)
+            .GroupBy(l => ResolveYahooSymbol(l), StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        int addedCount = 0;
+        int idx = 0;
+        foreach (IGrouping<string, PositionLot> group in tickerGroups)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            List<PositionLot> lotsForSym = group.ToList();
+            bool needsFetch = !hasAnyXtbDividends
+                || lotsForSym.Any(l => l.Source != DataSource.XtbImport)
+                || lotsForSym.Any(l => !l.CloseDate.HasValue || l.CloseDate.Value.Date > doc.ReportGeneratedUtc.Date);
+
+            if (!needsFetch)
+            {
+                continue;
+            }
+
+            idx++;
+            progressCallback?.Invoke($"Checking Yahoo Finance dividends ({idx}/{tickerGroups.Count}): {group.Key}...");
+
+            DateTime minOpen = lotsForSym.Min(l => l.OpenDate).Date;
+            DateTime maxEnd = lotsForSym.Any(l => !l.CloseDate.HasValue)
+                ? todayUtc.AddDays(1)
+                : lotsForSym.Max(l => l.CloseDate!.Value).Date.AddDays(1);
+
+            if (minOpen >= maxEnd)
+            {
+                continue;
+            }
+
+            List<(DateTime PayDate, decimal AmountPerShare, string Currency)> events =
+                await TryFetchDividendEventsAsync(group.Key, minOpen, maxEnd, cancellationToken).ConfigureAwait(false);
+
+            // Replace only previously fetched Yahoo API dividends for these lots; never touch XTB broker dividends
+            HashSet<Guid> lotIds = lotsForSym.Select(l => l.Id).ToHashSet();
+            doc.Dividends.RemoveAll(d => !d.IsFromBrokerReport && d.PositionLotId.HasValue && lotIds.Contains(d.PositionLotId.Value));
+
+            foreach ((DateTime payDate, decimal amountPerShare, string nativeCcy) in events)
+            {
+                foreach (PositionLot lot in lotsForSym)
+                {
+                    if (lot.OpenDate.Date > payDate.Date)
+                    {
+                        continue;
+                    }
+
+                    if (lot.CloseDate.HasValue && lot.CloseDate.Value.Date < payDate.Date)
+                    {
+                        continue;
+                    }
+
+                    // For XTB-imported lots, never duplicate or override broker dividends up to ReportGeneratedUtc
+                    bool hasBrokerMatch = doc.Dividends.Any(d =>
+                        d.IsFromBrokerReport &&
+                        ((d.PositionLotId.HasValue && d.PositionLotId.Value == lot.Id) ||
+                         d.Ticker.Equals(lot.Ticker, StringComparison.OrdinalIgnoreCase)) &&
+                        Math.Abs((d.PayDate.Date - payDate.Date).TotalDays) <= 10);
+
+                    if (hasBrokerMatch)
+                    {
+                        continue;
+                    }
+
+                    string effectiveCcy = string.IsNullOrWhiteSpace(nativeCcy) ? lot.StockCurrency : nativeCcy;
+                    decimal normalizedDps = NormalizePriceForLotCurrency(amountPerShare, effectiveCcy, lot.StockCurrency);
+                    string recordCcy = effectiveCcy.Equals("GBp", StringComparison.OrdinalIgnoreCase) || effectiveCcy.Equals("GBX", StringComparison.OrdinalIgnoreCase)
+                        ? "GBP"
+                        : effectiveCcy.ToUpperInvariant();
+
+                    doc.Dividends.Add(new DividendRecord
+                    {
+                        ExternalCashOperationId = $"YDIV-{lot.ExternalPositionId}-{payDate:yyyyMMdd}",
+                        PositionLotId = lot.Id,
+                        ExternalPositionId = lot.ExternalPositionId,
+                        CompanyName = lot.CompanyName,
+                        Ticker = lot.Ticker,
+                        Category = lot.Category,
+                        PayDate = payDate,
+                        DividendPerShareNative = normalizedDps,
+                        NativeCurrency = recordCcy,
+                        TaxRatePercent = lot.EffectiveDividendTaxRate,
+                        IsFromBrokerReport = false,
+                        Comment = $"Yahoo Finance ({recordCcy} {normalizedDps:0.####}/SHR × {lot.Quantity:0.##})"
+                    });
+                    addedCount++;
+                }
+            }
+        }
+
+        return addedCount;
+    }
+
+    private static string ResolveYahooSymbol(PositionLot lot) =>
+        string.IsNullOrWhiteSpace(lot.YahooSymbol)
+            ? TickerMappingHelper.Resolve(lot.Ticker, lot.Category).YahooSymbol
+            : lot.YahooSymbol;
+
+    private static decimal NormalizePriceForLotCurrency(decimal rawPrice, string? yahooCurrency, string lotCurrency)
+    {
+        if (!string.IsNullOrWhiteSpace(yahooCurrency) &&
+            (yahooCurrency.Equals("GBp", StringComparison.Ordinal) || yahooCurrency.Equals("GBX", StringComparison.OrdinalIgnoreCase)) &&
+            lotCurrency.Equals("GBP", StringComparison.OrdinalIgnoreCase))
+        {
+            return Math.Round(rawPrice / 100m, 4);
+        }
+
+        return Math.Round(rawPrice, 4);
+    }
+
+    private async Task<(decimal? Price, string? Currency)> TryFetchLatestPriceAsync(string symbol, CancellationToken cancellationToken)
     {
         try
         {
             string url = $"https://query1.finance.yahoo.com/v8/finance/chart/{Uri.EscapeDataString(symbol)}?range=5d&interval=1d";
-            using HttpResponseMessage resp = await Http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage resp = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!resp.IsSuccessStatusCode)
             {
-                return null;
+                return (null, null);
             }
 
             string json = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
@@ -136,10 +356,11 @@ public sealed class YahooFinanceMarketDataProvider
                 .GetProperty("result")[0]
                 .GetProperty("meta");
 
+            string? ccy = meta.TryGetProperty("currency", out JsonElement ccyEl) ? ccyEl.GetString() : null;
             if (meta.TryGetProperty("regularMarketPrice", out JsonElement priceEl) &&
                 priceEl.TryGetDecimal(out decimal price) && price > 0)
             {
-                return price;
+                return (price, ccy);
             }
         }
         catch (OperationCanceledException)
@@ -151,7 +372,128 @@ public sealed class YahooFinanceMarketDataProvider
             // Ignore network errors and retain XTB / cached quote
         }
 
-        return null;
+        return (null, null);
+    }
+
+    private async Task<(decimal? Price, string? Currency)> TryFetchClosePriceOnDateAsync(
+        string symbol,
+        DateTime targetDateUtc,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            long period1 = new DateTimeOffset(DateTime.SpecifyKind(targetDateUtc.AddDays(-7), DateTimeKind.Utc)).ToUnixTimeSeconds();
+            long period2 = new DateTimeOffset(DateTime.SpecifyKind(targetDateUtc.AddDays(2), DateTimeKind.Utc)).ToUnixTimeSeconds();
+            string url = $"https://query1.finance.yahoo.com/v8/finance/chart/{Uri.EscapeDataString(symbol)}?period1={period1}&period2={period2}&interval=1d";
+
+            using HttpResponseMessage resp = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode)
+            {
+                return (null, null);
+            }
+
+            string json = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            using JsonDocument doc = JsonDocument.Parse(json);
+            JsonElement result = doc.RootElement.GetProperty("chart").GetProperty("result")[0];
+            string? ccy = result.TryGetProperty("meta", out JsonElement meta) && meta.TryGetProperty("currency", out JsonElement ccyEl)
+                ? ccyEl.GetString()
+                : null;
+
+            if (!result.TryGetProperty("timestamp", out JsonElement tsArray))
+            {
+                return (null, ccy);
+            }
+
+            JsonElement closes = result.GetProperty("indicators").GetProperty("quote")[0].GetProperty("close");
+            int len = tsArray.GetArrayLength();
+            decimal? bestPrior = null;
+            decimal? firstAfter = null;
+
+            for (int i = 0; i < len; i++)
+            {
+                if (closes[i].ValueKind != JsonValueKind.Number || !closes[i].TryGetDecimal(out decimal close) || close <= 0m)
+                {
+                    continue;
+                }
+
+                DateTime dt = DateTimeOffset.FromUnixTimeSeconds(tsArray[i].GetInt64()).UtcDateTime.Date;
+                if (dt <= targetDateUtc.Date)
+                {
+                    bestPrior = close;
+                }
+                else
+                {
+                    firstAfter ??= close;
+                }
+            }
+
+            return (bestPrior ?? firstAfter, ccy);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            return (null, null);
+        }
+    }
+
+    private async Task<List<(DateTime PayDate, decimal AmountPerShare, string Currency)>> TryFetchDividendEventsAsync(
+        string symbol,
+        DateTime startUtc,
+        DateTime endUtc,
+        CancellationToken cancellationToken)
+    {
+        List<(DateTime PayDate, decimal AmountPerShare, string Currency)> list = [];
+        try
+        {
+            long period1 = new DateTimeOffset(DateTime.SpecifyKind(startUtc, DateTimeKind.Utc)).ToUnixTimeSeconds();
+            long period2 = new DateTimeOffset(DateTime.SpecifyKind(endUtc, DateTimeKind.Utc)).ToUnixTimeSeconds();
+            string url = $"https://query1.finance.yahoo.com/v8/finance/chart/{Uri.EscapeDataString(symbol)}?period1={period1}&period2={period2}&interval=1d&events=div";
+
+            using HttpResponseMessage resp = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            if (!resp.IsSuccessStatusCode)
+            {
+                return list;
+            }
+
+            string json = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            using JsonDocument doc = JsonDocument.Parse(json);
+            JsonElement result = doc.RootElement.GetProperty("chart").GetProperty("result")[0];
+            string ccy = result.TryGetProperty("meta", out JsonElement meta) && meta.TryGetProperty("currency", out JsonElement ccyEl)
+                ? (ccyEl.GetString() ?? "USD")
+                : "USD";
+
+            if (!result.TryGetProperty("events", out JsonElement eventsEl) ||
+                !eventsEl.TryGetProperty("dividends", out JsonElement divsEl) ||
+                divsEl.ValueKind != JsonValueKind.Object)
+            {
+                return list;
+            }
+
+            foreach (JsonProperty prop in divsEl.EnumerateObject())
+            {
+                JsonElement item = prop.Value;
+                if (item.TryGetProperty("date", out JsonElement dateEl) &&
+                    item.TryGetProperty("amount", out JsonElement amtEl) &&
+                    amtEl.TryGetDecimal(out decimal amt) && amt > 0m)
+                {
+                    DateTime payDate = DateTimeOffset.FromUnixTimeSeconds(dateEl.GetInt64()).UtcDateTime;
+                    list.Add((payDate, amt, ccy));
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch
+        {
+            // Ignore transient network errors
+        }
+
+        return list.OrderBy(x => x.PayDate).ToList();
     }
 
     private async Task<List<StockPricePoint>?> TryFetchYahooChartAsync(
@@ -182,7 +524,7 @@ public sealed class YahooFinanceMarketDataProvider
 
                 try
                 {
-                    using HttpResponseMessage resp = await Http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+                    using HttpResponseMessage resp = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
                     if (resp.IsSuccessStatusCode)
                     {
                         json = await resp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);

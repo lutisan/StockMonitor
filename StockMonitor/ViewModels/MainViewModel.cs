@@ -33,142 +33,188 @@ public partial class MainViewModel : ObservableObject
     private (double Position, double Factor) _committedZoom = (0.0, 1.0);
     private bool _isApplyingZoomHistory;
 
+    /// <summary>Gets or sets the currently selected position lot in the Positions grid.</summary>
     [ObservableProperty]
     private PositionLot? _selectedLot;
 
+    /// <summary>Gets or sets the currently selected dynamic ticker mapping row in Settings.</summary>
     [ObservableProperty]
     private TickerMapping? _selectedTickerMapping;
 
+    /// <summary>Gets or sets the filtered collection of position lots bound to the Positions grid.</summary>
     [ObservableProperty]
     private ObservableCollection<PositionLot> _filteredLots = [];
 
+    /// <summary>Gets or sets the collection of dynamic ticker mappings bound to the Settings grid.</summary>
     [ObservableProperty]
     private ObservableCollection<TickerMapping> _tickerMappings = [];
 
+    /// <summary>Gets or sets the collection of portfolio dividend records bound to the Dividends grid.</summary>
     [ObservableProperty]
     private ObservableCollection<DividendRecord> _dividends = [];
 
+    /// <summary>Gets or sets the quarterly/current portfolio history snapshots bound to the History tab.</summary>
     [ObservableProperty]
     private ObservableCollection<PortfolioHistoryPoint> _portfolioHistory = [];
 
+    /// <summary>Gets or sets the editable country withholding tax rules bound to the Settings grid.</summary>
     [ObservableProperty]
     private ObservableCollection<CountryTaxRule> _taxRules = [];
 
+    /// <summary>Gets or sets the broker account cash-flow records (deposits, withdrawals, interest).</summary>
     [ObservableProperty]
     private ObservableCollection<AccountCashFlowRecord> _cashFlows = [];
 
+    /// <summary>Gets or sets the historical daily stock price series for <see cref="SelectedLot"/>.</summary>
     [ObservableProperty]
     private IReadOnlyList<StockPricePoint> _selectedLotPriceHistory = [];
 
+    /// <summary>Gets or sets the optional minimum date for the stock price chart X-axis.</summary>
     [ObservableProperty]
     private DateTime? _chartXMinimum;
 
+    /// <summary>Gets or sets the optional maximum date for the stock price chart X-axis.</summary>
     [ObservableProperty]
     private DateTime? _chartXMaximum;
 
+    /// <summary>Gets or sets the normalized X-axis zoom start position (0.0 to 1.0) on the stock price chart.</summary>
     [ObservableProperty]
     private double _chartXZoomPosition;
 
+    /// <summary>Gets or sets the normalized X-axis zoom factor (1.0 = full range) on the stock price chart.</summary>
     [ObservableProperty]
     private double _chartXZoomFactor = 1.0;
 
+    /// <summary>Gets or sets the portfolio allocation breakdown by company/instrument for the Summary doughnut chart.</summary>
     [ObservableProperty]
     private IReadOnlyList<AllocationSlice> _allocationByInstrument = [];
 
+    /// <summary>Gets or sets the portfolio allocation breakdown by country for the Summary doughnut chart.</summary>
     [ObservableProperty]
     private IReadOnlyList<AllocationSlice> _allocationByCountry = [];
 
+    /// <summary>Gets or sets the yearly net dividend totals for the Summary column chart.</summary>
     [ObservableProperty]
     private IReadOnlyList<AllocationSlice> _yearlyDividendsChart = [];
 
+    /// <summary>Gets or sets the active portfolio display/base currency code (e.g. <c>EUR</c>, <c>USD</c>, <c>CZK</c>).</summary>
     [ObservableProperty]
     private string _selectedBaseCurrency = "EUR";
 
+    /// <summary>Gets or sets the active UI language code (<c>EN</c> or <c>SK</c>).</summary>
     [ObservableProperty]
     private string _selectedLanguage = "EN";
 
+    /// <summary>Gets or sets the active Syncfusion visual theme name.</summary>
     [ObservableProperty]
     private string _selectedTheme = "Windows11Dark";
 
+    /// <summary>Gets or sets the active status filter (<c>All</c>, <c>Open Only</c>, or <c>Closed Only</c>).</summary>
     [ObservableProperty]
     private string _selectedStatusFilter = "All";
 
+    /// <summary>Gets or sets the live text search filter applied to the Positions grid.</summary>
     [ObservableProperty]
     private string _searchText = string.Empty;
 
+    /// <summary>Gets or sets a value indicating whether an asynchronous background operation is currently running.</summary>
     [ObservableProperty]
     private bool _isBusy;
 
+    /// <summary>Gets or sets the formatted elapsed duration of the current or most recent operation.</summary>
     [ObservableProperty]
     private string _operationTimeText = "0.00 s";
 
+    /// <summary>Gets or sets the human-readable status message displayed in the bottom status bar.</summary>
     [ObservableProperty]
     private string _statusMessage = "Initializing...";
 
+    /// <summary>Gets or sets the broker account number displayed in the top header bar.</summary>
     [ObservableProperty]
     private string _accountNumber = "1576650";
 
+    /// <summary>Gets or sets the UTC timestamp when the last imported XTB report was generated.</summary>
     [ObservableProperty]
     private DateTime _reportDateUtc;
 
+    /// <summary>Gets or sets the full path to the local <c>portfolio.json</c> storage file.</summary>
     [ObservableProperty]
     private string _storageFilePath = string.Empty;
 
+    /// <summary>Gets or sets the Yahoo Finance quote URL for <see cref="SelectedLot"/>.</summary>
     [ObservableProperty]
     private string _selectedLotYahooUrl = "https://finance.yahoo.com";
 
+    /// <summary>Gets or sets the URL currently loaded inside the embedded WebView2 browser sub-tab.</summary>
     [ObservableProperty]
     private string _activeEmbeddedYahooUrl = string.Empty;
 
+    /// <summary>Gets or sets a value indicating whether the embedded Yahoo Finance web sub-tab is currently selected.</summary>
     [ObservableProperty]
     private bool _isYahooWebTabSelected;
 
+    /// <summary>Gets or sets a signed signal counter requesting the Positions grid to expand (&gt; 0) or collapse (&lt; 0) all groups.</summary>
     [ObservableProperty]
     private int _groupExpandRequest;
 
     // Summary KPIs
+    /// <summary>Gets or sets the total purchase cost of all currently open positions in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _openInvestedBase;
 
+    /// <summary>Gets or sets the total current market value of all open positions in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _openMarketValueBase;
 
+    /// <summary>Gets or sets the total unrealized capital profit/loss of open positions in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _openCapitalProfitBase;
 
+    /// <summary>Gets or sets the total realized capital profit/loss of closed positions in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _closedRealizedProfitBase;
 
+    /// <summary>Gets or sets the combined open + closed capital profit/loss in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalCapitalProfitBase;
 
+    /// <summary>Gets or sets the cumulative gross dividends across all lots in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalGrossDividendsBase;
 
+    /// <summary>Gets or sets the cumulative dividend withholding tax across all lots in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalWithholdingTaxBase;
 
+    /// <summary>Gets or sets the cumulative net dividends received in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalNetDividendsBase;
 
+    /// <summary>Gets or sets the cumulative net free-funds interest earned in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalFreeFundsInterestBase;
 
+    /// <summary>Gets or sets the cumulative cash deposits into the account in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalDepositsBase;
 
+    /// <summary>Gets or sets the overall portfolio profit (capital P/L + net dividends + interest) in <see cref="SelectedBaseCurrency"/>.</summary>
     [ObservableProperty]
     private decimal _totalOverallProfitBase;
 
+    /// <summary>Gets or sets the overall portfolio return percentage relative to total invested/deposited capital.</summary>
     [ObservableProperty]
     private decimal _totalOverallReturnPercent;
 
+    /// <summary>Gets or sets the number of currently open position lots.</summary>
     [ObservableProperty]
     private int _openLotsCount;
 
+    /// <summary>Gets or sets the number of closed position lots.</summary>
     [ObservableProperty]
     private int _closedLotsCount;
 
+    /// <summary>Gets or sets the number of distinct ticker symbols in the portfolio.</summary>
     [ObservableProperty]
     private int _distinctInstrumentsCount;
 
@@ -260,6 +306,17 @@ public partial class MainViewModel : ObservableObject
 
                 progress("Calculating positions, dividends, and portfolio history...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
+
+                bool hasMissingPrices = _document.Lots.Any(l =>
+                    (!l.IsOpenPriceManual && l.OpenPrice <= 0m) ||
+                    (l.CloseDate.HasValue && !l.IsClosePriceManual && (!l.ClosePrice.HasValue || l.ClosePrice <= 0m)) ||
+                    (!l.CloseDate.HasValue && !l.IsClosePriceManual && l.CurrentMarketPrice <= 0m));
+
+                if (hasMissingPrices)
+                {
+                    progress("Fetching missing historical/live prices and dividends from Yahoo Finance...");
+                    await _marketDataProvider.PopulateMissingPricesAndDividendsAsync(_document, progress, ct);
+                }
 
                 progress("Checking online ECB exchange rates for current day and transaction dates...");
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
@@ -481,6 +538,7 @@ public partial class MainViewModel : ObservableObject
         SelectedLot != null &&
         (Math.Abs(ChartXZoomPosition) > 0.0001 || Math.Abs(ChartXZoomFactor - 1.0) > 0.0001);
 
+    /// <summary>Resets the stock price chart horizontal zoom back to 100% (full visible date range).</summary>
     [RelayCommand(CanExecute = nameof(CanResetChartZoom100))]
     private void ResetChartZoom100()
     {
@@ -507,6 +565,7 @@ public partial class MainViewModel : ObservableObject
         NotifyZoomCommandsCanExecuteChanged();
     }
 
+    /// <summary>Restores the previous horizontal zoom state on the stock price chart from the undo stack.</summary>
     [RelayCommand(CanExecute = nameof(CanUndoChartZoom))]
     private void UndoChartZoom()
     {
@@ -527,6 +586,7 @@ public partial class MainViewModel : ObservableObject
         NotifyZoomCommandsCanExecuteChanged();
     }
 
+    /// <summary>Reapplies the most recently undone horizontal zoom state on the stock price chart.</summary>
     [RelayCommand(CanExecute = nameof(CanRedoChartZoom))]
     private void RedoChartZoom()
     {
@@ -833,6 +893,7 @@ public partial class MainViewModel : ObservableObject
         YearlyDividendsChart = s.YearlyDividends;
     }
 
+    /// <summary>Saves manual edits on <see cref="SelectedLot"/>, fetches any cleared/missing prices and dividends, recalculates the portfolio, and persists to JSON.</summary>
     [RelayCommand]
     private async Task SaveSelectedLotOverridesAsync()
     {
@@ -879,20 +940,32 @@ public partial class MainViewModel : ObservableObject
 
                 mapping.IsManualOverride = true;
 
+                // If the lot was closed manually without entering a close price, clear broker sale overrides so Yahoo historical price is used.
+                if (lot.CloseDate.HasValue && !lot.IsClosePriceManual && (!lot.ClosePrice.HasValue || lot.ClosePrice <= 0m))
+                {
+                    lot.BrokerSaleOrCurrentValueEur = null;
+                    lot.CloseConversionRate = null;
+                }
+
+                // Populate any cleared/missing prices and dividends from Yahoo Finance first, then fetch ECB FX rates (including new dividend PayDates).
+                (int filledPrices, int fetchedDivs) = await _marketDataProvider.PopulateMissingPricesAndDividendsAsync(_document, progress, ct);
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 progress($"Recalculating portfolio and updating ticker mapping for {lot.Ticker}...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
                 await _storageService.SaveAsync(_document, ct);
-                return $"Saved changes and updated ticker mapping for '{lot.CompanyName}' ({lot.Ticker})";
+                return filledPrices > 0 || fetchedDivs > 0
+                    ? $"Saved '{lot.CompanyName}' ({lot.Ticker}): filled {filledPrices} price(s), {fetchedDivs} dividend(s)"
+                    : $"Saved changes and updated ticker mapping for '{lot.CompanyName}' ({lot.Ticker})";
             });
     }
 
+    /// <summary>Adds a new manual position lot with blank prices (ready for automatic online price and dividend fetch on save).</summary>
     [RelayCommand]
     private async Task AddNewPositionAsync()
     {
         await RunWithStatusTimerAsync(
-            "Adding new position lot and recalculating portfolio...",
-            async (progress, ct) =>
+            "Adding new position lot...",
+            async (_, ct) =>
             {
                 PositionLot newLot = new()
                 {
@@ -904,22 +977,23 @@ public partial class MainViewModel : ObservableObject
                     CountryCode = "US",
                     StockCurrency = "USD",
                     Quantity = 10m,
-                    OpenDate = DateTime.UtcNow,
-                    OpenPrice = 220m,
-                    CurrentMarketPrice = 225m,
-                    IsOpenPriceManual = true,
+                    OpenDate = DateTime.UtcNow.Date,
+                    OpenPrice = 0m,
+                    CurrentMarketPrice = 0m,
+                    IsOpenPriceManual = false,
+                    IsClosePriceManual = false,
                     Source = DataSource.ManualEntry
                 };
 
                 _document.Lots.Add(newLot);
-                await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 await ReloadFromDocumentAsync(reloadSelectedChart: false, ct);
                 SelectedLot = newLot;
                 await _storageService.SaveAsync(_document, ct);
-                return "Added new manual position lot. Edit details in the top-right panel and click Save";
+                return "Added new position lot. Enter Company Name, Ticker, Open Date, Quantity (leave prices blank for auto-fetch) and click Save";
             });
     }
 
+    /// <summary>Deletes <see cref="SelectedLot"/> from the portfolio, recalculates metrics, and saves to JSON.</summary>
     [RelayCommand]
     private async Task DeleteSelectedPositionAsync()
     {
@@ -941,6 +1015,7 @@ public partial class MainViewModel : ObservableObject
             });
     }
 
+    /// <summary>Saves edited country withholding tax rules, recalculates dividend taxes, and persists to JSON.</summary>
     [RelayCommand]
     private async Task SaveTaxRulesAsync()
     {
@@ -955,6 +1030,7 @@ public partial class MainViewModel : ObservableObject
             });
     }
 
+    /// <summary>Adds a new editable dynamic ticker mapping row in Settings and persists to JSON.</summary>
     [RelayCommand]
     private async Task AddTickerMappingAsync()
     {
@@ -981,6 +1057,7 @@ public partial class MainViewModel : ObservableObject
             });
     }
 
+    /// <summary>Deletes <see cref="SelectedTickerMapping"/> from the dynamic ticker mapping table and persists to JSON.</summary>
     [RelayCommand]
     private async Task DeleteSelectedTickerMappingAsync()
     {
@@ -1003,6 +1080,7 @@ public partial class MainViewModel : ObservableObject
             });
     }
 
+    /// <summary>Saves all dynamic ticker mapping edits, synchronizes lots, recalculates the portfolio, and persists to JSON.</summary>
     [RelayCommand]
     private async Task SaveTickerMappingsAsync()
     {
@@ -1024,24 +1102,26 @@ public partial class MainViewModel : ObservableObject
             });
     }
 
+    /// <summary>Synchronizes live open-lot prices, missing historical prices, Yahoo dividends, and online ECB FX rates, then recalculates through today.</summary>
     [RelayCommand]
     private async Task RefreshMarketDataAsync()
     {
         await RunWithStatusTimerAsync(
-            "Fetching online ECB FX rates (current day + all transaction dates) and Yahoo Finance stock prices...",
+            "Syncing Yahoo Finance prices & dividends and online ECB exchange rates...",
             async (progress, ct) =>
             {
+                (int updatedPrices, int fetchedDividends) = await _marketDataProvider.RefreshAllMarketDataAsync(_document, progress, ct);
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
-                int updatedQuotes = await _marketDataProvider.RefreshOpenPositionQuotesAsync(_document.Lots, progress, ct);
                 _document.Settings.LastMarketSyncUtc = DateTime.UtcNow;
 
-                progress("Recalculating portfolio with updated quotes and FX rates...");
+                progress("Recalculating portfolio, dividends, and history through today...");
                 await RecalculateAndRefreshAsync(reloadSelectedChart: true, ct);
                 await _storageService.SaveAsync(_document, ct);
-                return $"Market sync finished: updated {updatedQuotes} open position lots and online ECB exchange rates";
+                return $"Market sync finished: updated {updatedPrices} price(s), {fetchedDividends} Yahoo dividend(s), and online ECB exchange rates";
             });
     }
 
+    /// <summary>Resets local portfolio storage by re-seeding from the bundled XTB seed report.</summary>
     [RelayCommand]
     private async Task ResetToBundledXtbReportAsync()
     {
@@ -1062,6 +1142,7 @@ public partial class MainViewModel : ObservableObject
             });
     }
 
+    /// <summary>Opens a file picker to import an XTB Excel (<c>.xls</c>/<c>.xlsx</c>) or CSV report while preserving manual lots and notes.</summary>
     [RelayCommand]
     private async Task ImportXtbAsync()
     {
@@ -1081,6 +1162,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>Opens a save dialog to export the current portfolio positions, dividends, and history to Excel (<c>.xlsx</c>) or CSV.</summary>
     [RelayCommand]
     private async Task ExportPortfolioAsync()
     {
@@ -1101,6 +1183,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>Signals the Positions grid to expand all company groups.</summary>
     [RelayCommand]
     private void ExpandAllGroups()
     {
@@ -1108,6 +1191,7 @@ public partial class MainViewModel : ObservableObject
         GroupExpandRequest = _expandCollapseCounter;
     }
 
+    /// <summary>Signals the Positions grid to collapse all company groups.</summary>
     [RelayCommand]
     private void CollapseAllGroups()
     {
@@ -1115,6 +1199,7 @@ public partial class MainViewModel : ObservableObject
         GroupExpandRequest = -_expandCollapseCounter;
     }
 
+    /// <summary>Launches <see cref="SelectedLotYahooUrl"/> in the user's default external web browser.</summary>
     [RelayCommand]
     private void OpenYahooInExternalBrowser()
     {
@@ -1124,6 +1209,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>Loads or reloads <see cref="SelectedLotYahooUrl"/> inside the embedded WebView2 browser sub-tab.</summary>
     [RelayCommand]
     private void LoadYahooInEmbeddedBrowser()
     {
