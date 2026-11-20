@@ -92,9 +92,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private IReadOnlyList<AllocationSlice> _allocationByInstrument = [];
 
-    /// <summary>Gets or sets the portfolio allocation breakdown by country for the Summary doughnut chart.</summary>
+    /// <summary>Gets or sets the portfolio allocation breakdown by country for the Summary tab.</summary>
     [ObservableProperty]
     private IReadOnlyList<AllocationSlice> _allocationByCountry = [];
+
+    /// <summary>Gets or sets the hierarchical portfolio allocation items (Country -> Company) for the Summary Drilldown Treemap.</summary>
+    [ObservableProperty]
+    private IReadOnlyList<PortfolioTreeMapItem> _portfolioTreeMapItems = [];
 
     /// <summary>Gets or sets the yearly net dividend totals for the Summary column chart.</summary>
     [ObservableProperty]
@@ -1199,6 +1203,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         decimal TotalOverallReturnPercent,
         List<AllocationSlice> ByInstrument,
         List<AllocationSlice> ByCountry,
+        List<PortfolioTreeMapItem> TreeMapItems,
         List<AllocationSlice> YearlyDividends);
 
     private static SummarySnapshot ComputeSummarySnapshot(PortfolioDocument doc)
@@ -1266,6 +1271,36 @@ public partial class MainViewModel : ObservableObject, IDisposable
             })
             .ToList();
 
+        List<PortfolioTreeMapItem> treeMapItems = openLots
+            .GroupBy(l => new
+            {
+                Country = string.IsNullOrWhiteSpace(l.CountryCode) ? "OTHER" : l.CountryCode.Trim().ToUpperInvariant(),
+                Company = string.IsNullOrWhiteSpace(l.CompanyName) ? l.Ticker : l.CompanyName.Trim(),
+                Ticker = l.Ticker.Trim().ToUpperInvariant(),
+                Category = string.IsNullOrWhiteSpace(l.Category) ? "STOCK" : l.Category.Trim().ToUpperInvariant()
+            })
+            .Select(g =>
+            {
+                decimal invested = g.Sum(x => x.OpenCostBase);
+                decimal val = g.Sum(x => x.CloseOrCurrentValueBase);
+                decimal profit = g.Sum(x => x.TotalProfitBase);
+                double retPct = invested > 0m ? (double)Math.Round(profit / invested * 100m, 2) : 0.0;
+                return new PortfolioTreeMapItem
+                {
+                    Country = g.Key.Country,
+                    CompanyName = g.Key.Company,
+                    Ticker = g.Key.Ticker,
+                    Category = g.Key.Category,
+                    ValueBase = Math.Round((double)val, 2),
+                    SharePercent = Math.Round((double)val / totalOpenVal * 100.0, 2),
+                    ProfitBase = Math.Round((double)profit, 2),
+                    ReturnPercent = retPct
+                };
+            })
+            .Where(x => x.ValueBase > 0.0)
+            .OrderByDescending(x => x.ValueBase)
+            .ToList();
+
         List<AllocationSlice> yearlyDivs = doc.Dividends
             .GroupBy(d => d.PayDate.Year)
             .OrderBy(g => g.Key)
@@ -1295,6 +1330,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             overallReturnPct,
             byInstrument,
             byCountry,
+            treeMapItems,
             yearlyDivs);
     }
 
@@ -1317,6 +1353,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         TotalOverallReturnPercent = s.TotalOverallReturnPercent;
         AllocationByInstrument = s.ByInstrument;
         AllocationByCountry = s.ByCountry;
+        PortfolioTreeMapItems = s.TreeMapItems;
         YearlyDividendsChart = s.YearlyDividends;
     }
 

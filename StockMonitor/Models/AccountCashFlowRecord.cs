@@ -130,3 +130,34 @@ public sealed class AllocationSlice
     /// <summary>Gets or sets the percentage share or secondary series value.</summary>
     public double SharePercent { get; set; }
 }
+
+/// <summary>
+/// Represents a hierarchical portfolio allocation node for the Summary Drilldown Treemap
+/// (Country -&gt; Company / Instrument).
+/// </summary>
+public sealed class PortfolioTreeMapItem
+{
+    /// <summary>Gets or sets the country group label (e.g. <c>US</c>, <c>IE</c>, <c>DE</c>).</summary>
+    public string Country { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the company or ETF display name.</summary>
+    public string CompanyName { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the broker ticker symbol.</summary>
+    public string Ticker { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the instrument category (<c>STOCK</c> or <c>ETF</c>).</summary>
+    public string Category { get; set; } = string.Empty;
+
+    /// <summary>Gets or sets the open market value in Base Currency (used for tile area weight).</summary>
+    public double ValueBase { get; set; }
+
+    /// <summary>Gets or sets the percentage share of total open portfolio value.</summary>
+    public double SharePercent { get; set; }
+
+    /// <summary>Gets or sets the total return percentage (used for profit/loss color mapping).</summary>
+    public double ReturnPercent { get; set; }
+
+    /// <summary>Gets or sets the total profit/loss in Base Currency.</summary>
+    public double ProfitBase { get; set; }
+}

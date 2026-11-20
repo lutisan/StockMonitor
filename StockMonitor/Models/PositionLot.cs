@@ -312,12 +312,15 @@ public partial class PositionLot : ObservableObject
                 {
                     ClosePrice = value.Value;
                 }
+
+                CloseOrCurrentPrice = value.Value;
             }
             else
             {
                 IsClosePriceManual = false;
                 ClosePrice = null;
                 CurrentMarketPrice = 0m;
+                CloseOrCurrentPrice = 0m;
                 BrokerSaleOrCurrentValueEur = null;
                 CloseConversionRate = null;
             }

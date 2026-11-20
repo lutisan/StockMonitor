@@ -193,7 +193,17 @@
                                                   VerticalAlignment="Center"
                                                   Margin="6,0,0,0" />
                                         <TextBox Text="{Binding SelectedLot.EditableOpenPrice, TargetNullValue='', UpdateSourceTrigger=LostFocus}"
-                                                 ToolTip="{Binding [Tip_EditOpenPrice], Source={x:Static services:LocalizationService.Instance}}" />
+                                                 ToolTip="{Binding [Tip_EditOpenPrice], Source={x:Static services:LocalizationService.Instance}}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedLot.IsOpenPriceManual}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
                                     </DockPanel>
 
                                     <TextBlock Grid.Row="6" Grid.Column="0" Text="{Binding [Lbl_CloseDateUtc], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
@@ -211,7 +221,17 @@
                                                   VerticalAlignment="Center"
                                                   Margin="6,0,0,0" />
                                         <TextBox Text="{Binding SelectedLot.EditableCloseOrCurrentPrice, TargetNullValue='', UpdateSourceTrigger=LostFocus}"
-                                                 ToolTip="{Binding [Tip_EditCurrentPrice], Source={x:Static services:LocalizationService.Instance}}" />
+                                                 ToolTip="{Binding [Tip_EditCurrentPrice], Source={x:Static services:LocalizationService.Instance}}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedLot.IsClosePriceManual}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
                                     </DockPanel>
 
                                     <TextBlock Grid.Row="8" Grid.Column="0" Text="{Binding [Lbl_DivTaxOverride], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
@@ -370,6 +390,8 @@
                                    behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                    ToolTip="{Binding [Tip_PositionsGrid], Source={x:Static services:LocalizationService.Instance}}"
                                    AutoGenerateColumns="False"
+                                   AllowEditing="True"
+                                   EditTrigger="OnDoubleTap"
                                    AllowGrouping="True"
                                    ShowGroupDropArea="True"
                                    AllowSorting="True"
@@ -377,7 +399,7 @@
                                    AllowResizingColumns="True"
                                    AllowDraggingColumns="True"
                                    AutoExpandGroups="True"
-                                   NavigationMode="Row"
+                                   NavigationMode="Cell"
                                    SelectionMode="Single"
                                    FrozenColumnCount="2">
                 <syncfusion:SfDataGrid.Resources>
@@ -404,6 +426,20 @@
                             <DataTrigger Binding="{Binding IsInLoss}" Value="True">
                                 <Setter Property="Foreground" Value="#EF4444" />
                                 <Setter Property="FontWeight" Value="SemiBold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="ManualOpenPriceCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOpenPriceManual}" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="ManualClosePriceCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsClosePriceManual}" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -443,29 +479,29 @@
                 </syncfusion:SfDataGrid.TableSummaryRows>
 
                 <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:GridTextColumn MappingName="CompanyName" HeaderText="{Binding [Col_CompanyName], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CompanyName" Width="185" />
-                    <syncfusion:GridTextColumn MappingName="Ticker" HeaderText="{Binding [Col_Ticker], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Ticker" Width="85" />
-                    <syncfusion:GridTextColumn MappingName="StockCurrency" HeaderText="{Binding [Col_Currency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Currency" Width="74" />
-                    <syncfusion:GridTextColumn MappingName="BaseCurrency" HeaderText="{Binding [Col_BaseCurrency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_BaseCurrency" Width="78" />
-                    <syncfusion:GridTextColumn MappingName="Category" HeaderText="{Binding [Col_Category], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Category" Width="68" />
-                    <syncfusion:GridTextColumn MappingName="StatusText" HeaderText="{Binding [Col_Status], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Status" Width="72" />
-                    <syncfusion:GridDateTimeColumn MappingName="OpenDate" HeaderText="{Binding [Col_OpenDate], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenDate" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" Width="98" />
-                    <syncfusion:GridNumericColumn MappingName="Quantity" HeaderText="{Binding [Col_Quantity], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Quantity" NumberDecimalDigits="2" Width="82" />
-                    <syncfusion:GridNumericColumn MappingName="OpenPrice" HeaderText="{Binding [Col_OpenPrice], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenPrice" NumberDecimalDigits="3" Width="95" />
-                    <syncfusion:GridNumericColumn MappingName="OpenCost" HeaderText="{Binding [Col_OpenCost], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenCost" NumberDecimalDigits="2" Width="100" />
-                    <syncfusion:GridNumericColumn MappingName="OpenPriceBase" HeaderText="{Binding [Col_OpenPriceBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenPriceBase" NumberDecimalDigits="2" Width="118" />
-                    <syncfusion:GridNumericColumn MappingName="OpenCostBase" HeaderText="{Binding [Col_OpenCostBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenCostBase" NumberDecimalDigits="2" Width="118" />
-                    <syncfusion:GridDateTimeColumn MappingName="CloseDate" HeaderText="{Binding [Col_CloseDate], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseDate" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" AllowNullValue="True" Width="98" />
-                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentPrice" HeaderText="{Binding [Col_CloseCurrPrice], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrPrice" NumberDecimalDigits="3" Width="118" />
-                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentValue" HeaderText="{Binding [Col_CloseCurrVal], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrVal" NumberDecimalDigits="2" Width="118" />
-                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentPriceBase" HeaderText="{Binding [Col_CloseCurrPriceBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrPriceBase" NumberDecimalDigits="2" Width="122" />
-                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentValueBase" HeaderText="{Binding [Col_MarketValBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_MarketValBase" NumberDecimalDigits="2" Width="128" />
-                    <syncfusion:GridNumericColumn MappingName="CapitalProfitLoss" HeaderText="{Binding [Col_DiffNative], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_DiffNative" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" Width="98" />
-                    <syncfusion:GridNumericColumn MappingName="CapitalProfitLossBase" HeaderText="{Binding [Col_DiffBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_DiffBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" Width="118" />
-                    <syncfusion:GridNumericColumn MappingName="NetDividendsBase" HeaderText="{Binding [Col_NetDivBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_NetDivBase" NumberDecimalDigits="2" Width="108" />
-                    <syncfusion:GridNumericColumn MappingName="TotalProfitBase" HeaderText="{Binding [Col_TotalProfitBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TotalProfitBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" Width="122" />
-                    <syncfusion:GridNumericColumn MappingName="TotalReturnPercent" HeaderText="{Binding [Col_ReturnPct], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_ReturnPct" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" Width="86" />
-                    <syncfusion:GridTemplateColumn MappingName="SparklinePoints" HeaderText="{Binding [Col_Sparkline], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Sparkline" Width="125" AllowFiltering="False" AllowSorting="False">
+                    <syncfusion:GridTextColumn MappingName="CompanyName" HeaderText="{Binding [Col_CompanyName], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CompanyName" AllowEditing="True" Width="185" />
+                    <syncfusion:GridTextColumn MappingName="Ticker" HeaderText="{Binding [Col_Ticker], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Ticker" AllowEditing="True" Width="85" />
+                    <syncfusion:GridTextColumn MappingName="StockCurrency" HeaderText="{Binding [Col_Currency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Currency" AllowEditing="True" Width="74" />
+                    <syncfusion:GridTextColumn MappingName="BaseCurrency" HeaderText="{Binding [Col_BaseCurrency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_BaseCurrency" AllowEditing="False" Width="78" />
+                    <syncfusion:GridTextColumn MappingName="Category" HeaderText="{Binding [Col_Category], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Category" AllowEditing="True" Width="68" />
+                    <syncfusion:GridTextColumn MappingName="StatusText" HeaderText="{Binding [Col_Status], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Status" AllowEditing="False" Width="72" />
+                    <syncfusion:GridDateTimeColumn MappingName="OpenDate" HeaderText="{Binding [Col_OpenDate], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenDate" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" AllowEditing="True" Width="98" />
+                    <syncfusion:GridNumericColumn MappingName="Quantity" HeaderText="{Binding [Col_Quantity], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Quantity" NumberDecimalDigits="2" AllowEditing="True" Width="82" />
+                    <syncfusion:GridNumericColumn MappingName="EditableOpenPrice" HeaderText="{Binding [Col_OpenPrice], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenPrice" CellStyle="{StaticResource ManualOpenPriceCellStyle}" NumberDecimalDigits="3" AllowNullValue="True" AllowEditing="True" Width="95" />
+                    <syncfusion:GridNumericColumn MappingName="OpenCost" HeaderText="{Binding [Col_OpenCost], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenCost" NumberDecimalDigits="2" AllowEditing="False" Width="100" />
+                    <syncfusion:GridNumericColumn MappingName="OpenPriceBase" HeaderText="{Binding [Col_OpenPriceBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenPriceBase" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="OpenCostBase" HeaderText="{Binding [Col_OpenCostBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenCostBase" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridDateTimeColumn MappingName="CloseDate" HeaderText="{Binding [Col_CloseDate], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseDate" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" AllowNullValue="True" AllowEditing="True" Width="98" />
+                    <syncfusion:GridNumericColumn MappingName="EditableCloseOrCurrentPrice" HeaderText="{Binding [Col_CloseCurrPrice], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrPrice" CellStyle="{StaticResource ManualClosePriceCellStyle}" NumberDecimalDigits="3" AllowNullValue="True" AllowEditing="True" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentValue" HeaderText="{Binding [Col_CloseCurrVal], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrVal" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentPriceBase" HeaderText="{Binding [Col_CloseCurrPriceBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrPriceBase" NumberDecimalDigits="2" AllowEditing="False" Width="122" />
+                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentValueBase" HeaderText="{Binding [Col_MarketValBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_MarketValBase" NumberDecimalDigits="2" AllowEditing="False" Width="128" />
+                    <syncfusion:GridNumericColumn MappingName="CapitalProfitLoss" HeaderText="{Binding [Col_DiffNative], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_DiffNative" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="98" />
+                    <syncfusion:GridNumericColumn MappingName="CapitalProfitLossBase" HeaderText="{Binding [Col_DiffBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_DiffBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="NetDividendsBase" HeaderText="{Binding [Col_NetDivBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_NetDivBase" NumberDecimalDigits="2" AllowEditing="False" Width="108" />
+                    <syncfusion:GridNumericColumn MappingName="TotalProfitBase" HeaderText="{Binding [Col_TotalProfitBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TotalProfitBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="122" />
+                    <syncfusion:GridNumericColumn MappingName="TotalReturnPercent" HeaderText="{Binding [Col_ReturnPct], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_ReturnPct" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="86" />
+                    <syncfusion:GridTemplateColumn MappingName="SparklinePoints" HeaderText="{Binding [Col_Sparkline], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Sparkline" Width="125" AllowEditing="False" AllowFiltering="False" AllowSorting="False">
                         <syncfusion:GridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <syncfusion:SfColumnSparkline ItemsSource="{Binding SparklinePoints}"
