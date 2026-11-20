@@ -360,6 +360,7 @@
                                    ItemsSource="{Binding FilteredLots}"
                                    SelectedItem="{Binding SelectedLot, Mode=TwoWay}"
                                    behaviors:MvvmBehaviors.GroupExpandRequest="{Binding GroupExpandRequest}"
+                                   behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                    ToolTip="{Binding [Tip_PositionsGrid], Source={x:Static services:LocalizationService.Instance}}"
                                    AutoGenerateColumns="False"
                                    AllowGrouping="True"

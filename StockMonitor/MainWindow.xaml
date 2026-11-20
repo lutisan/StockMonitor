@@ -9,107 +9,145 @@
         xmlns:views="clr-namespace:StockMonitor.Views"
         mc:Ignorable="d"
         behaviors:MvvmBehaviors.ThemeName="{Binding SelectedTheme}"
-        Title="{Binding [WindowTitle], Source={x:Static services:LocalizationService.Instance}}"
+        Title="{Binding WindowTitle}"
         Height="920"
         Width="1620"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
 
-    <Grid Margin="8">
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewFileCommand}" />
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenFileCommand}" />
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveFileCommand}" />
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveFileAsCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- TOP HEADER BAR -->
-        <Border Grid.Row="0" Padding="10,6" Margin="0,0,0,6" BorderThickness="0,0,0,1">
+        <!-- TOP MENU BAR (Syncfusion MenuAdv) -->
+        <Border Grid.Row="0" BorderThickness="0,0,0,1" Padding="4,2,10,2">
             <DockPanel LastChildFill="False">
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <!--<TextBlock Text="StockMonitor" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,14,0" />-->
+                <syncfusion:MenuAdv DockPanel.Dock="Left"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.AutomationId="MainMenuBar">
+                    <syncfusion:MenuItemAdv Header="{Binding [Menu_File], Source={x:Static services:LocalizationService.Instance}}"
+                                            AutomationProperties.AutomationId="MenuFile">
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_New], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_Menu_New], Source={x:Static services:LocalizationService.Instance}}"
+                                                InputGestureText="Ctrl+N"
+                                                Command="{Binding NewFileCommand}"
+                                                AutomationProperties.AutomationId="MenuItemNew" />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_Open], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_Menu_Open], Source={x:Static services:LocalizationService.Instance}}"
+                                                InputGestureText="Ctrl+O"
+                                                Command="{Binding OpenFileCommand}"
+                                                AutomationProperties.AutomationId="MenuItemOpen" />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_Save], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_Menu_Save], Source={x:Static services:LocalizationService.Instance}}"
+                                                InputGestureText="Ctrl+S"
+                                                Command="{Binding SaveFileCommand}"
+                                                AutomationProperties.AutomationId="MenuItemSave" />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_SaveAs], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_Menu_SaveAs], Source={x:Static services:LocalizationService.Instance}}"
+                                                InputGestureText="Ctrl+Shift+S"
+                                                Command="{Binding SaveFileAsCommand}"
+                                                AutomationProperties.AutomationId="MenuItemSaveAs" />
+                        <syncfusion:MenuItemSeparator />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_Password], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_Menu_Password], Source={x:Static services:LocalizationService.Instance}}"
+                                                Command="{Binding ManagePasswordCommand}"
+                                                AutomationProperties.AutomationId="MenuItemPassword" />
+                        <syncfusion:MenuItemSeparator />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_ImportXtb], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_BtnImportXtb], Source={x:Static services:LocalizationService.Instance}}"
+                                                Command="{Binding ImportXtbCommand}"
+                                                AutomationProperties.AutomationId="BtnImportXtb" />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_Export], Source={x:Static services:LocalizationService.Instance}}"
+                                                ToolTip="{Binding [Tip_BtnExport], Source={x:Static services:LocalizationService.Instance}}"
+                                                Command="{Binding ExportPortfolioCommand}"
+                                                AutomationProperties.AutomationId="BtnExportPortfolio" />
+                        <syncfusion:MenuItemSeparator />
+                        <syncfusion:MenuItemAdv Header="{Binding [Menu_Exit], Source={x:Static services:LocalizationService.Instance}}"
+                                                InputGestureText="Alt+F4"
+                                                Click="ExitMenuItem_Click"
+                                                AutomationProperties.AutomationId="MenuItemExit" />
+                    </syncfusion:MenuItemAdv>
+
+                    <syncfusion:MenuItemAdv Header="{Binding [Btn_SyncMarket], Source={x:Static services:LocalizationService.Instance}}"
+                                            ToolTip="{Binding [Tip_BtnSyncMarket], Source={x:Static services:LocalizationService.Instance}}"
+                                            Command="{Binding RefreshMarketDataCommand}"
+                                            AutomationProperties.AutomationId="BtnSyncMarket" />
+                </syncfusion:MenuAdv>
+
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
                     <TextBlock Text="{Binding [Lbl_Account], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_Account], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding AccountNumber}"
                                ToolTip="{Binding [Tip_Account], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [Lbl_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding OpenLotsCount}"
                                AutomationProperties.AutomationId="TxtOpenLotsCount"
                                ToolTip="{Binding [Tip_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
                     <TextBlock Text="{Binding [Lbl_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding ClosedLotsCount}"
                                AutomationProperties.AutomationId="TxtClosedLotsCount"
                                ToolTip="{Binding [Tip_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
                     <TextBlock Text="{Binding [Lbl_Tickers], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_Tickers], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding DistinctInstrumentsCount}"
                                AutomationProperties.AutomationId="TxtDistinctInstrumentsCount"
                                ToolTip="{Binding [Tip_Tickers], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" />
-                </StackPanel>
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
 
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
                     <TextBlock Text="{Binding [Lbl_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
-                               VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,6,0" />
+                               VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,5,0" />
                     <ComboBox ItemsSource="{Binding AvailableCurrencies}"
                               SelectedItem="{Binding SelectedBaseCurrency}"
                               AutomationProperties.AutomationId="CmbBaseCurrency"
                               ToolTip="{Binding [Tip_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
-                              Width="72"
+                              Width="70"
                               VerticalAlignment="Center"
-                              Margin="0,0,12,0" />
+                              Margin="0,0,10,0" />
 
                     <TextBlock Text="{Binding [Lbl_Language], Source={x:Static services:LocalizationService.Instance}}"
-                               VerticalAlignment="Center" Margin="0,0,6,0" />
+                               VerticalAlignment="Center" Margin="0,0,5,0" />
                     <ComboBox ItemsSource="{Binding AvailableLanguages}"
                               SelectedItem="{Binding SelectedLanguage}"
                               AutomationProperties.AutomationId="CmbLanguage"
                               ToolTip="{Binding [Tip_Language], Source={x:Static services:LocalizationService.Instance}}"
-                              Width="62"
+                              Width="58"
                               VerticalAlignment="Center"
-                              Margin="0,0,12,0" />
+                              Margin="0,0,10,0" />
 
                     <TextBlock Text="{Binding [Lbl_Theme], Source={x:Static services:LocalizationService.Instance}}"
-                               VerticalAlignment="Center" Margin="0,0,6,0" />
+                               VerticalAlignment="Center" Margin="0,0,5,0" />
                     <ComboBox ItemsSource="{Binding AvailableThemes}"
                               SelectedItem="{Binding SelectedTheme}"
                               AutomationProperties.AutomationId="CmbTheme"
                               ToolTip="{Binding [Tip_Theme], Source={x:Static services:LocalizationService.Instance}}"
-                              Width="150"
-                              VerticalAlignment="Center"
-                              Margin="0,0,12,0" />
-
-                    <Button Content="{Binding [Btn_ImportXtb], Source={x:Static services:LocalizationService.Instance}}"
-                            AutomationProperties.AutomationId="BtnImportXtb"
-                            ToolTip="{Binding [Tip_BtnImportXtb], Source={x:Static services:LocalizationService.Instance}}"
-                            Command="{Binding ImportXtbCommand}"
-                            Padding="10,4"
-                            Margin="0,0,8,0" />
-                    <Button Content="{Binding [Btn_Export], Source={x:Static services:LocalizationService.Instance}}"
-                            AutomationProperties.AutomationId="BtnExportPortfolio"
-                            ToolTip="{Binding [Tip_BtnExport], Source={x:Static services:LocalizationService.Instance}}"
-                            Command="{Binding ExportPortfolioCommand}"
-                            Padding="10,4"
-                            Margin="0,0,8,0" />
-                    <Button Content="{Binding [Btn_SyncMarket], Source={x:Static services:LocalizationService.Instance}}"
-                            AutomationProperties.AutomationId="BtnSyncMarket"
-                            ToolTip="{Binding [Tip_BtnSyncMarket], Source={x:Static services:LocalizationService.Instance}}"
-                            Command="{Binding RefreshMarketDataCommand}"
-                            Padding="10,4" />
+                              Width="148"
+                              VerticalAlignment="Center" />
                 </StackPanel>
             </DockPanel>
         </Border>
 
         <!-- MAIN TAB CONTROL -->
         <syncfusion:TabControlExt Grid.Row="1"
+                                  Margin="8,6,8,0"
                                   AutomationProperties.AutomationId="MainTabControl"
                                   CloseButtonType="Hide"
                                   TabStripPlacement="Top"
@@ -142,7 +180,7 @@
         </syncfusion:TabControlExt>
 
         <!-- STATUS BAR -->
-        <Border Grid.Row="2" Padding="8,4" Margin="0,6,0,0" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Padding="8,4" Margin="8,6,8,8" BorderThickness="0,1,0,0">
             <DockPanel>
                 <TextBlock Text="{Binding StorageFilePath, StringFormat='Local JSON: {0}'}"
                            AutomationProperties.AutomationId="TxtStorageFilePath"

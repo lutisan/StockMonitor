@@ -326,4 +326,43 @@
   <data name="Err_LogSavedTo" xml:space="preserve"><value>Details saved to:</value></data>
   <data name="Btn_OpenLogInExplorer" xml:space="preserve"><value>Open log file in File Explorer</value></data>
   <data name="Btn_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_RemovePassword" xml:space="preserve"><value>Remove Password</value></data>
+  <data name="Menu_File" xml:space="preserve"><value>_File</value></data>
+  <data name="Menu_New" xml:space="preserve"><value>_New</value></data>
+  <data name="Tip_Menu_New" xml:space="preserve"><value>Create a new empty portfolio document (Ctrl+N)</value></data>
+  <data name="Menu_Open" xml:space="preserve"><value>_Open...</value></data>
+  <data name="Tip_Menu_Open" xml:space="preserve"><value>Open an existing portfolio JSON file (Ctrl+O)</value></data>
+  <data name="Menu_Save" xml:space="preserve"><value>_Save</value></data>
+  <data name="Tip_Menu_Save" xml:space="preserve"><value>Save the current portfolio document (Ctrl+S)</value></data>
+  <data name="Menu_SaveAs" xml:space="preserve"><value>Save _As...</value></data>
+  <data name="Tip_Menu_SaveAs" xml:space="preserve"><value>Save the current portfolio document to a new file (Ctrl+Shift+S)</value></data>
+  <data name="Menu_Password" xml:space="preserve"><value>_Password...</value></data>
+  <data name="Tip_Menu_Password" xml:space="preserve"><value>Set, change, or remove the encryption password for this document (never stored on disk)</value></data>
+  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Import XTB...</value></data>
+  <data name="Menu_Export" xml:space="preserve"><value>_Export Report...</value></data>
+  <data name="Menu_Exit" xml:space="preserve"><value>E_xit</value></data>
+  <data name="Dlg_OpenPortfolioTitle" xml:space="preserve"><value>Open StockMonitor Portfolio (.json)</value></data>
+  <data name="Dlg_SavePortfolioTitle" xml:space="preserve"><value>Save StockMonitor Portfolio (.json)</value></data>
+  <data name="Dlg_UnsavedTitle" xml:space="preserve"><value>Unsaved Changes</value></data>
+  <data name="Dlg_UnsavedMessage" xml:space="preserve"><value>Do you want to save changes to "{0}" before continuing?</value></data>
+  <data name="Dlg_EnterPasswordTitle" xml:space="preserve"><value>Enter Document Password</value></data>
+  <data name="Dlg_EnterPasswordPrompt" xml:space="preserve"><value>"{0}" is encrypted. Enter the password to open it:</value></data>
+  <data name="Dlg_InvalidPasswordError" xml:space="preserve"><value>Incorrect password. Please try again.</value></data>
+  <data name="Dlg_PasswordEmptyError" xml:space="preserve"><value>Password cannot be empty.</value></data>
+  <data name="Dlg_PasswordMismatchError" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="Dlg_ManagePasswordTitle" xml:space="preserve"><value>Document Encryption Password</value></data>
+  <data name="Dlg_ManagePasswordHintProtected" xml:space="preserve"><value>This document is currently password-protected. Enter the current password first to change or remove it. Passwords are never stored on disk.</value></data>
+  <data name="Dlg_ManagePasswordHintUnprotected" xml:space="preserve"><value>This document is currently unencrypted. Enter a password to encrypt the JSON file when saving. Passwords are never stored on disk.</value></data>
+  <data name="Dlg_CurrentPasswordLabel" xml:space="preserve"><value>Current password:</value></data>
+  <data name="Dlg_CurrentPasswordInvalidError" xml:space="preserve"><value>Current password is incorrect.</value></data>
+  <data name="Dlg_NewPasswordLabel" xml:space="preserve"><value>New password:</value></data>
+  <data name="Dlg_ConfirmPasswordLabel" xml:space="preserve"><value>Confirm password:</value></data>
+  <data name="Dlg_ShowPassword" xml:space="preserve"><value>Show password</value></data>
+  <data name="Lbl_UntitledDocument" xml:space="preserve"><value>Untitled</value></data>
+  <data name="Lbl_UnsavedFile" xml:space="preserve"><value>Unsaved document</value></data>
+  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Import XTB Report</value></data>
+  <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>The current document already contains data. How would you like to import "{0}"?</value></data>
+  <data name="Btn_ImportReplace" xml:space="preserve"><value>Replace Current Content</value></data>
+  <data name="Btn_ImportAppend" xml:space="preserve"><value>Add to Current Content</value></data>
 </root>

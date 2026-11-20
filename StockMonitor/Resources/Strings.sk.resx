@@ -326,4 +326,43 @@
   <data name="Err_LogSavedTo" xml:space="preserve"><value>Podrobnosti uložené do:</value></data>
   <data name="Btn_OpenLogInExplorer" xml:space="preserve"><value>Otvoriť súbor denníka v Prieskumníkovi</value></data>
   <data name="Btn_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Zrušiť</value></data>
+  <data name="Btn_RemovePassword" xml:space="preserve"><value>Odstrániť heslo</value></data>
+  <data name="Menu_File" xml:space="preserve"><value>_Súbor</value></data>
+  <data name="Menu_New" xml:space="preserve"><value>_Nový</value></data>
+  <data name="Tip_Menu_New" xml:space="preserve"><value>Vytvoriť nový prázdny dokument portfólia (Ctrl+N)</value></data>
+  <data name="Menu_Open" xml:space="preserve"><value>_Otvoriť...</value></data>
+  <data name="Tip_Menu_Open" xml:space="preserve"><value>Otvoriť existujúci JSON súbor portfólia (Ctrl+O)</value></data>
+  <data name="Menu_Save" xml:space="preserve"><value>_Uložiť</value></data>
+  <data name="Tip_Menu_Save" xml:space="preserve"><value>Uložiť aktuálny dokument portfólia (Ctrl+S)</value></data>
+  <data name="Menu_SaveAs" xml:space="preserve"><value>Uložiť _ako...</value></data>
+  <data name="Tip_Menu_SaveAs" xml:space="preserve"><value>Uložiť aktuálny dokument portfólia do nového súboru (Ctrl+Shift+S)</value></data>
+  <data name="Menu_Password" xml:space="preserve"><value>_Heslo...</value></data>
+  <data name="Tip_Menu_Password" xml:space="preserve"><value>Nastaviť, zmeniť alebo odstrániť heslo šifrovania pre tento dokument (heslo sa nikam neukladá)</value></data>
+  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Importovať XTB...</value></data>
+  <data name="Menu_Export" xml:space="preserve"><value>_Exportovať výpis...</value></data>
+  <data name="Menu_Exit" xml:space="preserve"><value>_Ukončiť</value></data>
+  <data name="Dlg_OpenPortfolioTitle" xml:space="preserve"><value>Otvoriť StockMonitor portfólio (.json)</value></data>
+  <data name="Dlg_SavePortfolioTitle" xml:space="preserve"><value>Uložiť StockMonitor portfólio (.json)</value></data>
+  <data name="Dlg_UnsavedTitle" xml:space="preserve"><value>Neuložené zmeny</value></data>
+  <data name="Dlg_UnsavedMessage" xml:space="preserve"><value>Chcete pred pokračovaním uložiť zmeny v dokumente „{0}“?</value></data>
+  <data name="Dlg_EnterPasswordTitle" xml:space="preserve"><value>Zadajte heslo dokumentu</value></data>
+  <data name="Dlg_EnterPasswordPrompt" xml:space="preserve"><value>Súbor „{0}“ je zašifrovaný. Zadajte heslo na jeho otvorenie:</value></data>
+  <data name="Dlg_InvalidPasswordError" xml:space="preserve"><value>Nesprávne heslo. Skúste to prosím znova.</value></data>
+  <data name="Dlg_PasswordEmptyError" xml:space="preserve"><value>Heslo nemôže byť prázdne.</value></data>
+  <data name="Dlg_PasswordMismatchError" xml:space="preserve"><value>Heslá sa nezhodujú.</value></data>
+  <data name="Dlg_ManagePasswordTitle" xml:space="preserve"><value>Heslo šifrovania dokumentu</value></data>
+  <data name="Dlg_ManagePasswordHintProtected" xml:space="preserve"><value>Tento dokument je chránený heslom. Pre jeho zmenu alebo odstránenie najskôr zadajte aktuálne heslo. Heslá sa nikdy neukladajú na disk.</value></data>
+  <data name="Dlg_ManagePasswordHintUnprotected" xml:space="preserve"><value>Tento dokument momentálne nie je šifrovaný. Zadajte heslo na zašifrovanie JSON súboru pri ukladaní. Heslá sa nikdy neukladajú na disk.</value></data>
+  <data name="Dlg_CurrentPasswordLabel" xml:space="preserve"><value>Aktuálne heslo:</value></data>
+  <data name="Dlg_CurrentPasswordInvalidError" xml:space="preserve"><value>Aktuálne heslo je nesprávne.</value></data>
+  <data name="Dlg_NewPasswordLabel" xml:space="preserve"><value>Nové heslo:</value></data>
+  <data name="Dlg_ConfirmPasswordLabel" xml:space="preserve"><value>Potvrdiť heslo:</value></data>
+  <data name="Dlg_ShowPassword" xml:space="preserve"><value>Zobraziť heslo</value></data>
+  <data name="Lbl_UntitledDocument" xml:space="preserve"><value>Bez názvu</value></data>
+  <data name="Lbl_UnsavedFile" xml:space="preserve"><value>Neuložený dokument</value></data>
+  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Importovať XTB výpis</value></data>
+  <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>Aktuálny dokument už obsahuje dáta. Ako chcete importovať súbor „{0}“?</value></data>
+  <data name="Btn_ImportReplace" xml:space="preserve"><value>Nahradiť aktuálny obsah</value></data>
+  <data name="Btn_ImportAppend" xml:space="preserve"><value>Pridať k aktuálnemu obsahu</value></data>
 </root>

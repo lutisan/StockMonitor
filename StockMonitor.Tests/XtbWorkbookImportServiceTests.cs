@@ -133,6 +133,51 @@ public sealed class XtbWorkbookImportServiceTests
     }
 
     /// <summary>
+    /// Verifies that importing an XTB report in Append mode (<c>replaceExistingXtbData: false</c>)
+    /// preserves all existing manual lots and existing XTB lots without duplicating broker dividends or cash flows.
+    /// </summary>
+    [Fact]
+    public void ImportFile_AppendMode_PreservesExistingManualAndXtbLotsWithoutDuplicatingDividends()
+    {
+        using TempTestDirectory tempDir = new();
+        string csvPath = tempDir.FilePath("xtb_append.csv");
+        File.WriteAllText(csvPath, SampleXtbCsv);
+
+        XtbWorkbookImportService importer = new();
+        PortfolioDocument doc = new() { TaxRules = TickerMappingHelper.CreateDefaultTaxRules() };
+
+        // Start with a manually defined position lot
+        doc.Lots.Add(new PositionLot
+        {
+            ExternalPositionId = "MAN-NEW-1",
+            CompanyName = "My Manual Stock",
+            Ticker = "MSFT.US",
+            YahooSymbol = "MSFT",
+            StockCurrency = "USD",
+            Quantity = 3m,
+            OpenDate = new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc),
+            OpenPrice = 420m,
+            IsOpenPriceManual = true,
+            Source = DataSource.ManualEntry
+        });
+
+        // Append XTB report
+        importer.ImportFile(csvPath, doc, replaceExistingXtbData: false);
+
+        Assert.Equal(3, doc.Lots.Count);
+        Assert.Contains(doc.Lots, l => l.ExternalPositionId == "MAN-NEW-1" && l.Ticker == "MSFT.US");
+        Assert.Contains(doc.Lots, l => l.ExternalPositionId == "736368378" && l.Ticker == "NVDA.US");
+        Assert.Contains(doc.Lots, l => l.ExternalPositionId == "261950118" && l.Ticker == "LYPG.DE");
+        Assert.Single(doc.Dividends);
+
+        // Appending the same XTB report a second time must not duplicate XTB lots, cash flows, or dividends
+        importer.ImportFile(csvPath, doc, replaceExistingXtbData: false);
+
+        Assert.Equal(3, doc.Lots.Count);
+        Assert.Single(doc.Dividends);
+    }
+
+    /// <summary>
     /// Verifies that <see cref="XtbWorkbookImportService.ImportFile"/> throws <see cref="FileNotFoundException"/>
     /// when the specified report path does not exist.
     /// </summary>

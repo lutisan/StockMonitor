@@ -11,9 +11,10 @@ namespace StockMonitor.ViewModels;
 /// Main ViewModel coordinating positions, charts, dividends, history, dynamic ticker mappings, tax rules,
 /// and XTB Excel/CSV imports. All I/O and portfolio calculations run asynchronously with live status bar timing.
 /// </summary>
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly PortfolioStorageService _storageService;
+    private readonly AppPreferencesService _preferencesService;
     private readonly PortfolioCalculationService _calculationService;
     private readonly YahooFinanceMarketDataProvider _marketDataProvider;
     private readonly FrankfurterFxRateProvider _fxRateProvider;
@@ -22,6 +23,8 @@ public partial class MainViewModel : ObservableObject
     private readonly IFileDialogService _fileDialogService;
 
     private PortfolioDocument _document = new();
+    private string? _currentFilePath;
+    private DocumentEncryptionKey? _currentEncryptionKey;
     private bool _isInitializing = true;
     private int _expandCollapseCounter;
     private int _activeOperationsCount;
@@ -137,9 +140,21 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private DateTime _reportDateUtc;
 
-    /// <summary>Gets or sets the full path to the local <c>portfolio.json</c> storage file.</summary>
+    /// <summary>Gets or sets the full path to the active portfolio JSON file (or an unsaved-document label).</summary>
     [ObservableProperty]
     private string _storageFilePath = string.Empty;
+
+    /// <summary>Gets or sets a value indicating whether the active portfolio document has unsaved changes.</summary>
+    [ObservableProperty]
+    private bool _isDirty;
+
+    /// <summary>Gets or sets a value indicating whether the active portfolio document is encrypted with an in-memory password.</summary>
+    [ObservableProperty]
+    private bool _isEncrypted;
+
+    /// <summary>Gets or sets the dynamic window title displaying the active file name, encryption lock, and dirty marker.</summary>
+    [ObservableProperty]
+    private string _windowTitle = "StockMonitor";
 
     /// <summary>Gets or sets the Yahoo Finance quote URL for <see cref="SelectedLot"/>.</summary>
     [ObservableProperty]
@@ -156,6 +171,10 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Gets or sets a signed signal counter requesting the Positions grid to expand (&gt; 0) or collapse (&lt; 0) all groups.</summary>
     [ObservableProperty]
     private int _groupExpandRequest;
+
+    /// <summary>Gets or sets an incrementing signal counter requesting all <c>SfDataGrid</c> instances to clear their column filters.</summary>
+    [ObservableProperty]
+    private int _clearFiltersRequest;
 
     // Summary KPIs
     /// <summary>Gets or sets the total purchase cost of all currently open positions in <see cref="SelectedBaseCurrency"/>.</summary>
@@ -222,6 +241,7 @@ public partial class MainViewModel : ObservableObject
     /// Initializes a new instance of the <see cref="MainViewModel"/> class and begins asynchronous portfolio loading.
     /// </summary>
     /// <param name="storageService">Local JSON portfolio persistence service.</param>
+    /// <param name="preferencesService">Persistent shell preferences service (last file &amp; folder).</param>
     /// <param name="calculationService">Portfolio valuation and tax calculation service.</param>
     /// <param name="marketDataProvider">Yahoo Finance quote and historical chart provider.</param>
     /// <param name="fxRateProvider">Online ECB exchange rate provider.</param>
@@ -230,6 +250,7 @@ public partial class MainViewModel : ObservableObject
     /// <param name="fileDialogService">UI-decoupled file dialog and browser launcher service.</param>
     public MainViewModel(
         PortfolioStorageService storageService,
+        AppPreferencesService preferencesService,
         PortfolioCalculationService calculationService,
         YahooFinanceMarketDataProvider marketDataProvider,
         FrankfurterFxRateProvider fxRateProvider,
@@ -238,6 +259,7 @@ public partial class MainViewModel : ObservableObject
         IFileDialogService fileDialogService)
     {
         _storageService = storageService;
+        _preferencesService = preferencesService;
         _calculationService = calculationService;
         _marketDataProvider = marketDataProvider;
         _fxRateProvider = fxRateProvider;
@@ -245,7 +267,8 @@ public partial class MainViewModel : ObservableObject
         _exportService = exportService;
         _fileDialogService = fileDialogService;
 
-        _storageFilePath = _storageService.StorageFilePath;
+        _currentFilePath = _storageService.StorageFilePath;
+        UpdateDocumentTitleAndPath();
         _ = InitializePortfolioAsync();
     }
 
@@ -289,20 +312,44 @@ public partial class MainViewModel : ObservableObject
             "Loading portfolio JSON storage and calculating initial metrics...",
             async (progress, ct) =>
             {
-                _document = await _storageService.LoadOrSeedAsync(ct);
+                string? lastFilePath = _preferencesService.GetLastFilePath();
+                bool loadedFromLastFile = false;
 
-                _isInitializing = true;
-                SelectedBaseCurrency = string.IsNullOrWhiteSpace(_document.Settings.BaseCurrency)
-                    ? "EUR"
-                    : _document.Settings.BaseCurrency;
-                SelectedLanguage = string.IsNullOrWhiteSpace(_document.Settings.Language)
-                    ? "EN"
-                    : _document.Settings.Language;
-                LocalizationService.Instance.CurrentLanguage = SelectedLanguage;
-                SelectedTheme = string.IsNullOrWhiteSpace(_document.Settings.ThemeName)
-                    ? "Windows11Dark"
-                    : _document.Settings.ThemeName;
-                _isInitializing = false;
+                if (!string.IsNullOrWhiteSpace(lastFilePath) && System.IO.File.Exists(lastFilePath))
+                {
+                    (PortfolioDocument? loadedDoc, DocumentEncryptionKey? encryptionKey, bool cancelled) =
+                        await TryLoadFromPathWithPasswordAsync(lastFilePath, ct);
+
+                    if (loadedDoc != null)
+                    {
+                        _document = loadedDoc;
+                        _currentFilePath = lastFilePath;
+                        _storageService.CurrentFilePath = lastFilePath;
+                        SetEncryptionKey(encryptionKey);
+                        IsDirty = false;
+                        loadedFromLastFile = true;
+                    }
+                    else if (cancelled)
+                    {
+                        _document = _storageService.CreateEmptyDocument();
+                        _currentFilePath = null;
+                        _storageService.CurrentFilePath = null;
+                        SetEncryptionKey(null);
+                        IsDirty = false;
+                        loadedFromLastFile = true;
+                    }
+                }
+
+                if (!loadedFromLastFile)
+                {
+                    _document = await _storageService.LoadOrSeedAsync(ct);
+                    _currentFilePath = _storageService.CurrentFilePath;
+                    SetEncryptionKey(null);
+                    IsDirty = false;
+                }
+
+                ApplyDocumentSettingsToUi();
+                UpdateDocumentTitleAndPath();
 
                 progress("Calculating positions, dividends, and portfolio history...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
@@ -318,15 +365,394 @@ public partial class MainViewModel : ObservableObject
                     await _marketDataProvider.PopulateMissingPricesAndDividendsAsync(_document, progress, ct);
                 }
 
-                progress("Checking online ECB exchange rates for current day and transaction dates...");
-                await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
+                if (_document.Lots.Count > 0 || _document.Dividends.Count > 0 || _document.CashFlows.Count > 0)
+                {
+                    progress("Checking online ECB exchange rates for current day and transaction dates...");
+                    await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
 
-                progress("Recalculating portfolio with online ECB exchange rates...");
-                await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
-                await _storageService.SaveAsync(_document, ct);
+                    progress("Recalculating portfolio with online ECB exchange rates...");
+                    await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
+                }
+
+                IsDirty = false;
+                UpdateDocumentTitleAndPath();
 
                 return $"Portfolio loaded: {_document.Lots.Count} lots ({OpenLotsCount} open, {ClosedLotsCount} closed), {_document.TickerMappings.Count} tickers";
             });
+    }
+
+    private void ApplyDocumentSettingsToUi()
+    {
+        _isInitializing = true;
+        SelectedBaseCurrency = string.IsNullOrWhiteSpace(_document.Settings.BaseCurrency)
+            ? "EUR"
+            : _document.Settings.BaseCurrency;
+        SelectedLanguage = string.IsNullOrWhiteSpace(_document.Settings.Language)
+            ? "EN"
+            : _document.Settings.Language;
+        LocalizationService.Instance.CurrentLanguage = SelectedLanguage;
+        SelectedTheme = string.IsNullOrWhiteSpace(_document.Settings.ThemeName)
+            ? "Windows11Dark"
+            : _document.Settings.ThemeName;
+        _isInitializing = false;
+    }
+
+    private void MarkDirty()
+    {
+        if (_isInitializing)
+        {
+            return;
+        }
+
+        if (!IsDirty)
+        {
+            IsDirty = true;
+        }
+
+        UpdateDocumentTitleAndPath();
+    }
+
+    private string GetDisplayDocumentName()
+    {
+        return string.IsNullOrWhiteSpace(_currentFilePath)
+            ? LocalizationService.Instance.Get("Lbl_UntitledDocument")
+            : System.IO.Path.GetFileName(_currentFilePath);
+    }
+
+    private void UpdateDocumentTitleAndPath()
+    {
+        LocalizationService loc = LocalizationService.Instance;
+        string docName = GetDisplayDocumentName();
+        string lockSuffix = IsEncrypted ? " \uD83D\uDD12" : string.Empty;
+        string dirtySuffix = IsDirty ? "*" : string.Empty;
+        WindowTitle = $"{loc.Get("WindowTitle")} — {docName}{lockSuffix}{dirtySuffix}";
+
+        string pathText = string.IsNullOrWhiteSpace(_currentFilePath)
+            ? loc.Get("Lbl_UnsavedFile")
+            : _currentFilePath;
+        StorageFilePath = IsEncrypted ? $"{pathText} (\uD83D\uDD12)" : pathText;
+    }
+
+    private void SetEncryptionKey(DocumentEncryptionKey? newKey)
+    {
+        if (!ReferenceEquals(_currentEncryptionKey, newKey))
+        {
+            _currentEncryptionKey?.Dispose();
+            _currentEncryptionKey = newKey;
+        }
+
+        IsEncrypted = _currentEncryptionKey != null;
+    }
+
+    /// <summary>Zeroes and disposes any in-memory derived encryption key material.</summary>
+    public void ClearEncryptionKey()
+    {
+        SetEncryptionKey(null);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        ClearEncryptionKey();
+        _chartLoadCts?.Dispose();
+        _filterCts?.Dispose();
+        _zoomHistoryCts?.Dispose();
+    }
+
+    private async Task<(PortfolioDocument? Document, DocumentEncryptionKey? EncryptionKey, bool Cancelled)> TryLoadFromPathWithPasswordAsync(
+        string filePath,
+        CancellationToken cancellationToken)
+    {
+        bool encrypted = await _storageService.IsFileEncryptedAsync(filePath, cancellationToken);
+        if (!encrypted)
+        {
+            try
+            {
+                (PortfolioDocument doc, DocumentEncryptionKey? key) =
+                    await _storageService.LoadFromFileWithKeyAsync(filePath, password: null, cancellationToken);
+                return (doc, key, false);
+            }
+            catch (Exception ex)
+            {
+                _fileDialogService.ShowError("Open Error", $"Failed to open portfolio file '{filePath}':\n{ex.Message}");
+                return (null, null, false);
+            }
+        }
+
+        string fileName = System.IO.Path.GetFileName(filePath);
+        bool isRetry = false;
+        while (true)
+        {
+            string? enteredPassword = _fileDialogService.ShowEnterPasswordDialog(fileName, isRetry);
+            if (enteredPassword == null)
+            {
+                return (null, null, true);
+            }
+
+            try
+            {
+                (PortfolioDocument doc, DocumentEncryptionKey? derivedKey) =
+                    await _storageService.LoadFromFileWithKeyAsync(filePath, enteredPassword, cancellationToken);
+                return (doc, derivedKey, false);
+            }
+            catch (InvalidDocumentPasswordException)
+            {
+                isRetry = true;
+            }
+            catch (EncryptedDocumentPasswordRequiredException)
+            {
+                isRetry = true;
+            }
+            catch (Exception ex)
+            {
+                _fileDialogService.ShowError("Open Error", $"Failed to decrypt or open '{fileName}':\n{ex.Message}");
+                return (null, null, false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Prompts the user to save unsaved changes if <see cref="IsDirty"/> is true.
+    /// Returns <see langword="true"/> if it is safe to proceed (saved, discarded, or not dirty);
+    /// returns <see langword="false"/> if the user cancelled or saving failed.
+    /// </summary>
+    public async Task<bool> ConfirmSaveIfDirtyAsync()
+    {
+        if (!IsDirty)
+        {
+            return true;
+        }
+
+        UnsavedChangesChoice choice = _fileDialogService.ShowUnsavedChangesPrompt(GetDisplayDocumentName());
+        return choice switch
+        {
+            UnsavedChangesChoice.Discard => true,
+            UnsavedChangesChoice.Save => await SaveFileInternalAsync(),
+            _ => false
+        };
+    }
+
+    /// <summary>Creates a new empty portfolio document (prompts to save unsaved changes first).</summary>
+    [RelayCommand]
+    private async Task NewFileAsync()
+    {
+        if (!await ConfirmSaveIfDirtyAsync())
+        {
+            return;
+        }
+
+        await RunWithStatusTimerAsync(
+            "Creating new empty portfolio document...",
+            async (_, ct) =>
+            {
+                PortfolioDocument emptyDoc = _storageService.CreateEmptyDocument();
+                emptyDoc.Settings.BaseCurrency = SelectedBaseCurrency;
+                emptyDoc.Settings.Language = SelectedLanguage;
+                emptyDoc.Settings.ThemeName = SelectedTheme;
+
+                _document = emptyDoc;
+                _currentFilePath = null;
+                _storageService.CurrentFilePath = null;
+                SetEncryptionKey(null);
+                IsDirty = false;
+                UpdateDocumentTitleAndPath();
+
+                await ReloadFromDocumentAsync(reloadSelectedChart: false, ct);
+                return "Created new empty portfolio document";
+            });
+    }
+
+    /// <summary>Opens an existing StockMonitor JSON portfolio file (plain or password-encrypted).</summary>
+    [RelayCommand]
+    private async Task OpenFileAsync()
+    {
+        if (!await ConfirmSaveIfDirtyAsync())
+        {
+            return;
+        }
+
+        string initialDir = _preferencesService.GetInitialDirectory();
+        string? selectedPath = _fileDialogService.ShowOpenPortfolioFileDialog(initialDir);
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            return;
+        }
+
+        await OpenFileFromPathAsync(selectedPath);
+    }
+
+    /// <summary>Opens the specified portfolio JSON file path, prompting for a password if encrypted.</summary>
+    public async Task OpenFileFromPathAsync(string filePath)
+    {
+        string fileName = System.IO.Path.GetFileName(filePath);
+        await RunWithStatusTimerAsync(
+            $"Opening portfolio '{fileName}'...",
+            async (progress, ct) =>
+            {
+                (PortfolioDocument? loadedDoc, DocumentEncryptionKey? encryptionKey, bool cancelled) =
+                    await TryLoadFromPathWithPasswordAsync(filePath, ct);
+
+                if (cancelled || loadedDoc == null)
+                {
+                    return $"Cancelled opening '{fileName}'";
+                }
+
+                _document = loadedDoc;
+                _currentFilePath = filePath;
+                _storageService.CurrentFilePath = filePath;
+                SetEncryptionKey(encryptionKey);
+                IsDirty = false;
+                _preferencesService.RecordFileAccess(filePath);
+
+                ApplyDocumentSettingsToUi();
+                UpdateDocumentTitleAndPath();
+
+                progress($"Recalculating portfolio '{fileName}'...");
+                await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
+
+                if (_document.Lots.Count > 0 || _document.Dividends.Count > 0 || _document.CashFlows.Count > 0)
+                {
+                    await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
+                    await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
+                }
+
+                IsDirty = false;
+                UpdateDocumentTitleAndPath();
+                return $"Opened '{fileName}' ({_document.Lots.Count} lots, {_document.Dividends.Count} dividends)";
+            });
+    }
+
+    /// <summary>Saves the current portfolio document to its active file path (or prompts Save As if untitled).</summary>
+    [RelayCommand]
+    private Task SaveFileAsync() => SaveFileInternalAsync();
+
+    /// <summary>Prompts for a destination file path and saves the current portfolio document.</summary>
+    [RelayCommand]
+    private Task SaveFileAsAsync() => SaveFileAsInternalAsync();
+
+    private async Task<bool> SaveFileInternalAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_currentFilePath))
+        {
+            return await SaveFileAsInternalAsync();
+        }
+
+        return await SaveDocumentToPathAsync(_currentFilePath);
+    }
+
+    private async Task<bool> SaveFileAsInternalAsync()
+    {
+        string initialDir = !string.IsNullOrWhiteSpace(_currentFilePath)
+            ? System.IO.Path.GetDirectoryName(_currentFilePath) ?? _preferencesService.GetInitialDirectory()
+            : _preferencesService.GetInitialDirectory();
+        string defaultFileName = !string.IsNullOrWhiteSpace(_currentFilePath)
+            ? System.IO.Path.GetFileName(_currentFilePath)
+            : "portfolio.json";
+
+        string? chosenPath = _fileDialogService.ShowSavePortfolioFileDialog(initialDir, defaultFileName);
+        if (string.IsNullOrWhiteSpace(chosenPath))
+        {
+            return false;
+        }
+
+        return await SaveDocumentToPathAsync(chosenPath);
+    }
+
+    private async Task<bool> SaveDocumentToPathAsync(string targetPath)
+    {
+        string fileName = System.IO.Path.GetFileName(targetPath);
+        bool savedOk = false;
+
+        await RunWithStatusTimerAsync(
+            $"Saving portfolio to '{fileName}'...",
+            async (_, ct) =>
+            {
+                try
+                {
+                    await _storageService.SaveToFileAsync(_document, targetPath, _currentEncryptionKey, ct);
+                    _currentFilePath = targetPath;
+                    _storageService.CurrentFilePath = targetPath;
+                    _preferencesService.RecordFileAccess(targetPath);
+                    IsDirty = false;
+                    UpdateDocumentTitleAndPath();
+                    savedOk = true;
+                    return IsEncrypted
+                        ? $"Saved encrypted portfolio to '{fileName}'"
+                        : $"Saved portfolio to '{fileName}'";
+                }
+                catch (Exception ex)
+                {
+                    _fileDialogService.ShowError("Save Error", $"Failed to save portfolio to '{targetPath}':\n{ex.Message}");
+                    throw;
+                }
+            });
+
+        return savedOk;
+    }
+
+    /// <summary>Opens the Document Password dialog to set, change, or remove the in-memory derived encryption key.</summary>
+    [RelayCommand]
+    private async Task ManagePasswordAsync()
+    {
+        DocumentEncryptionKey? existingKey = _currentEncryptionKey;
+        PasswordChangeResult result = _fileDialogService.ShowManagePasswordDialog(
+            IsEncrypted,
+            existingKey != null ? candidate => existingKey.VerifyPassword(candidate) : null);
+        if (!result.Confirmed)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(result.NewPassword))
+        {
+            SetEncryptionKey(null);
+            MarkDirty();
+            StatusMessage = "Encryption password removed. Save the file to write unencrypted JSON.";
+            return;
+        }
+
+        string password = result.NewPassword;
+        await RunWithStatusTimerAsync(
+            "Deriving AES-256 encryption key from password...",
+            async (_, ct) =>
+            {
+                DocumentEncryptionKey derivedKey = await Task.Run(
+                    () => DocumentEncryptionKey.DeriveFromPassword(password),
+                    ct);
+                SetEncryptionKey(derivedKey);
+                MarkDirty();
+                return "Encryption password set for current document. Save the file to write encrypted JSON";
+            });
+    }
+
+    /// <summary>Selects a new base currency from the Currency menu.</summary>
+    [RelayCommand]
+    private void SelectBaseCurrency(string? currency)
+    {
+        if (!string.IsNullOrWhiteSpace(currency))
+        {
+            SelectedBaseCurrency = currency;
+        }
+    }
+
+    /// <summary>Selects a new UI language from the Language menu.</summary>
+    [RelayCommand]
+    private void SelectLanguage(string? language)
+    {
+        if (!string.IsNullOrWhiteSpace(language))
+        {
+            SelectedLanguage = language;
+        }
+    }
+
+    /// <summary>Selects a new Syncfusion visual theme from the Theme menu.</summary>
+    [RelayCommand]
+    private void SelectTheme(string? theme)
+    {
+        if (!string.IsNullOrWhiteSpace(theme))
+        {
+            SelectedTheme = theme;
+        }
     }
 
     partial void OnSelectedBaseCurrencyChanged(string value)
@@ -349,7 +775,7 @@ public partial class MainViewModel : ObservableObject
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 progress($"Recalculating all metrics in {currency}...");
                 await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return $"Base currency switched to {currency}. All positions, dividends, and history recalculated";
             });
     }
@@ -362,7 +788,7 @@ public partial class MainViewModel : ObservableObject
         }
 
         _document.Settings.ThemeName = value;
-        _ = _storageService.SaveAsync(_document);
+        MarkDirty();
     }
 
     partial void OnSelectedLanguageChanged(string value)
@@ -373,13 +799,14 @@ public partial class MainViewModel : ObservableObject
         }
 
         LocalizationService.Instance.CurrentLanguage = value;
+        UpdateDocumentTitleAndPath();
         if (_isInitializing)
         {
             return;
         }
 
         _document.Settings.Language = value;
-        _ = _storageService.SaveAsync(_document);
+        MarkDirty();
     }
 
     partial void OnSelectedStatusFilterChanged(string value)
@@ -952,10 +1379,10 @@ public partial class MainViewModel : ObservableObject
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 progress($"Recalculating portfolio and updating ticker mapping for {lot.Ticker}...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return filledPrices > 0 || fetchedDivs > 0
-                    ? $"Saved '{lot.CompanyName}' ({lot.Ticker}): filled {filledPrices} price(s), {fetchedDivs} dividend(s)"
-                    : $"Saved changes and updated ticker mapping for '{lot.CompanyName}' ({lot.Ticker})";
+                    ? $"Updated '{lot.CompanyName}' ({lot.Ticker}): filled {filledPrices} price(s), {fetchedDivs} dividend(s)"
+                    : $"Updated changes and ticker mapping for '{lot.CompanyName}' ({lot.Ticker})";
             });
     }
 
@@ -988,12 +1415,12 @@ public partial class MainViewModel : ObservableObject
                 _document.Lots.Add(newLot);
                 await ReloadFromDocumentAsync(reloadSelectedChart: false, ct);
                 SelectedLot = newLot;
-                await _storageService.SaveAsync(_document, ct);
-                return "Added new position lot. Enter Company Name, Ticker, Open Date, Quantity (leave prices blank for auto-fetch) and click Save";
+                MarkDirty();
+                return "Added new position lot. Enter Company Name, Ticker, Open Date, Quantity (leave prices blank for auto-fetch) and click Apply/Save";
             });
     }
 
-    /// <summary>Deletes <see cref="SelectedLot"/> from the portfolio, recalculates metrics, and saves to JSON.</summary>
+    /// <summary>Deletes <see cref="SelectedLot"/> from the portfolio and recalculates metrics.</summary>
     [RelayCommand]
     private async Task DeleteSelectedPositionAsync()
     {
@@ -1010,27 +1437,27 @@ public partial class MainViewModel : ObservableObject
             {
                 _document.Lots.Remove(toRemove);
                 await RecalculateAndRefreshAsync(reloadSelectedChart: true, ct);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return $"Removed position lot {title}";
             });
     }
 
-    /// <summary>Saves edited country withholding tax rules, recalculates dividend taxes, and persists to JSON.</summary>
+    /// <summary>Applies edited country withholding tax rules and recalculates dividend taxes.</summary>
     [RelayCommand]
     private async Task SaveTaxRulesAsync()
     {
         await RunWithStatusTimerAsync(
-            "Saving country withholding tax rules and recalculating portfolio...",
+            "Updating country withholding tax rules and recalculating portfolio...",
             async (_, ct) =>
             {
                 _document.TaxRules = TaxRules.ToList();
                 await RecalculateAndRefreshAsync(reloadSelectedChart: false, ct);
-                await _storageService.SaveAsync(_document, ct);
-                return "Saved country withholding tax rules and recalculated portfolio";
+                MarkDirty();
+                return "Updated country withholding tax rules and recalculated portfolio";
             });
     }
 
-    /// <summary>Adds a new editable dynamic ticker mapping row in Settings and persists to JSON.</summary>
+    /// <summary>Adds a new editable dynamic ticker mapping row in Settings.</summary>
     [RelayCommand]
     private async Task AddTickerMappingAsync()
     {
@@ -1052,12 +1479,12 @@ public partial class MainViewModel : ObservableObject
                 _document.TickerMappings.Add(newMapping);
                 TickerMappings.Insert(0, newMapping);
                 SelectedTickerMapping = newMapping;
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return "Added new ticker mapping row. Edit its fields and click 'Save Tickers & Recalculate'";
             });
     }
 
-    /// <summary>Deletes <see cref="SelectedTickerMapping"/> from the dynamic ticker mapping table and persists to JSON.</summary>
+    /// <summary>Deletes <see cref="SelectedTickerMapping"/> from the dynamic ticker mapping table.</summary>
     [RelayCommand]
     private async Task DeleteSelectedTickerMappingAsync()
     {
@@ -1075,17 +1502,17 @@ public partial class MainViewModel : ObservableObject
                 _document.TickerMappings.Remove(toDelete);
                 TickerMappings.Remove(toDelete);
                 TickerMappingHelper.RefreshTaxRuleSampleTickers(_document);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return $"Deleted ticker mapping '{ticker}'";
             });
     }
 
-    /// <summary>Saves all dynamic ticker mapping edits, synchronizes lots, recalculates the portfolio, and persists to JSON.</summary>
+    /// <summary>Applies all dynamic ticker mapping edits, synchronizes lots, and recalculates the portfolio.</summary>
     [RelayCommand]
     private async Task SaveTickerMappingsAsync()
     {
         await RunWithStatusTimerAsync(
-            "Saving dynamic ticker mappings to JSON and recalculating portfolio...",
+            "Applying dynamic ticker mappings and recalculating portfolio...",
             async (progress, ct) =>
             {
                 foreach (TickerMapping m in TickerMappings)
@@ -1097,8 +1524,8 @@ public partial class MainViewModel : ObservableObject
                 TickerMappingHelper.SynchronizeDocumentMappings(_document);
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 await RecalculateAndRefreshAsync(reloadSelectedChart: true, ct);
-                await _storageService.SaveAsync(_document, ct);
-                return $"Saved {_document.TickerMappings.Count} dynamic ticker mappings to JSON and recalculated portfolio";
+                MarkDirty();
+                return $"Updated {_document.TickerMappings.Count} dynamic ticker mappings and recalculated portfolio";
             });
     }
 
@@ -1116,12 +1543,12 @@ public partial class MainViewModel : ObservableObject
 
                 progress("Recalculating portfolio, dividends, and history through today...");
                 await RecalculateAndRefreshAsync(reloadSelectedChart: true, ct);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return $"Market sync finished: updated {updatedPrices} price(s), {fetchedDividends} Yahoo dividend(s), and online ECB exchange rates";
             });
     }
 
-    /// <summary>Resets local portfolio storage by re-seeding from the bundled XTB seed report.</summary>
+    /// <summary>Reloads the bundled XTB seed report into the active document in memory.</summary>
     [RelayCommand]
     private async Task ResetToBundledXtbReportAsync()
     {
@@ -1129,20 +1556,21 @@ public partial class MainViewModel : ObservableObject
             "Reloading bundled XTB seed report and rebuilding dynamic ticker mappings...",
             async (progress, ct) =>
             {
-                PortfolioDocument seeded = await _storageService.CreateSeededDocumentAsync(ct);
+                PortfolioDocument seeded = await _storageService.CreateSeededDocumentAsync(ct, saveToDisk: false);
                 seeded.Settings.BaseCurrency = SelectedBaseCurrency;
+                seeded.Settings.Language = SelectedLanguage;
                 seeded.Settings.ThemeName = SelectedTheme;
                 _document = seeded;
 
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 progress("Recalculating seeded portfolio...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return $"Reloaded bundled XTB report ({_document.Lots.Count} lots, {_document.Dividends.Count} dividends)";
             });
     }
 
-    /// <summary>Opens a file picker to import an XTB Excel (<c>.xls</c>/<c>.xlsx</c>) or CSV report while preserving manual lots and notes.</summary>
+    /// <summary>Opens a file picker to import an XTB Excel (<c>.xls</c>/<c>.xlsx</c>) or CSV report. Prompts whether to replace or append if the document is not empty.</summary>
     [RelayCommand]
     private async Task ImportXtbAsync()
     {
@@ -1152,9 +1580,23 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        ImportModeChoice importMode = ImportModeChoice.Append;
+        bool hasExistingContent = _document.Lots.Count > 0 ||
+                                  _document.Dividends.Count > 0 ||
+                                  _document.CashFlows.Count > 0;
+        if (hasExistingContent)
+        {
+            string fileName = System.IO.Path.GetFileName(filePath);
+            importMode = _fileDialogService.ShowImportModeDialog(fileName);
+            if (importMode == ImportModeChoice.Cancel)
+            {
+                return;
+            }
+        }
+
         try
         {
-            await ImportXtbFileAsync(filePath);
+            await ImportXtbFileAsync(filePath, importMode);
         }
         catch (Exception ex)
         {
@@ -1220,22 +1662,60 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    private void ResetAllGridFilters()
+    {
+        _filterCts?.Cancel();
+        _filterCts?.Dispose();
+        _filterCts = null;
+
+        bool prevInit = _isInitializing;
+        _isInitializing = true;
+        SelectedStatusFilter = "All";
+        SearchText = string.Empty;
+        _isInitializing = prevInit;
+
+        ClearFiltersRequest++;
+    }
+
     /// <summary>
     /// Imports an XTB Excel or CSV report asynchronously, fetches online ECB FX rates, and recalculates the portfolio.
     /// </summary>
     /// <param name="filePath">Path to the XTB report file.</param>
-    public async Task ImportXtbFileAsync(string filePath)
+    /// <param name="importMode">Whether to replace all existing content or add the imported records to the current document.</param>
+    public async Task ImportXtbFileAsync(string filePath, ImportModeChoice importMode = ImportModeChoice.ReplaceAll)
     {
+        if (importMode == ImportModeChoice.Cancel)
+        {
+            return;
+        }
+
         string fileName = System.IO.Path.GetFileName(filePath);
         await RunWithStatusTimerAsync(
             $"Importing XTB file '{fileName}' and updating dynamic ticker mappings...",
             async (progress, ct) =>
             {
-                await Task.Run(() => _xtbImportService.ImportFile(filePath, _document, replaceExistingXtbData: true), ct);
+                await Task.Run(() =>
+                {
+                    if (importMode == ImportModeChoice.ReplaceAll)
+                    {
+                        _document.AccountNumber = string.Empty;
+                        _document.Lots.Clear();
+                        _document.Dividends.Clear();
+                        _document.CashFlows.Clear();
+                        _document.TickerMappings.Clear();
+                        _xtbImportService.ImportFile(filePath, _document, replaceExistingXtbData: true);
+                    }
+                    else
+                    {
+                        _xtbImportService.ImportFile(filePath, _document, replaceExistingXtbData: false);
+                    }
+                }, ct);
+
+                ResetAllGridFilters();
                 await _fxRateProvider.EnsurePortfolioRatesAsync(_document, progress, ct);
                 progress($"Recalculating imported portfolio from '{fileName}'...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
-                await _storageService.SaveAsync(_document, ct);
+                MarkDirty();
                 return $"Imported XTB file '{fileName}': {_document.Lots.Count} lots ({OpenLotsCount} open, {ClosedLotsCount} closed), {_document.Dividends.Count} dividends";
             });
     }

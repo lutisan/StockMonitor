@@ -250,4 +250,44 @@ public static class MvvmBehaviors
             }
         }
     }
+
+    // 4. SfDataGrid ClearFilters request attached property (incrementing positive value clears all column filters)
+    /// <summary>
+    /// Identifies the <c>ClearFiltersRequest</c> attached dependency property for clearing all column filters on an <see cref="SfDataGrid"/>.
+    /// </summary>
+    public static readonly DependencyProperty ClearFiltersRequestProperty =
+        DependencyProperty.RegisterAttached(
+            "ClearFiltersRequest",
+            typeof(int),
+            typeof(MvvmBehaviors),
+            new PropertyMetadata(0, OnClearFiltersRequestChanged));
+
+    /// <summary>
+    /// Gets the clear-filters request counter.
+    /// </summary>
+    /// <param name="obj">The target <see cref="SfDataGrid"/>.</param>
+    /// <returns>The request counter value.</returns>
+    public static int GetClearFiltersRequest(DependencyObject obj) => (int)obj.GetValue(ClearFiltersRequestProperty);
+
+    /// <summary>
+    /// Sets the clear-filters request counter.
+    /// </summary>
+    /// <param name="obj">The target <see cref="SfDataGrid"/>.</param>
+    /// <param name="value">Incrementing positive counter value to trigger <see cref="SfDataGrid.ClearFilters"/>.</param>
+    public static void SetClearFiltersRequest(DependencyObject obj, int value) => obj.SetValue(ClearFiltersRequestProperty, value);
+
+    private static void OnClearFiltersRequestChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is SfDataGrid grid && e.NewValue is int req && req > 0)
+        {
+            try
+            {
+                grid.ClearFilters();
+            }
+            catch
+            {
+                // Ignore if grid view is not yet initialized (e.g., tab not yet visited)
+            }
+        }
+    }
 }

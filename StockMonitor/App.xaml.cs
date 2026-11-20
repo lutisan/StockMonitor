@@ -41,6 +41,7 @@ public partial class App : Application
 
         ServiceCollection services = new();
         services.AddSingleton<IFileDialogService, WpfFileDialogService>();
+        services.AddSingleton<AppPreferencesService>();
         services.AddSingleton<FrankfurterFxRateProvider>();
         services.AddSingleton<YahooFinanceMarketDataProvider>();
         services.AddSingleton<XtbWorkbookImportService>();

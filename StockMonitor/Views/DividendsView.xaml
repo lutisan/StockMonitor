@@ -42,6 +42,7 @@
 
         <syncfusion:SfDataGrid Grid.Row="1"
                                ItemsSource="{Binding Dividends}"
+                               behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                ToolTip="{Binding [Tip_DividendsGrid], Source={x:Static services:LocalizationService.Instance}}"
                                AutoGenerateColumns="False"
                                AllowGrouping="True"

@@ -59,6 +59,7 @@
                 <syncfusion:SfDataGrid Grid.Row="1"
                                        ItemsSource="{Binding TickerMappings}"
                                        SelectedItem="{Binding SelectedTickerMapping, Mode=TwoWay}"
+                                       behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                        ToolTip="{Binding [Tip_TickersGrid], Source={x:Static services:LocalizationService.Instance}}"
                                        AutoGenerateColumns="False"
                                        AllowEditing="True"
@@ -116,6 +117,7 @@
 
                 <syncfusion:SfDataGrid Grid.Row="1"
                                        ItemsSource="{Binding TaxRules}"
+                                       behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                        ToolTip="{Binding [Tip_TaxRulesGrid], Source={x:Static services:LocalizationService.Instance}}"
                                        AutoGenerateColumns="False"
                                        AllowEditing="True"
@@ -150,6 +152,7 @@
 
         <syncfusion:SfDataGrid Grid.Row="3"
                                ItemsSource="{Binding CashFlows}"
+                               behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                ToolTip="{Binding [Tip_CashFlowsGrid], Source={x:Static services:LocalizationService.Instance}}"
                                AutoGenerateColumns="False"
                                AllowGrouping="True"

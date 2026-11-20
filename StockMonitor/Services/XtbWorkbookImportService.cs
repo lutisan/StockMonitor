@@ -390,6 +390,13 @@ public sealed partial class XtbWorkbookImportService
             Source = DataSource.XtbImport
         };
 
+        if (!string.IsNullOrWhiteSpace(lot.ExternalPositionId) &&
+            doc.Lots.Any(l => l.Source == DataSource.XtbImport &&
+                              l.ExternalPositionId.Equals(lot.ExternalPositionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
         doc.Lots.Add(lot);
     }
 
@@ -481,6 +488,13 @@ public sealed partial class XtbWorkbookImportService
             lot.CloseConversionRate = Math.Round(currentValEur / (volume * currentPrice), 6);
         }
 
+        if (!string.IsNullOrWhiteSpace(lot.ExternalPositionId) &&
+            doc.Lots.Any(l => l.Source == DataSource.XtbImport &&
+                              l.ExternalPositionId.Equals(lot.ExternalPositionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
         doc.Lots.Add(lot);
     }
 
@@ -510,6 +524,12 @@ public sealed partial class XtbWorkbookImportService
             Product = GetCol(row, map, "Product"),
             PositionId = GetCol(row, map, "Position ID")
         };
+
+        if (!string.IsNullOrWhiteSpace(record.OperationId) &&
+            doc.CashFlows.Any(c => c.OperationId.Equals(record.OperationId, StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
 
         doc.CashFlows.Add(record);
     }
@@ -560,6 +580,16 @@ public sealed partial class XtbWorkbookImportService
                 }
             }
         }
+
+        // Reset broker-derived fees/spinoffs on XTB lots and rebuild broker dividends cleanly to avoid duplicates on append
+        foreach (PositionLot xtbLot in doc.Lots.Where(l => l.Source == DataSource.XtbImport))
+        {
+            xtbLot.SecFee = 0m;
+            xtbLot.FinancialTransactionTax = 0m;
+            xtbLot.SpinoffProceedsBase = 0m;
+        }
+
+        doc.Dividends.RemoveAll(d => d.IsFromBrokerReport);
 
         // Attach fees and spinoffs to lots
         foreach (AccountCashFlowRecord op in doc.CashFlows)

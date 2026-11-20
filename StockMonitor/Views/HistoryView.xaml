@@ -50,6 +50,7 @@
 
         <syncfusion:SfDataGrid Grid.Row="1"
                                ItemsSource="{Binding PortfolioHistory}"
+                               behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                ToolTip="{Binding [Tip_HistoryGrid], Source={x:Static services:LocalizationService.Instance}}"
                                AutoGenerateColumns="False"
                                AllowSorting="True"

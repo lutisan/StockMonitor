@@ -92,4 +92,80 @@ public sealed class PortfolioStorageServiceTests
         Assert.NotNull(recovered);
         Assert.NotEmpty(recovered.TaxRules);
     }
+
+    /// <summary>
+    /// Verifies that <see cref="PortfolioStorageService.SaveToFileAsync(PortfolioDocument, string, string?, CancellationToken)"/> with a password writes an encrypted JSON
+    /// file that requires the exact password to open, and without a password writes plain JSON.
+    /// </summary>
+    [Fact]
+    public async Task SaveToFileAsync_WithAndWithoutPassword_EncryptsAndDecryptsCorrectly()
+    {
+        using TempTestDirectory tempDir = new();
+        PortfolioStorageService storage = new(new XtbWorkbookImportService(), tempDir.FilePath("default.json"));
+
+        PortfolioDocument doc = storage.CreateEmptyDocument();
+        doc.AccountNumber = "ACC-999";
+        doc.Lots.Add(new PositionLot
+        {
+            ExternalPositionId = "MAN-500",
+            CompanyName = "Microsoft Corp",
+            Ticker = "MSFT.US",
+            StockCurrency = "USD",
+            Quantity = 5m,
+            OpenDate = new DateTime(2025, 1, 10, 0, 0, 0, DateTimeKind.Utc),
+            OpenPrice = 410m,
+            IsOpenPriceManual = true,
+            Source = DataSource.ManualEntry
+        });
+
+        // 1. Save unencrypted
+        string plainPath = tempDir.FilePath("plain.json");
+        await storage.SaveToFileAsync(doc, plainPath, password: null);
+        Assert.False(await storage.IsFileEncryptedAsync(plainPath));
+        string plainRaw = await File.ReadAllTextAsync(plainPath);
+        Assert.Contains("ACC-999", plainRaw);
+
+        PortfolioDocument loadedPlain = await storage.LoadFromFileAsync(plainPath);
+        Assert.Equal("ACC-999", loadedPlain.AccountNumber);
+        Assert.Single(loadedPlain.Lots);
+
+        // 2. Save encrypted
+        string encryptedPath = tempDir.FilePath("secret.json");
+        await storage.SaveToFileAsync(doc, encryptedPath, password: "MySecretPassword!");
+        Assert.True(await storage.IsFileEncryptedAsync(encryptedPath));
+        string encryptedRaw = await File.ReadAllTextAsync(encryptedPath);
+        Assert.DoesNotContain("ACC-999", encryptedRaw);
+        Assert.DoesNotContain("MySecretPassword!", encryptedRaw);
+
+        // Missing password rejected
+        await Assert.ThrowsAsync<EncryptedDocumentPasswordRequiredException>(
+            () => storage.LoadFromFileAsync(encryptedPath, password: null));
+
+        // Wrong password rejected
+        await Assert.ThrowsAsync<InvalidDocumentPasswordException>(
+            () => storage.LoadFromFileAsync(encryptedPath, password: "WrongPassword"));
+
+        // Correct password succeeds
+        PortfolioDocument loadedSecret = await storage.LoadFromFileAsync(encryptedPath, password: "MySecretPassword!");
+        Assert.Equal("ACC-999", loadedSecret.AccountNumber);
+        Assert.Single(loadedSecret.Lots);
+    }
+
+    /// <summary>
+    /// Verifies that <see cref="PortfolioStorageService.CreateEmptyDocument"/> creates an empty portfolio
+    /// with default country tax rules and no lots, dividends, or cash flows.
+    /// </summary>
+    [Fact]
+    public void CreateEmptyDocument_ReturnsEmptyPortfolioWithDefaultTaxRules()
+    {
+        using TempTestDirectory tempDir = new();
+        PortfolioStorageService storage = new(new XtbWorkbookImportService(), tempDir.FilePath("default.json"));
+
+        PortfolioDocument empty = storage.CreateEmptyDocument();
+
+        Assert.Empty(empty.Lots);
+        Assert.Empty(empty.Dividends);
+        Assert.Empty(empty.CashFlows);
+        Assert.NotEmpty(empty.TaxRules);
+    }
 }

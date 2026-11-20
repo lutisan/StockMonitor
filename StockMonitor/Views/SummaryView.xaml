@@ -122,6 +122,7 @@
         <!-- Detailed Summary Grid -->
         <syncfusion:SfDataGrid Grid.Row="2"
                                ItemsSource="{Binding FilteredLots}"
+                               behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
                                ToolTip="{Binding [Tip_SummaryGrid], Source={x:Static services:LocalizationService.Instance}}"
                                AutoGenerateColumns="False"
                                AllowGrouping="True"
