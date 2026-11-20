@@ -242,12 +242,12 @@
                                          VerticalScrollBarVisibility="Auto"
                                          Margin="0,0,0,8" />
 
-                                <Button AutomationProperties.AutomationId="BtnSaveLotOverrides"
+                                <!--<Button AutomationProperties.AutomationId="BtnSaveLotOverrides"
                                         Content="{Binding [Btn_SaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
                                         ToolTip="{Binding [Tip_BtnSaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
                                         Command="{Binding SaveSelectedLotOverridesCommand}"
                                         Padding="10,5"
-                                        FontWeight="SemiBold" />
+                                        FontWeight="SemiBold" />-->
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
@@ -349,7 +349,14 @@
                     <Button AutomationProperties.AutomationId="BtnDeletePosition"
                             Content="{Binding [Btn_DeleteSelected], Source={x:Static services:LocalizationService.Instance}}"
                             ToolTip="{Binding [Tip_BtnDeletePosition], Source={x:Static services:LocalizationService.Instance}}"
-                            Command="{Binding DeleteSelectedPositionCommand}" Padding="10,3" />
+                            Command="{Binding DeleteSelectedPositionCommand}" Padding="10,3" Margin="0,0,6,0" />
+                    <Button AutomationProperties.AutomationId="BtnSaveLotOverrides"
+                                        Content="{Binding [Btn_SaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                        ToolTip="{Binding [Tip_BtnSaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                        Command="{Binding SaveSelectedLotOverridesCommand}"
+                                        Padding="10,3"
+                                        FontWeight="SemiBold" />
+
                 </StackPanel>
             </DockPanel>
 

@@ -82,6 +82,66 @@
                                             ToolTip="{Binding [Tip_BtnSyncMarket], Source={x:Static services:LocalizationService.Instance}}"
                                             Command="{Binding RefreshMarketDataCommand}"
                                             AutomationProperties.AutomationId="BtnSyncMarket" />
+
+                    <syncfusion:MenuItemAdv ToolTip="{Binding [Tip_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
+                                            ItemsSource="{Binding AvailableCurrencies}"
+                                            AutomationProperties.AutomationId="MenuCurrency">
+                        <syncfusion:MenuItemAdv.Header>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding [Lbl_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
+                                           VerticalAlignment="Center" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedBaseCurrency}"
+                                           FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </syncfusion:MenuItemAdv.Header>
+                        <syncfusion:MenuItemAdv.ItemContainerStyle>
+                            <Style TargetType="{x:Type syncfusion:MenuItemAdv}">
+                                <Setter Property="Header" Value="{Binding}" />
+                                <Setter Property="Command" Value="{Binding DataContext.SelectBaseCurrencyCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                            </Style>
+                        </syncfusion:MenuItemAdv.ItemContainerStyle>
+                    </syncfusion:MenuItemAdv>
+
+                    <syncfusion:MenuItemAdv ToolTip="{Binding [Tip_Language], Source={x:Static services:LocalizationService.Instance}}"
+                                            ItemsSource="{Binding AvailableLanguages}"
+                                            AutomationProperties.AutomationId="MenuLanguage">
+                        <syncfusion:MenuItemAdv.Header>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding [Lbl_Language], Source={x:Static services:LocalizationService.Instance}}"
+                                           VerticalAlignment="Center" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedLanguage}"
+                                           FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </syncfusion:MenuItemAdv.Header>
+                        <syncfusion:MenuItemAdv.ItemContainerStyle>
+                            <Style TargetType="{x:Type syncfusion:MenuItemAdv}">
+                                <Setter Property="Header" Value="{Binding}" />
+                                <Setter Property="Command" Value="{Binding DataContext.SelectLanguageCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                            </Style>
+                        </syncfusion:MenuItemAdv.ItemContainerStyle>
+                    </syncfusion:MenuItemAdv>
+
+                    <syncfusion:MenuItemAdv ToolTip="{Binding [Tip_Theme], Source={x:Static services:LocalizationService.Instance}}"
+                                            ItemsSource="{Binding AvailableThemes}"
+                                            AutomationProperties.AutomationId="MenuTheme">
+                        <syncfusion:MenuItemAdv.Header>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding [Lbl_Theme], Source={x:Static services:LocalizationService.Instance}}"
+                                           VerticalAlignment="Center" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedTheme}"
+                                           FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </syncfusion:MenuItemAdv.Header>
+                        <syncfusion:MenuItemAdv.ItemContainerStyle>
+                            <Style TargetType="{x:Type syncfusion:MenuItemAdv}">
+                                <Setter Property="Header" Value="{Binding}" />
+                                <Setter Property="Command" Value="{Binding DataContext.SelectThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter Property="CommandParameter" Value="{Binding}" />
+                            </Style>
+                        </syncfusion:MenuItemAdv.ItemContainerStyle>
+                    </syncfusion:MenuItemAdv>
                 </syncfusion:MenuAdv>
 
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
@@ -90,57 +150,30 @@
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding AccountNumber}"
                                ToolTip="{Binding [Tip_Account], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
                     <TextBlock Text="{Binding [Lbl_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding OpenLotsCount}"
                                AutomationProperties.AutomationId="TxtOpenLotsCount"
                                ToolTip="{Binding [Tip_OpenLots], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [Lbl_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding ClosedLotsCount}"
                                AutomationProperties.AutomationId="TxtClosedLotsCount"
                                ToolTip="{Binding [Tip_ClosedLots], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [Lbl_Tickers], Source={x:Static services:LocalizationService.Instance}}"
                                ToolTip="{Binding [Tip_Tickers], Source={x:Static services:LocalizationService.Instance}}"
                                VerticalAlignment="Center" Opacity="0.75" Margin="0,0,4,0" />
                     <TextBlock Text="{Binding DistinctInstrumentsCount}"
                                AutomationProperties.AutomationId="TxtDistinctInstrumentsCount"
                                ToolTip="{Binding [Tip_Tickers], Source={x:Static services:LocalizationService.Instance}}"
-                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
-
-                    <TextBlock Text="{Binding [Lbl_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
-                               VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,5,0" />
-                    <ComboBox ItemsSource="{Binding AvailableCurrencies}"
-                              SelectedItem="{Binding SelectedBaseCurrency}"
-                              AutomationProperties.AutomationId="CmbBaseCurrency"
-                              ToolTip="{Binding [Tip_MyCurrency], Source={x:Static services:LocalizationService.Instance}}"
-                              Width="70"
-                              VerticalAlignment="Center"
-                              Margin="0,0,10,0" />
-
-                    <TextBlock Text="{Binding [Lbl_Language], Source={x:Static services:LocalizationService.Instance}}"
-                               VerticalAlignment="Center" Margin="0,0,5,0" />
-                    <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                              SelectedItem="{Binding SelectedLanguage}"
-                              AutomationProperties.AutomationId="CmbLanguage"
-                              ToolTip="{Binding [Tip_Language], Source={x:Static services:LocalizationService.Instance}}"
-                              Width="58"
-                              VerticalAlignment="Center"
-                              Margin="0,0,10,0" />
-
-                    <TextBlock Text="{Binding [Lbl_Theme], Source={x:Static services:LocalizationService.Instance}}"
-                               VerticalAlignment="Center" Margin="0,0,5,0" />
-                    <ComboBox ItemsSource="{Binding AvailableThemes}"
-                              SelectedItem="{Binding SelectedTheme}"
-                              AutomationProperties.AutomationId="CmbTheme"
-                              ToolTip="{Binding [Tip_Theme], Source={x:Static services:LocalizationService.Instance}}"
-                              Width="148"
-                              VerticalAlignment="Center" />
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <!--<TextBlock Text="{Binding SelectedBaseCurrency}"
+                               FontWeight="SemiBold" Opacity="0.85" VerticalAlignment="Center" />-->
                 </StackPanel>
             </DockPanel>
         </Border>

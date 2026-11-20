@@ -127,7 +127,7 @@
   <data name="Lbl_XtbPosId" xml:space="preserve"><value>XTB Position ID:</value></data>
   <data name="Lbl_Manual" xml:space="preserve"><value>Manual</value></data>
   <data name="Lbl_CommentsNotes" xml:space="preserve"><value>Comments / Notes for Selected Line:</value></data>
-  <data name="Btn_SaveLotOverrides" xml:space="preserve"><value>Save &amp; Recalculate Selected Lot</value></data>
+  <data name="Btn_SaveLotOverrides" xml:space="preserve"><value>Recalculate</value></data>
   <data name="Tip_EditCompanyName" xml:space="preserve"><value>Edit the company or ETF instrument name for the selected lot and its ticker mapping</value></data>
   <data name="Tip_EditTicker" xml:space="preserve"><value>Broker ticker symbol (e.g., AAPL.US, LYPG.DE)</value></data>
   <data name="Tip_EditYahooSymbol" xml:space="preserve"><value>Yahoo Finance symbol used for live quotes and historical charts (e.g., AAPL, LYPG.DE)</value></data>
@@ -144,7 +144,7 @@
   <data name="Tip_EffectiveDivTax" xml:space="preserve"><value>Effective withholding tax rate % applied to dividends of this lot</value></data>
   <data name="Tip_XtbPositionId" xml:space="preserve"><value>Unique position identifier from XTB broker report (or manual lot ID)</value></data>
   <data name="Tip_EditComment" xml:space="preserve"><value>Personal notes and comments stored in JSON for the selected position lot</value></data>
-  <data name="Tip_BtnSaveLotOverrides" xml:space="preserve"><value>Save changes to the selected lot, update dynamic ticker mapping, and recalculate portfolio</value></data>
+  <data name="Tip_BtnSaveLotOverrides" xml:space="preserve"><value>Update dynamic ticker mapping, fetch missing prices/dividends and FX rates, and recalculate the portfolio</value></data>
   <data name="Lbl_StatusFilter" xml:space="preserve"><value>Status Filter:</value></data>
   <data name="Lbl_Search" xml:space="preserve"><value>Search:</value></data>
   <data name="Btn_ExpandAll" xml:space="preserve"><value>Expand All Groups</value></data>

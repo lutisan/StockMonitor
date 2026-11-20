@@ -127,7 +127,7 @@
   <data name="Lbl_XtbPosId" xml:space="preserve"><value>XTB ID pozície:</value></data>
   <data name="Lbl_Manual" xml:space="preserve"><value>Manuálne</value></data>
   <data name="Lbl_CommentsNotes" xml:space="preserve"><value>Komentár / Poznámky k vybranému riadku:</value></data>
-  <data name="Btn_SaveLotOverrides" xml:space="preserve"><value>Uložiť &amp; Prepočítať vybranú pozíciu</value></data>
+  <data name="Btn_SaveLotOverrides" xml:space="preserve"><value>Prepočítať</value></data>
   <data name="Tip_EditCompanyName" xml:space="preserve"><value>Upraviť názov spoločnosti alebo ETF inštrumentu pre vybranú pozíciu a mapovanie tickera</value></data>
   <data name="Tip_EditTicker" xml:space="preserve"><value>Obchodný symbol tickera u brokera (napr. AAPL.US, LYPG.DE)</value></data>
   <data name="Tip_EditYahooSymbol" xml:space="preserve"><value>Symbol na Yahoo Finance pre sťahovanie cien a grafov (napr. AAPL, LYPG.DE)</value></data>
@@ -144,7 +144,7 @@
   <data name="Tip_EffectiveDivTax" xml:space="preserve"><value>Efektívna sadzba dane z dividend v % použitá pre túto pozíciu</value></data>
   <data name="Tip_XtbPositionId" xml:space="preserve"><value>Unikátne identifikačné číslo pozície z XTB výpisu (alebo manuálne ID)</value></data>
   <data name="Tip_EditComment" xml:space="preserve"><value>Vlastné poznámky a komentáre uložené v JSON súbore pre vybranú pozíciu</value></data>
-  <data name="Tip_BtnSaveLotOverrides" xml:space="preserve"><value>Uložiť zmeny vybranej pozície, aktualizovať dynamické mapovanie tickera a prepočítať portfólio</value></data>
+  <data name="Tip_BtnSaveLotOverrides" xml:space="preserve"><value>Aktualizovať dynamické mapovanie tickera, načítať chýbajúce ceny/dividendy a kurzy ECB a prepočítať portfólio</value></data>
   <data name="Lbl_StatusFilter" xml:space="preserve"><value>Filter stavu:</value></data>
   <data name="Lbl_Search" xml:space="preserve"><value>Hľadať:</value></data>
   <data name="Btn_ExpandAll" xml:space="preserve"><value>Rozbaliť všetky skupiny</value></data>
