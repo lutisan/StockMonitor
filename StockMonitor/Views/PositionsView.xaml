@@ -147,16 +147,19 @@
 
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [Lbl_CompanyName], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
                                     <TextBox Grid.Row="0" Grid.Column="1"
+                                             AutomationProperties.AutomationId="TxtEditCompanyName"
                                              Text="{Binding SelectedLot.CompanyName, UpdateSourceTrigger=PropertyChanged}"
                                              ToolTip="{Binding [Tip_EditCompanyName], Source={x:Static services:LocalizationService.Instance}}"
                                              Margin="0,2" />
 
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding [Lbl_TickerYahoo], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
                                     <UniformGrid Grid.Row="1" Grid.Column="1" Columns="2" Margin="0,2">
-                                        <TextBox Text="{Binding SelectedLot.Ticker, UpdateSourceTrigger=PropertyChanged}"
+                                        <TextBox AutomationProperties.AutomationId="TxtEditTicker"
+                                                 Text="{Binding SelectedLot.Ticker, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="0,0,4,0"
                                                  ToolTip="{Binding [Tip_EditTicker], Source={x:Static services:LocalizationService.Instance}}" />
-                                        <TextBox Text="{Binding SelectedLot.YahooSymbol, UpdateSourceTrigger=PropertyChanged}"
+                                        <TextBox AutomationProperties.AutomationId="TxtEditYahooSymbol"
+                                                 Text="{Binding SelectedLot.YahooSymbol, UpdateSourceTrigger=PropertyChanged}"
                                                  ToolTip="{Binding [Tip_EditYahooSymbol], Source={x:Static services:LocalizationService.Instance}}" />
                                     </UniformGrid>
 
@@ -189,7 +192,7 @@
                                                   DockPanel.Dock="Right"
                                                   VerticalAlignment="Center"
                                                   Margin="6,0,0,0" />
-                                        <TextBox Text="{Binding SelectedLot.OpenPrice, UpdateSourceTrigger=PropertyChanged}"
+                                        <TextBox Text="{Binding SelectedLot.EditableOpenPrice, TargetNullValue='', UpdateSourceTrigger=LostFocus}"
                                                  ToolTip="{Binding [Tip_EditOpenPrice], Source={x:Static services:LocalizationService.Instance}}" />
                                     </DockPanel>
 
@@ -207,7 +210,7 @@
                                                   DockPanel.Dock="Right"
                                                   VerticalAlignment="Center"
                                                   Margin="6,0,0,0" />
-                                        <TextBox Text="{Binding SelectedLot.CurrentMarketPrice, UpdateSourceTrigger=PropertyChanged}"
+                                        <TextBox Text="{Binding SelectedLot.EditableCloseOrCurrentPrice, TargetNullValue='', UpdateSourceTrigger=LostFocus}"
                                                  ToolTip="{Binding [Tip_EditCurrentPrice], Source={x:Static services:LocalizationService.Instance}}" />
                                     </DockPanel>
 
@@ -230,7 +233,8 @@
                                 </Grid>
 
                                 <TextBlock Text="{Binding [Lbl_CommentsNotes], Source={x:Static services:LocalizationService.Instance}}" FontWeight="SemiBold" Margin="0,4,0,4" />
-                                <TextBox Text="{Binding SelectedLot.Comment, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox AutomationProperties.AutomationId="TxtEditComment"
+                                         Text="{Binding SelectedLot.Comment, UpdateSourceTrigger=PropertyChanged}"
                                          ToolTip="{Binding [Tip_EditComment], Source={x:Static services:LocalizationService.Instance}}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
@@ -238,7 +242,8 @@
                                          VerticalScrollBarVisibility="Auto"
                                          Margin="0,0,0,8" />
 
-                                <Button Content="{Binding [Btn_SaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                <Button AutomationProperties.AutomationId="BtnSaveLotOverrides"
+                                        Content="{Binding [Btn_SaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
                                         ToolTip="{Binding [Tip_BtnSaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
                                         Command="{Binding SaveSelectedLotOverridesCommand}"
                                         Padding="10,5"
@@ -309,7 +314,8 @@
             <DockPanel Grid.Row="0" Margin="0,0,0,6">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <TextBlock Text="{Binding [Lbl_StatusFilter], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,0,6,0" />
-                    <ComboBox ItemsSource="{Binding StatusFilterOptions}"
+                    <ComboBox AutomationProperties.AutomationId="CmbStatusFilter"
+                              ItemsSource="{Binding StatusFilterOptions}"
                               SelectedItem="{Binding SelectedStatusFilter}"
                               ToolTip="{Binding [Tip_StatusFilter], Source={x:Static services:LocalizationService.Instance}}"
                               Width="115"
@@ -317,26 +323,31 @@
                               Margin="0,0,14,0" />
 
                     <TextBlock Text="{Binding [Lbl_Search], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,0,6,0" />
-                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox AutomationProperties.AutomationId="TxtSearchBox"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{Binding [Tip_SearchBox], Source={x:Static services:LocalizationService.Instance}}"
                              Width="210"
                              VerticalContentAlignment="Center"
                              Padding="6,3"
                              Margin="0,0,14,0" />
 
-                    <Button Content="{Binding [Btn_ExpandAll], Source={x:Static services:LocalizationService.Instance}}"
+                    <Button AutomationProperties.AutomationId="BtnExpandAllGroups"
+                            Content="{Binding [Btn_ExpandAll], Source={x:Static services:LocalizationService.Instance}}"
                             ToolTip="{Binding [Tip_BtnExpandAll], Source={x:Static services:LocalizationService.Instance}}"
                             Command="{Binding ExpandAllGroupsCommand}" Padding="8,3" Margin="0,0,6,0" />
-                    <Button Content="{Binding [Btn_CollapseAll], Source={x:Static services:LocalizationService.Instance}}"
+                    <Button AutomationProperties.AutomationId="BtnCollapseAllGroups"
+                            Content="{Binding [Btn_CollapseAll], Source={x:Static services:LocalizationService.Instance}}"
                             ToolTip="{Binding [Tip_BtnCollapseAll], Source={x:Static services:LocalizationService.Instance}}"
                             Command="{Binding CollapseAllGroupsCommand}" Padding="8,3" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Button Content="{Binding [Btn_AddPosition], Source={x:Static services:LocalizationService.Instance}}"
+                    <Button AutomationProperties.AutomationId="BtnAddPosition"
+                            Content="{Binding [Btn_AddPosition], Source={x:Static services:LocalizationService.Instance}}"
                             ToolTip="{Binding [Tip_BtnAddPosition], Source={x:Static services:LocalizationService.Instance}}"
                             Command="{Binding AddNewPositionCommand}" Padding="10,3" Margin="0,0,6,0" />
-                    <Button Content="{Binding [Btn_DeleteSelected], Source={x:Static services:LocalizationService.Instance}}"
+                    <Button AutomationProperties.AutomationId="BtnDeletePosition"
+                            Content="{Binding [Btn_DeleteSelected], Source={x:Static services:LocalizationService.Instance}}"
                             ToolTip="{Binding [Tip_BtnDeletePosition], Source={x:Static services:LocalizationService.Instance}}"
                             Command="{Binding DeleteSelectedPositionCommand}" Padding="10,3" />
                 </StackPanel>
@@ -345,6 +356,7 @@
             <!-- Main Positions SfDataGrid -->
             <syncfusion:SfDataGrid Grid.Row="1"
                                    x:Name="PositionsGrid"
+                                   AutomationProperties.AutomationId="PositionsGrid"
                                    ItemsSource="{Binding FilteredLots}"
                                    SelectedItem="{Binding SelectedLot, Mode=TwoWay}"
                                    behaviors:MvvmBehaviors.GroupExpandRequest="{Binding GroupExpandRequest}"

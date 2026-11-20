@@ -13,8 +13,9 @@ namespace StockMonitor.Services;
 /// </summary>
 public sealed class FrankfurterFxRateProvider
 {
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(12) };
+    private static readonly HttpClient DefaultHttp = new() { Timeout = TimeSpan.FromSeconds(12) };
 
+    private readonly HttpClient _http;
     private readonly string _cacheFilePath;
     private readonly Lock _syncLock = new();
 
@@ -28,12 +29,20 @@ public sealed class FrankfurterFxRateProvider
     /// Initializes a new instance of the <see cref="FrankfurterFxRateProvider"/> class and loads any cached date rates.
     /// </summary>
     public FrankfurterFxRateProvider()
+        : this(DefaultHttp, Path.Combine(PortfolioStorageService.ResolveDefaultDataDirectory(), "fx_rates_by_date.json"))
     {
-        string appData = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "StockMonitor");
-        Directory.CreateDirectory(appData);
-        _cacheFilePath = Path.Combine(appData, "fx_rates_by_date.json");
+    }
+
+    internal FrankfurterFxRateProvider(HttpClient httpClient, string cacheFilePath)
+    {
+        _http = httpClient;
+        _cacheFilePath = cacheFilePath;
+        string? dir = Path.GetDirectoryName(_cacheFilePath);
+        if (!string.IsNullOrWhiteSpace(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
         LoadCache();
     }
 
@@ -140,7 +149,7 @@ public sealed class FrankfurterFxRateProvider
         try
         {
             string url = "https://api.frankfurter.dev/v1/latest?base=EUR";
-            using HttpResponseMessage response = await Http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage response = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return;
@@ -242,7 +251,7 @@ public sealed class FrankfurterFxRateProvider
         try
         {
             string url = $"https://api.frankfurter.dev/v1/{requestedKey}?base=EUR";
-            using HttpResponseMessage response = await Http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage response = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return;
@@ -265,7 +274,7 @@ public sealed class FrankfurterFxRateProvider
             string startKey = FormatDateKey(startDate);
             string endKey = FormatDateKey(endDate);
             string url = $"https://api.frankfurter.dev/v1/{startKey}..{endKey}?base=EUR";
-            using HttpResponseMessage response = await Http.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage response = await _http.GetAsync(url, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
                 return;

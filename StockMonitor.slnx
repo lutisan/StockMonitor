@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="StockMonitor/StockMonitor.csproj" />
+  <Project Path="StockMonitor.Tests/StockMonitor.Tests.csproj" />
+  <Project Path="StockMonitor.UiTests/StockMonitor.UiTests.csproj" />
 </Solution>
