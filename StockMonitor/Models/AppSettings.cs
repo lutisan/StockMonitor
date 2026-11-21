@@ -4,6 +4,7 @@ namespace StockMonitor.Models;
 
 /// <summary>
 /// Stores user-configurable application settings including base currency, UI language, and visual theme.
+/// Stored in a JSON file together with portfolio data and loaded at application startup.
 /// </summary>
 public partial class AppSettings : ObservableObject
 {

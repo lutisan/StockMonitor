@@ -167,7 +167,7 @@ public sealed class StockMonitorAppFixture : IDisposable
         DirectoryInfo? dir = new(AppContext.BaseDirectory);
         while (dir != null)
         {
-            string candidate = Path.Combine(dir.FullName, "StockMonitor", "bin", "Debug", "net9.0-windows", "StockMonitor.exe");
+            string candidate = Path.Combine(dir.FullName, "StockMonitor", "bin", "Debug", "net10.0-windows", "StockMonitor.exe");
             if (File.Exists(candidate))
             {
                 return candidate;

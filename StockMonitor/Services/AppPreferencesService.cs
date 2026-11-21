@@ -19,6 +19,17 @@ public sealed class AppPreferences
 /// <summary>
 /// Reads and writes <see cref="AppPreferences"/> in the local StockMonitor data directory.
 /// </summary>
+/// <remarks>
+/// Storage location (resolved via <see cref="PortfolioStorageService.ResolveDefaultDataDirectory"/>):
+/// <list type="bullet">
+///   <item>
+///     <description>Default disk path: <c>%LocalAppData%\StockMonitor\app_preferences.json</c></description>
+///   </item>
+///   <item>
+///     <description>Override: if the <c>STOCKMONITOR_DATA_DIR</c> environment variable is set, stored at <c>%STOCKMONITOR_DATA_DIR%\app_preferences.json</c>.</description>
+///   </item>
+/// </list>
+/// </remarks>
 public sealed class AppPreferencesService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()

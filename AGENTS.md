@@ -16,7 +16,7 @@ Read AGENTS.md, docs/ARCHITECTURE_AND_HANDOFF.md, and docs/PREHLAD3_SPECIFICATIO
 
 ## 2. Environment & Build Rules (Critical)
 
-1. **Target Framework**: `.NET 9.0` (`net9.0-windows`) WPF application.
+1. **Target Framework**: `.NET 10.0` (`net10.0-windows`) WPF application.
 2. **Syncfusion Version**: Locally installed **Syncfusion Essential Studio for WPF `31.1.17`**.
    - Local NuGet fallback folder: `C:\Program Files (x86)\Syncfusion\Essential Studio\WPF\31.1.17\ToolboxNuGetPackages` (configured via `C:\Program Files (x86)\NuGet\Config\Syncfusion Toolbox for WPF.config`).
    - Local precompiled assemblies: `C:\Program Files (x86)\Syncfusion\Essential Studio\WPF\31.1.17\precompiledassemblies\net9.0\`.
