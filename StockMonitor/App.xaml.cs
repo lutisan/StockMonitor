@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -31,7 +32,7 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-        string? licenseKey = Environment.GetEnvironmentVariable("SYNCFUSION_LICENSE_KEY");
+        string? licenseKey = ResolveSyncfusionLicenseKey();
         if (!string.IsNullOrWhiteSpace(licenseKey))
         {
             SyncfusionLicenseProvider.RegisterLicense(licenseKey);
@@ -180,5 +181,21 @@ public partial class App : Application
         }
 
         return path;
+    }
+
+    private static string? ResolveSyncfusionLicenseKey()
+    {
+        string? envKey = Environment.GetEnvironmentVariable("SYNCFUSION_LICENSE_KEY");
+        if (!string.IsNullOrWhiteSpace(envKey))
+        {
+            return envKey.Trim();
+        }
+
+        string? embeddedKey = typeof(App).Assembly
+            .GetCustomAttributes<AssemblyMetadataAttribute>()
+            .FirstOrDefault(a => string.Equals(a.Key, "SyncfusionLicenseKey", StringComparison.Ordinal))
+            ?.Value;
+
+        return !string.IsNullOrWhiteSpace(embeddedKey) ? embeddedKey.Trim() : null;
     }
 }
