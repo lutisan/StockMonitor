@@ -1,0 +1,537 @@
+<UserControl x:Class="StockMonitor.Views.PositionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             xmlns:sfgrid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:behaviors="clr-namespace:StockMonitor.Behaviors"
+             xmlns:services="clr-namespace:StockMonitor.Services"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1400">
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="360" MinHeight="180" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="220" />
+        </Grid.RowDefinitions>
+
+        <!-- TOP PANE: Switchable Sub-Tabs [Stock Price Chart + Splitter + Lot Details | Full-Width Yahoo Finance Page] -->
+        <syncfusion:TabControlExt Grid.Row="0"
+                                  CloseButtonType="Hide"
+                                  EnableLabelEdit="False">
+
+            <!-- SUB-TAB A: Stock Price Chart | Vertical Splitter | Selected Lot Details -->
+            <syncfusion:TabItemExt Header="{Binding [SubTab_Chart], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_SubTabChart], Source={x:Static services:LocalizationService.Instance}}">
+                <Grid Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="320" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="395" MinWidth="260" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Single Stock Price Chart (X-Axis Zoom Only, No Bottom Date Selector) -->
+                    <Grid Grid.Column="0" Margin="0,0,2,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="4,0,4,4">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                <TextBlock Text="{Binding SelectedLot.CompanyName}" FontSize="15" FontWeight="Bold" Margin="0,0,8,0" />
+                                <TextBlock Text="{Binding SelectedLot.Ticker}" FontWeight="SemiBold" Opacity="0.8" Margin="0,0,8,0" />
+                                <TextBlock Text="(" Opacity="0.7" />
+                                <TextBlock Text="{Binding SelectedLot.YahooSymbol}" Opacity="0.7" />
+                                <TextBlock Text=")" Opacity="0.7" Margin="0,0,12,0" />
+                                <TextBlock Text="{Binding [Lbl_Open], Source={x:Static services:LocalizationService.Instance}}" Opacity="0.75" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedLot.OpenPrice, StringFormat=N2}" FontWeight="SemiBold" Margin="0,0,12,0" />
+                                <TextBlock Text="{Binding [Lbl_CurrentClose], Source={x:Static services:LocalizationService.Instance}}" Opacity="0.75" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedLot.CloseOrCurrentPrice, StringFormat=N2}" FontWeight="SemiBold" Margin="0,0,12,0" />
+                                <TextBlock Text="{Binding [Lbl_TotalProfit], Source={x:Static services:LocalizationService.Instance}}" Opacity="0.75" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedLot.TotalProfitBase, StringFormat=N2}" FontWeight="Bold" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding SelectedBaseCurrency}" FontWeight="Bold" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <syncfusion:SfChart Grid.Row="1"
+                                            x:Name="PositionPriceChart"
+                                            Margin="2"
+                                            behaviors:ChartAxisDragZoomBehavior.EnableXAxisDragZoom="True"
+                                            ToolTip="{Binding [Tip_PriceChart], Source={x:Static services:LocalizationService.Instance}}">
+                            <syncfusion:SfChart.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="{Binding [Ctx_ResetZoom100], Source={x:Static services:LocalizationService.Instance}}"
+                                              Command="{Binding ResetChartZoom100Command}"
+                                              ToolTip="{Binding [Tip_CtxResetZoom100], Source={x:Static services:LocalizationService.Instance}}" />
+                                    <Separator />
+                                    <MenuItem Header="{Binding [Ctx_UndoZoom], Source={x:Static services:LocalizationService.Instance}}"
+                                              Command="{Binding UndoChartZoomCommand}"
+                                              ToolTip="{Binding [Tip_CtxUndoZoom], Source={x:Static services:LocalizationService.Instance}}" />
+                                    <MenuItem Header="{Binding [Ctx_RedoZoom], Source={x:Static services:LocalizationService.Instance}}"
+                                              Command="{Binding RedoChartZoomCommand}"
+                                              ToolTip="{Binding [Tip_CtxRedoZoom], Source={x:Static services:LocalizationService.Instance}}" />
+                                </ContextMenu>
+                            </syncfusion:SfChart.ContextMenu>
+
+                            <syncfusion:SfChart.PrimaryAxis>
+                                <syncfusion:DateTimeAxis Header="{Binding [Axis_DateDragZoom], Source={x:Static services:LocalizationService.Instance}}"
+                                                         LabelFormat="yyyy-MM-dd"
+                                                         ShowGridLines="True"
+                                                         ShowTrackBallInfo="True"
+                                                         Minimum="{Binding ChartXMinimum}"
+                                                         Maximum="{Binding ChartXMaximum}"
+                                                         ZoomPosition="{Binding ChartXZoomPosition, Mode=TwoWay}"
+                                                         ZoomFactor="{Binding ChartXZoomFactor, Mode=TwoWay}" />
+                            </syncfusion:SfChart.PrimaryAxis>
+
+                            <syncfusion:SfChart.SecondaryAxis>
+                                <syncfusion:NumericalAxis Header="{Binding [Axis_PriceNative], Source={x:Static services:LocalizationService.Instance}}"
+                                                          StartRangeFromZero="False"
+                                                          behaviors:MvvmBehaviors.UseSpaceNumberAxisLabels="True" />
+                            </syncfusion:SfChart.SecondaryAxis>
+
+                            <syncfusion:SfChart.Behaviors>
+                                <syncfusion:ChartTrackBallBehavior UseSeriesPalette="True" />
+                                <syncfusion:ChartZoomPanBehavior ZoomMode="X"
+                                                                 EnableMouseWheelZooming="True"
+                                                                 EnablePanning="True"
+                                                                 EnableSelectionZooming="True"
+                                                                 ResetOnDoubleTap="False" />
+                            </syncfusion:SfChart.Behaviors>
+
+                            <syncfusion:FastLineSeries ItemsSource="{Binding SelectedLotPriceHistory}"
+                                                       XBindingPath="Date"
+                                                       YBindingPath="Close"
+                                                       Label="{Binding [Series_ClosePrice], Source={x:Static services:LocalizationService.Instance}}"
+                                                       StrokeThickness="2">
+                                <syncfusion:FastLineSeries.TrackBallLabelTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="6,2" CornerRadius="2" Background="{Binding Interior}" BorderBrush="White" BorderThickness="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Item.Date, StringFormat=yyyy-MM-dd}" Foreground="White" FontSize="11" />
+                                                <TextBlock Text=": " Foreground="White" FontSize="11" />
+                                                <TextBlock Text="{Binding Item.Close, Converter={StaticResource SpaceNum}, ConverterParameter=N2}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </syncfusion:FastLineSeries.TrackBallLabelTemplate>
+                            </syncfusion:FastLineSeries>
+                        </syncfusion:SfChart>
+                    </Grid>
+
+                    <!-- Vertical Splitter between Stock Price Chart and Selected Lot Details -->
+                    <syncfusion:SfGridSplitter Grid.Column="1"
+                                               Width="6"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Stretch"
+                                               ResizeBehavior="PreviousAndNext"
+                                               EnableCollapseButton="True"
+                                               Margin="2,0"
+                                               ToolTip="{Binding [Tip_VertSplitterChartDetails], Source={x:Static services:LocalizationService.Instance}}" />
+
+                    <!-- Right: Selected Lot Details & Manual Overrides -->
+                    <Border Grid.Column="2" Padding="10" BorderThickness="1" Margin="2,0,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="{Binding [Hdr_LotDetails], Source={x:Static services:LocalizationService.Instance}}"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,8" />
+
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="125" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [Lbl_CompanyName], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <TextBox Grid.Row="0" Grid.Column="1"
+                                             AutomationProperties.AutomationId="TxtEditCompanyName"
+                                             Text="{Binding SelectedLot.CompanyName, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="{Binding [Tip_EditCompanyName], Source={x:Static services:LocalizationService.Instance}}"
+                                             Margin="0,2" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding [Lbl_TickerYahoo], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <UniformGrid Grid.Row="1" Grid.Column="1" Columns="2" Margin="0,2">
+                                        <TextBox AutomationProperties.AutomationId="TxtEditTicker"
+                                                 Text="{Binding SelectedLot.Ticker, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,0,4,0"
+                                                 ToolTip="{Binding [Tip_EditTicker], Source={x:Static services:LocalizationService.Instance}}" />
+                                        <TextBox AutomationProperties.AutomationId="TxtEditYahooSymbol"
+                                                 Text="{Binding SelectedLot.YahooSymbol, UpdateSourceTrigger=PropertyChanged}"
+                                                 ToolTip="{Binding [Tip_EditYahooSymbol], Source={x:Static services:LocalizationService.Instance}}" />
+                                    </UniformGrid>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding [Lbl_CountryCurrency], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <UniformGrid Grid.Row="2" Grid.Column="1" Columns="2" Margin="0,2">
+                                        <TextBox Text="{Binding SelectedLot.CountryCode, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,0,4,0"
+                                                 ToolTip="{Binding [Tip_EditCountryCode], Source={x:Static services:LocalizationService.Instance}}" />
+                                        <TextBox Text="{Binding SelectedLot.StockCurrency, UpdateSourceTrigger=PropertyChanged}"
+                                                 ToolTip="{Binding [Tip_EditStockCurrency], Source={x:Static services:LocalizationService.Instance}}" />
+                                    </UniformGrid>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding [Lbl_Quantity], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <TextBox Grid.Row="3" Grid.Column="1"
+                                             Text="{Binding SelectedLot.Quantity, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="{Binding [Tip_EditQuantity], Source={x:Static services:LocalizationService.Instance}}"
+                                             Margin="0,2" />
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding [Lbl_OpenDateUtc], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <TextBox Grid.Row="4" Grid.Column="1"
+                                             Text="{Binding SelectedLot.OpenDate, StringFormat=yyyy-MM-dd HH:mm:ss}"
+                                             ToolTip="{Binding [Tip_EditOpenDate], Source={x:Static services:LocalizationService.Instance}}"
+                                             Margin="0,2" />
+
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding [Lbl_OpenPrice], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <DockPanel Grid.Row="5" Grid.Column="1" Margin="0,2">
+                                        <CheckBox Content="{Binding [Lbl_Manual], Source={x:Static services:LocalizationService.Instance}}"
+                                                  IsChecked="{Binding SelectedLot.IsOpenPriceManual}"
+                                                  ToolTip="{Binding [Tip_ChkOpenPriceManual], Source={x:Static services:LocalizationService.Instance}}"
+                                                  DockPanel.Dock="Right"
+                                                  VerticalAlignment="Center"
+                                                  Margin="6,0,0,0" />
+                                        <TextBox Text="{Binding SelectedLot.EditableOpenPrice, TargetNullValue='', UpdateSourceTrigger=LostFocus}"
+                                                 ToolTip="{Binding [Tip_EditOpenPrice], Source={x:Static services:LocalizationService.Instance}}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedLot.IsOpenPriceManual}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </DockPanel>
+
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="{Binding [Lbl_CloseDateUtc], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <TextBox Grid.Row="6" Grid.Column="1"
+                                             Text="{Binding SelectedLot.CloseDate, StringFormat=yyyy-MM-dd HH:mm:ss, TargetNullValue=''}"
+                                             ToolTip="{Binding [Tip_EditCloseDate], Source={x:Static services:LocalizationService.Instance}}"
+                                             Margin="0,2" />
+
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="{Binding [Lbl_CurrClosePrice], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <DockPanel Grid.Row="7" Grid.Column="1" Margin="0,2">
+                                        <CheckBox Content="{Binding [Lbl_Manual], Source={x:Static services:LocalizationService.Instance}}"
+                                                  IsChecked="{Binding SelectedLot.IsClosePriceManual}"
+                                                  ToolTip="{Binding [Tip_ChkClosePriceManual], Source={x:Static services:LocalizationService.Instance}}"
+                                                  DockPanel.Dock="Right"
+                                                  VerticalAlignment="Center"
+                                                  Margin="6,0,0,0" />
+                                        <TextBox Text="{Binding SelectedLot.EditableCloseOrCurrentPrice, TargetNullValue='', UpdateSourceTrigger=LostFocus}"
+                                                 ToolTip="{Binding [Tip_EditCurrentPrice], Source={x:Static services:LocalizationService.Instance}}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedLot.IsClosePriceManual}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </DockPanel>
+
+                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="{Binding [Lbl_DivTaxOverride], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <UniformGrid Grid.Row="8" Grid.Column="1" Columns="2" Margin="0,2">
+                                        <TextBox Text="{Binding SelectedLot.ManualDividendTaxRate, TargetNullValue=''}"
+                                                 ToolTip="{Binding [Tip_EditDivTaxOverride], Source={x:Static services:LocalizationService.Instance}}"
+                                                 Margin="0,0,4,0" />
+                                        <TextBlock Text="{Binding SelectedLot.EffectiveDividendTaxRate, StringFormat='Eff: {0:N2}%'}"
+                                                   ToolTip="{Binding [Tip_EffectiveDivTax], Source={x:Static services:LocalizationService.Instance}}"
+                                                   VerticalAlignment="Center"
+                                                   Opacity="0.8" />
+                                    </UniformGrid>
+
+                                    <TextBlock Grid.Row="9" Grid.Column="0" Text="{Binding [Lbl_XtbPosId], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,2" />
+                                    <TextBlock Grid.Row="9" Grid.Column="1"
+                                               Text="{Binding SelectedLot.ExternalPositionId}"
+                                               ToolTip="{Binding [Tip_XtbPositionId], Source={x:Static services:LocalizationService.Instance}}"
+                                               VerticalAlignment="Center" Opacity="0.8" Margin="0,2" />
+                                </Grid>
+
+                                <TextBlock Text="{Binding [Lbl_CommentsNotes], Source={x:Static services:LocalizationService.Instance}}" FontWeight="SemiBold" Margin="0,4,0,4" />
+                                <TextBox AutomationProperties.AutomationId="TxtEditComment"
+                                         Text="{Binding SelectedLot.Comment, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="{Binding [Tip_EditComment], Source={x:Static services:LocalizationService.Instance}}"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         Height="56"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Margin="0,0,0,8" />
+
+                                <!--<Button AutomationProperties.AutomationId="BtnSaveLotOverrides"
+                                        Content="{Binding [Btn_SaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                        ToolTip="{Binding [Tip_BtnSaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                        Command="{Binding SaveSelectedLotOverridesCommand}"
+                                        Padding="10,5"
+                                        FontWeight="SemiBold" />-->
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </syncfusion:TabItemExt>
+
+            <!-- SUB-TAB B: Full-Width Yahoo Finance Embedded Web Page -->
+            <syncfusion:TabItemExt x:Name="YahooWebTab"
+                                   Header="{Binding [SubTab_Yahoo], Source={x:Static services:LocalizationService.Instance}}"
+                                   ToolTip="{Binding [Tip_SubTabYahoo], Source={x:Static services:LocalizationService.Instance}}"
+                                   IsSelected="{Binding IsYahooWebTabSelected, Mode=TwoWay}">
+                <Grid Margin="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,6">
+                        <Button Content="{Binding [Btn_OpenExternalBrowser], Source={x:Static services:LocalizationService.Instance}}"
+                                ToolTip="{Binding [Tip_BtnOpenExternal], Source={x:Static services:LocalizationService.Instance}}"
+                                DockPanel.Dock="Right"
+                                Command="{Binding OpenYahooInExternalBrowserCommand}"
+                                Padding="10,4"
+                                Margin="6,0,0,0" />
+                        <Button Content="{Binding [Btn_ReloadEmbeddedPage], Source={x:Static services:LocalizationService.Instance}}"
+                                ToolTip="{Binding [Tip_BtnReloadEmbedded], Source={x:Static services:LocalizationService.Instance}}"
+                                DockPanel.Dock="Right"
+                                Command="{Binding LoadYahooInEmbeddedBrowserCommand}"
+                                Padding="10,4"
+                                Margin="6,0,0,0" />
+                        <TextBox Text="{Binding SelectedLotYahooUrl, Mode=OneWay}"
+                                 ToolTip="{Binding [Tip_YahooUrlBox], Source={x:Static services:LocalizationService.Instance}}"
+                                 IsReadOnly="True"
+                                 VerticalContentAlignment="Center"
+                                 Padding="6,3" />
+                    </DockPanel>
+
+                    <ContentControl Grid.Row="1"
+                                    x:Name="YahooBrowser"
+                                    ToolTip="{Binding [Tip_YahooBrowserHost], Source={x:Static services:LocalizationService.Instance}}"
+                                    behaviors:MvvmBehaviors.BindableSource="{Binding ActiveEmbeddedYahooUrl}" />
+                </Grid>
+            </syncfusion:TabItemExt>
+        </syncfusion:TabControlExt>
+
+        <!-- HORIZONTAL SPLITTER BAR -->
+        <syncfusion:SfGridSplitter Grid.Row="1"
+                                   Height="7"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Center"
+                                   ResizeBehavior="PreviousAndNext"
+                                   EnableCollapseButton="True"
+                                   Margin="0,4"
+                                   ToolTip="{Binding [Tip_HorizSplitterPositions], Source={x:Static services:LocalizationService.Instance}}" />
+
+        <!-- BOTTOM PANE: Positions SfDataGrid Grouped by Company Name -->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Filter & Grouping Toolbar -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,6">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <TextBlock Text="{Binding [Lbl_StatusFilter], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <ComboBox AutomationProperties.AutomationId="CmbStatusFilter"
+                              ItemsSource="{Binding StatusFilterOptions}"
+                              SelectedItem="{Binding SelectedStatusFilter}"
+                              ToolTip="{Binding [Tip_StatusFilter], Source={x:Static services:LocalizationService.Instance}}"
+                              Width="115"
+                              VerticalAlignment="Center"
+                              Margin="0,0,14,0" />
+
+                    <TextBlock Text="{Binding [Lbl_Search], Source={x:Static services:LocalizationService.Instance}}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBox AutomationProperties.AutomationId="TxtSearchBox"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="{Binding [Tip_SearchBox], Source={x:Static services:LocalizationService.Instance}}"
+                             Width="210"
+                             VerticalContentAlignment="Center"
+                             Padding="6,3"
+                             Margin="0,0,14,0" />
+
+                    <Button AutomationProperties.AutomationId="BtnExpandAllGroups"
+                            Content="{Binding [Btn_ExpandAll], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnExpandAll], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding ExpandAllGroupsCommand}" Padding="8,3" Margin="0,0,6,0" />
+                    <Button AutomationProperties.AutomationId="BtnCollapseAllGroups"
+                            Content="{Binding [Btn_CollapseAll], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnCollapseAll], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding CollapseAllGroupsCommand}" Padding="8,3" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button AutomationProperties.AutomationId="BtnAddPosition"
+                            Content="{Binding [Btn_AddPosition], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnAddPosition], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding AddNewPositionCommand}" Padding="10,3" Margin="0,0,6,0" />
+                    <Button AutomationProperties.AutomationId="BtnDeletePosition"
+                            Content="{Binding [Btn_DeleteSelected], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_BtnDeletePosition], Source={x:Static services:LocalizationService.Instance}}"
+                            Command="{Binding DeleteSelectedPositionCommand}" Padding="10,3" Margin="0,0,6,0" />
+                    <Button AutomationProperties.AutomationId="BtnSaveLotOverrides"
+                                        Content="{Binding [Btn_SaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                        ToolTip="{Binding [Tip_BtnSaveLotOverrides], Source={x:Static services:LocalizationService.Instance}}"
+                                        Command="{Binding SaveSelectedLotOverridesCommand}"
+                                        Padding="10,3"
+                                        FontWeight="SemiBold" />
+
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Main Positions SfDataGrid -->
+            <syncfusion:SfDataGrid Grid.Row="1"
+                                   x:Name="PositionsGrid"
+                                   AutomationProperties.AutomationId="PositionsGrid"
+                                   ItemsSource="{Binding FilteredLots}"
+                                   SelectedItem="{Binding SelectedLot, Mode=TwoWay}"
+                                   behaviors:MvvmBehaviors.GroupExpandRequest="{Binding GroupExpandRequest}"
+                                   behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
+                                   ToolTip="{Binding [Tip_PositionsGrid], Source={x:Static services:LocalizationService.Instance}}"
+                                   AutoGenerateColumns="False"
+                                   AllowEditing="True"
+                                   EditTrigger="OnDoubleTap"
+                                   AllowGrouping="True"
+                                   ShowGroupDropArea="True"
+                                   AllowSorting="True"
+                                   AllowFiltering="True"
+                                   AllowResizingColumns="True"
+                                   AllowDraggingColumns="True"
+                                   AutoExpandGroups="True"
+                                   NavigationMode="Cell"
+                                   SelectionMode="Single"
+                                   FrozenColumnCount="2">
+                <syncfusion:SfDataGrid.Resources>
+                    <Style x:Key="LotCellStyle" TargetType="sfgrid:GridCell">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsInProfit}" Value="True">
+                                <Setter Property="Background" Value="#1422C55E" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsInLoss}" Value="True">
+                                <Setter Property="Background" Value="#14EF4444" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                <Setter Property="Opacity" Value="0.62" />
+                                <Setter Property="FontStyle" Value="Italic" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="ProfitLossCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsInProfit}" Value="True">
+                                <Setter Property="Foreground" Value="#22C55E" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsInLoss}" Value="True">
+                                <Setter Property="Foreground" Value="#EF4444" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="ManualOpenPriceCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOpenPriceManual}" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="ManualClosePriceCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsClosePriceManual}" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style x:Key="SparklineCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                <Setter Property="Opacity" Value="1.0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </syncfusion:SfDataGrid.Resources>
+                <syncfusion:SfDataGrid.CellStyle>
+                    <StaticResource ResourceKey="LotCellStyle" />
+                </syncfusion:SfDataGrid.CellStyle>
+
+                <syncfusion:SfDataGrid.GroupColumnDescriptions>
+                    <syncfusion:GroupColumnDescription ColumnName="CompanyName" />
+                </syncfusion:SfDataGrid.GroupColumnDescriptions>
+
+                <syncfusion:SfDataGrid.GroupSummaryRows>
+                    <syncfusion:GridSummaryRow ShowSummaryInRow="False">
+                        <syncfusion:GridSummaryRow.SummaryColumns>
+                            <syncfusion:GridSummaryColumn Name="GrpQty" MappingName="Quantity" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="GrpOpenCostBase" MappingName="OpenCostBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="GrpCurrValBase" MappingName="CloseOrCurrentValueBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="GrpCapPLBase" MappingName="CapitalProfitLossBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="GrpNetDivBase" MappingName="NetDividendsBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="GrpTotProfitBase" MappingName="TotalProfitBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                        </syncfusion:GridSummaryRow.SummaryColumns>
+                    </syncfusion:GridSummaryRow>
+                </syncfusion:SfDataGrid.GroupSummaryRows>
+
+                <syncfusion:SfDataGrid.TableSummaryRows>
+                    <syncfusion:GridTableSummaryRow ShowSummaryInRow="False" Position="Bottom">
+                        <syncfusion:GridSummaryRow.SummaryColumns>
+                            <syncfusion:GridSummaryColumn Name="TblCount" MappingName="CompanyName" SummaryType="CountAggregate" Format="'Lots: {Count}'" />
+                            <syncfusion:GridSummaryColumn Name="TblOpenCostBase" MappingName="OpenCostBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="TblCurrValBase" MappingName="CloseOrCurrentValueBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="TblCapPLBase" MappingName="CapitalProfitLossBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="TblNetDivBase" MappingName="NetDividendsBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                            <syncfusion:GridSummaryColumn Name="TblTotProfitBase" MappingName="TotalProfitBase" SummaryType="DoubleAggregate" Format="'{Sum:N2}'" />
+                        </syncfusion:GridSummaryRow.SummaryColumns>
+                    </syncfusion:GridTableSummaryRow>
+                </syncfusion:SfDataGrid.TableSummaryRows>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:GridTextColumn MappingName="CompanyName" HeaderText="{Binding [Col_CompanyName], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CompanyName" AllowEditing="True" Width="185" />
+                    <syncfusion:GridTextColumn MappingName="Ticker" HeaderText="{Binding [Col_Ticker], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Ticker" AllowEditing="True" Width="85" />
+                    <syncfusion:GridTextColumn MappingName="StockCurrency" HeaderText="{Binding [Col_Currency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Currency" AllowEditing="True" Width="74" />
+                    <syncfusion:GridTextColumn MappingName="BaseCurrency" HeaderText="{Binding [Col_BaseCurrency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_BaseCurrency" AllowEditing="False" Width="78" />
+                    <syncfusion:GridTextColumn MappingName="Category" HeaderText="{Binding [Col_Category], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Category" AllowEditing="True" Width="68" />
+                    <syncfusion:GridTextColumn MappingName="StatusText" HeaderText="{Binding [Col_Status], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Status" AllowEditing="False" Width="72" />
+                    <syncfusion:GridDateTimeColumn MappingName="OpenDate" HeaderText="{Binding [Col_OpenDate], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenDate" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" AllowEditing="True" Width="98" />
+                    <syncfusion:GridNumericColumn MappingName="Quantity" HeaderText="{Binding [Col_Quantity], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Quantity" NumberDecimalDigits="2" AllowEditing="True" Width="82" />
+                    <syncfusion:GridNumericColumn MappingName="EditableOpenPrice" HeaderText="{Binding [Col_OpenPrice], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenPrice" CellStyle="{StaticResource ManualOpenPriceCellStyle}" NumberDecimalDigits="3" AllowNullValue="True" AllowEditing="True" Width="95" />
+                    <syncfusion:GridNumericColumn MappingName="OpenCost" HeaderText="{Binding [Col_OpenCost], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenCost" NumberDecimalDigits="2" AllowEditing="False" Width="100" />
+                    <syncfusion:GridNumericColumn MappingName="OpenPriceBase" HeaderText="{Binding [Col_OpenPriceBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenPriceBase" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="OpenCostBase" HeaderText="{Binding [Col_OpenCostBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_OpenCostBase" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridDateTimeColumn MappingName="CloseDate" HeaderText="{Binding [Col_CloseDate], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseDate" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" AllowNullValue="True" AllowEditing="True" Width="98" />
+                    <syncfusion:GridNumericColumn MappingName="EditableCloseOrCurrentPrice" HeaderText="{Binding [Col_CloseCurrPrice], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrPrice" CellStyle="{StaticResource ManualClosePriceCellStyle}" NumberDecimalDigits="3" AllowNullValue="True" AllowEditing="True" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentValue" HeaderText="{Binding [Col_CloseCurrVal], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrVal" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentPriceBase" HeaderText="{Binding [Col_CloseCurrPriceBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CloseCurrPriceBase" NumberDecimalDigits="2" AllowEditing="False" Width="122" />
+                    <syncfusion:GridNumericColumn MappingName="CloseOrCurrentValueBase" HeaderText="{Binding [Col_MarketValBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_MarketValBase" NumberDecimalDigits="2" AllowEditing="False" Width="128" />
+                    <syncfusion:GridNumericColumn MappingName="CapitalProfitLoss" HeaderText="{Binding [Col_DiffNative], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_DiffNative" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="98" />
+                    <syncfusion:GridNumericColumn MappingName="CapitalProfitLossBase" HeaderText="{Binding [Col_DiffBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_DiffBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="118" />
+                    <syncfusion:GridNumericColumn MappingName="NetDividendsBase" HeaderText="{Binding [Col_NetDivBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_NetDivBase" NumberDecimalDigits="2" AllowEditing="False" Width="108" />
+                    <syncfusion:GridNumericColumn MappingName="TotalProfitBase" HeaderText="{Binding [Col_TotalProfitBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TotalProfitBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="122" />
+                    <syncfusion:GridNumericColumn MappingName="TotalReturnPercent" HeaderText="{Binding [Col_ReturnPct], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_ReturnPct" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="86" />
+                    <syncfusion:GridTemplateColumn MappingName="SparklinePoints" HeaderText="{Binding [Col_Sparkline], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Sparkline" CellStyle="{StaticResource SparklineCellStyle}" Width="125" AllowEditing="False" AllowFiltering="False" AllowSorting="False">
+                        <syncfusion:GridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <behaviors:ProfitSparklineControl ItemsSource="{Binding SparklinePoints}"
+                                                                    Margin="4,2" />
+                            </DataTemplate>
+                        </syncfusion:GridTemplateColumn.CellTemplate>
+                    </syncfusion:GridTemplateColumn>
+                    <syncfusion:GridTextColumn MappingName="Comment" HeaderText="{Binding [Col_Comment], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Comment" Width="180" />
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
+        </Grid>
+    </Grid>
+</UserControl>

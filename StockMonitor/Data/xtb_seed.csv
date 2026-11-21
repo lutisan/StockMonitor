@@ -1,0 +1,52 @@
+Account number,DEMO-0001,,,,,,,,,,,,,,,,,,,,,,,
+Closed Positions,,,,,,,,,,,,,,,,,,,,,,,,
+Date from (UTC),2021-01-01 00:00:00,,,,,,,,,,,,,,,,,,,,,,,
+Date to (UTC),2026-10-22 18:00:00,,,,,,,,,,,,,,,,,,,,,,,
+Instrument,Ticker,Category,Type,Volume,Open Price,Open Time (UTC),Close Price,Close Time (UTC),Product,Profit/Loss,Gross Profit,Purchase Value,Sale Value,Stop Loss,Take Profit,Commission,Margin,Swap,Rollover,Open Conversion Rate,Close Conversion Rate,Close Origin,Position ID,Comment
+Nvidia Corp,NVDA.US,STOCK,BUY,10,45.50,2023-02-15 15:30:00,128.40,2024-11-12 16:10:00,My Trades,766.20,766.20,425.23,1191.43,,,0,,,,0.93457,0.92791,Web,900100001,Demo closed US growth position
+SAP SE,SAP.DE,STOCK,BUY,8,118.20,2023-05-10 09:45:00,208.60,2025-03-18 11:20:00,My Trades,723.20,723.20,945.60,1668.80,,,0,,,,1.00000,1.00000,Web,900100002,Demo closed EU tech position
+ASML Holding,ASML.NL,STOCK,BUY,2,615.00,2023-09-05 10:15:00,820.00,2024-07-11 13:05:00,My Trades,410.00,410.00,1230.00,1640.00,,,0,,,,1.00000,1.00000,Web,900100003,Demo closed NL semiconductor position
+Open Positions,,,,,,,,,,,,,,,,,,
+Data as of report generated,2026-10-22 18:00:00,,,,,,,,,,,,,,,,,
+Product,Instrument/Position,Ticker,Category,Type,Volume,Value,Current price,Open price,Open time (UTC),Stop Loss,Take Profit,Net Profit %,Net Profit,Gross Profit,Margin,Open Commission,Swap,Rollover
+My Trades,Apple Inc.,AAPL.US,STOCK,,15,3105.00,,178.50,,,,25.60,633.00,633.00,,0,,
+My Trades,900200001,AAPL.US,,BUY,15,3105.00,224.00,178.50,2023-08-14 14:30:00,,,25.60,633.00,633.00,,0,,
+My Trades,Microsoft Corp.,MSFT.US,STOCK,,8,3120.00,,345.00,,,,22.10,565.00,565.00,,0,,
+My Trades,900200002,MSFT.US,,BUY,8,3120.00,422.50,345.00,2023-10-20 15:00:00,,,22.10,565.00,565.00,,0,,
+My Trades,Johnson & Johnson,JNJ.US,STOCK,,12,1750.00,,158.00,,,,-1.20,-21.00,-21.00,,0,,
+My Trades,900200003,JNJ.US,,BUY,12,1750.00,157.80,158.00,2024-01-18 15:15:00,,,-1.20,-21.00,-21.00,,0,,
+My Trades,LVMH Moet Hennessy,MC.FR,STOCK,,3,2040.00,,710.00,,,,-4.23,-90.00,-90.00,,0,,
+My Trades,900200004,MC.FR,,BUY,3,2040.00,680.00,710.00,2024-03-12 09:30:00,,,-4.23,-90.00,-90.00,,0,,
+My Trades,Nestle SA,NESN.CH,STOCK,,18,1620.00,,96.50,,,,-10.90,-198.00,-198.00,,0,,
+My Trades,900200005,NESN.CH,,BUY,18,1620.00,85.20,96.50,2024-02-07 10:00:00,,,-10.90,-198.00,-198.00,,0,,
+My Trades,iShares Core S&P 500 UCITS ETF,SXR8.DE,ETF,,8,4680.00,,430.00,,,,36.05,1240.00,1240.00,,0,,
+My Trades,900200006,SXR8.DE,,BUY,8,4680.00,585.00,430.00,2022-11-10 09:15:00,,,36.05,1240.00,1240.00,,0,,
+My Trades,Vanguard FTSE All-World UCITS ETF,VWCE.DE,ETF,,35,4550.00,,102.50,,,,26.83,962.50,962.50,,0,,
+My Trades,900200007,VWCE.DE,,BUY,35,4550.00,130.00,102.50,2023-03-22 10:30:00,,,26.83,962.50,962.50,,0,,
+My Trades,iShares Core Euro Govt Bond UCITS ETF,EUNH.DE,ETF,,25,2875.00,,111.20,,,,3.42,95.00,95.00,,0,,
+My Trades,900200008,EUNH.DE,,BUY,25,2875.00,115.00,111.20,2024-04-16 09:40:00,,,3.42,95.00,95.00,,0,,
+Cash Operations,,,,,,,,,
+Date from (UTC),2021-01-01 00:00:00,,,,,,,,
+Date to (UTC),2026-10-22 18:00:00,,,,,,,,
+Type,Instrument,Ticker,Category,Time,Amount,ID,Comment,Product,Position ID
+Deposit,,,,2022-11-01 08:00:00,10000.00,910000001,Demo bank deposit 1,My Trades,
+Deposit,,,,2023-08-01 08:00:00,10000.00,910000002,Demo bank deposit 2,My Trades,
+Deposit,,,,2024-01-10 08:00:00,5000.00,910000003,Demo bank deposit 3,My Trades,
+Dividend,Apple Inc.,AAPL.US,STOCK,2024-05-16 12:00:00,13.80,910000101,AAPL.US USD 0.25/ SHR,My Trades,900200001
+Withholding tax,Apple Inc.,AAPL.US,STOCK,2024-05-16 12:00:00,-2.07,910000102,AAPL.US USD WHT 15%,My Trades,900200001
+Dividend,Microsoft Corp.,MSFT.US,STOCK,2024-06-13 12:00:00,22.10,910000103,MSFT.US USD 0.75/ SHR,My Trades,900200002
+Withholding tax,Microsoft Corp.,MSFT.US,STOCK,2024-06-13 12:00:00,-3.32,910000104,MSFT.US USD WHT 15%,My Trades,900200002
+Dividend,Johnson & Johnson,JNJ.US,STOCK,2024-09-10 12:00:00,55.20,910000105,JNJ.US USD 1.24/ SHR,My Trades,900200003
+Withholding tax,Johnson & Johnson,JNJ.US,STOCK,2024-09-10 12:00:00,-8.28,910000106,JNJ.US USD WHT 15%,My Trades,900200003
+Dividend,LVMH Moet Hennessy,MC.FR,STOCK,2024-04-25 10:00:00,39.00,910000107,MC.FR EUR 13.00/ SHR,My Trades,900200004
+Withholding tax,LVMH Moet Hennessy,MC.FR,STOCK,2024-04-25 10:00:00,-9.75,910000108,MC.FR EUR WHT 25%,My Trades,900200004
+Dividend,Nestle SA,NESN.CH,STOCK,2024-04-24 10:00:00,55.80,910000109,NESN.CH CHF 3.00/ SHR,My Trades,900200005
+Withholding tax,Nestle SA,NESN.CH,STOCK,2024-04-24 10:00:00,-19.53,910000110,NESN.CH CHF WHT 35%,My Trades,900200005
+Dividend,SAP SE,SAP.DE,STOCK,2024-05-21 10:00:00,17.60,910000111,SAP.DE EUR 2.20/ SHR,My Trades,900100002
+Withholding tax,SAP SE,SAP.DE,STOCK,2024-05-21 10:00:00,-4.64,910000112,SAP.DE EUR WHT 26.375%,My Trades,900100002
+Dividend,Apple Inc.,AAPL.US,STOCK,2025-05-15 12:00:00,14.40,910000113,AAPL.US USD 0.26/ SHR,My Trades,900200001
+Withholding tax,Apple Inc.,AAPL.US,STOCK,2025-05-15 12:00:00,-2.16,910000114,AAPL.US USD WHT 15%,My Trades,900200001
+Dividend,Microsoft Corp.,MSFT.US,STOCK,2025-06-12 12:00:00,24.40,910000115,MSFT.US USD 0.83/ SHR,My Trades,900200002
+Withholding tax,Microsoft Corp.,MSFT.US,STOCK,2025-06-12 12:00:00,-3.66,910000116,MSFT.US USD WHT 15%,My Trades,900200002
+Free funds interest,,,,2025-09-01 09:00:00,32.50,910000201,Free-funds Interest 2025-08,My Trades,
+Free funds interest tax,,,,2025-09-01 09:00:00,-6.18,910000202,Free-funds Interest Tax 2025-08,My Trades,

@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="StockMonitor.Core/StockMonitor.Core.csproj" />
+  <Project Path="StockMonitor.Export.Default/StockMonitor.Export.Default.csproj" />
+  <Project Path="StockMonitor.Export.Pdf/StockMonitor.Export.Pdf.csproj" />
+  <Project Path="StockMonitor.Import.Xtb/StockMonitor.Import.Xtb.csproj" />
+  <Project Path="StockMonitor/StockMonitor.csproj" />
+  <Project Path="StockMonitor.Tests/StockMonitor.Tests.csproj" />
+  <Project Path="StockMonitor.UiTests/StockMonitor.UiTests.csproj" />
+</Solution>

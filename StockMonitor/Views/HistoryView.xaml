@@ -1,0 +1,143 @@
+<UserControl x:Class="StockMonitor.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             xmlns:behaviors="clr-namespace:StockMonitor.Behaviors"
+             xmlns:services="clr-namespace:StockMonitor.Services"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1400">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="320" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <syncfusion:SfChart Grid.Row="0"
+                            x:Name="PortfolioHistoryChart"
+                            Header="{Binding [Chart_PortfolioHistory], Source={x:Static services:LocalizationService.Instance}}"
+                            ToolTip="{Binding [Tip_ChartHistory], Source={x:Static services:LocalizationService.Instance}}"
+                            behaviors:ChartAxisDragZoomBehavior.EnableXAxisDragZoom="True"
+                            Margin="0,0,0,8">
+            <syncfusion:SfChart.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{Binding [Ctx_ResetZoom100], Source={x:Static services:LocalizationService.Instance}}"
+                              Command="{Binding ResetHistoryChartZoom100Command}"
+                              ToolTip="{Binding [Tip_CtxResetZoom100], Source={x:Static services:LocalizationService.Instance}}" />
+                    <Separator />
+                    <MenuItem Header="{Binding [Ctx_UndoZoom], Source={x:Static services:LocalizationService.Instance}}"
+                              Command="{Binding UndoHistoryChartZoomCommand}"
+                              ToolTip="{Binding [Tip_CtxUndoZoom], Source={x:Static services:LocalizationService.Instance}}" />
+                    <MenuItem Header="{Binding [Ctx_RedoZoom], Source={x:Static services:LocalizationService.Instance}}"
+                              Command="{Binding RedoHistoryChartZoomCommand}"
+                              ToolTip="{Binding [Tip_CtxRedoZoom], Source={x:Static services:LocalizationService.Instance}}" />
+                </ContextMenu>
+            </syncfusion:SfChart.ContextMenu>
+
+            <syncfusion:SfChart.Legend>
+                <syncfusion:ChartLegend DockPosition="Top" />
+            </syncfusion:SfChart.Legend>
+            <syncfusion:SfChart.PrimaryAxis>
+                <syncfusion:DateTimeAxis Header="{Binding [Axis_DateDragZoom], Source={x:Static services:LocalizationService.Instance}}"
+                                         LabelFormat="yyyy-MM"
+                                         ShowGridLines="True"
+                                         ShowTrackBallInfo="True"
+                                         ZoomPosition="{Binding HistoryChartXZoomPosition, Mode=TwoWay}"
+                                         ZoomFactor="{Binding HistoryChartXZoomFactor, Mode=TwoWay}" />
+            </syncfusion:SfChart.PrimaryAxis>
+            <syncfusion:SfChart.SecondaryAxis>
+                <syncfusion:NumericalAxis Header="{Binding [Axis_ValueBase], Source={x:Static services:LocalizationService.Instance}}"
+                                          behaviors:MvvmBehaviors.UseSpaceNumberAxisLabels="True" />
+            </syncfusion:SfChart.SecondaryAxis>
+            <syncfusion:SfChart.Behaviors>
+                <syncfusion:ChartTrackBallBehavior UseSeriesPalette="True" />
+                <syncfusion:ChartZoomPanBehavior ZoomMode="X"
+                                                 EnableMouseWheelZooming="True"
+                                                 EnablePanning="True"
+                                                 EnableSelectionZooming="True"
+                                                 ResetOnDoubleTap="False" />
+            </syncfusion:SfChart.Behaviors>
+
+            <syncfusion:SplineAreaSeries ItemsSource="{Binding PortfolioHistory}"
+                                         XBindingPath="Date"
+                                         YBindingPath="TotalPortfolioValueBase"
+                                         Label="{Binding [Series_TotalPortValue], Source={x:Static services:LocalizationService.Instance}}">
+                <syncfusion:SplineAreaSeries.TrackBallLabelTemplate>
+                    <DataTemplate>
+                        <Border Padding="6,2" CornerRadius="2" Background="{Binding Interior}" BorderBrush="White" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Item.Date, StringFormat=yyyy-MM-dd}" Foreground="White" FontSize="11" />
+                                <TextBlock Text=": " Foreground="White" FontSize="11" />
+                                <TextBlock Text="{Binding Item.TotalPortfolioValueBase, Converter={StaticResource SpaceNum}, ConverterParameter=N2}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </syncfusion:SplineAreaSeries.TrackBallLabelTemplate>
+            </syncfusion:SplineAreaSeries>
+            <syncfusion:FastLineSeries ItemsSource="{Binding PortfolioHistory}"
+                                       XBindingPath="Date"
+                                       YBindingPath="CumulativeInvestedBase"
+                                       Label="{Binding [Series_ActiveInvested], Source={x:Static services:LocalizationService.Instance}}"
+                                       StrokeThickness="2">
+                <syncfusion:FastLineSeries.TrackBallLabelTemplate>
+                    <DataTemplate>
+                        <Border Padding="6,2" CornerRadius="2" Background="{Binding Interior}" BorderBrush="White" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Item.Date, StringFormat=yyyy-MM-dd}" Foreground="White" FontSize="11" />
+                                <TextBlock Text=": " Foreground="White" FontSize="11" />
+                                <TextBlock Text="{Binding Item.CumulativeInvestedBase, Converter={StaticResource SpaceNum}, ConverterParameter=N2}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </syncfusion:FastLineSeries.TrackBallLabelTemplate>
+            </syncfusion:FastLineSeries>
+            <syncfusion:FastLineSeries ItemsSource="{Binding PortfolioHistory}"
+                                       XBindingPath="Date"
+                                       YBindingPath="CumulativeNetDividendsBase"
+                                       Label="{Binding [Series_CumNetDividends], Source={x:Static services:LocalizationService.Instance}}"
+                                       StrokeThickness="2">
+                <syncfusion:FastLineSeries.YAxis>
+                    <syncfusion:NumericalAxis OpposedPosition="True"
+                                              Header="{Binding [Series_CumNetDividends], Source={x:Static services:LocalizationService.Instance}}"
+                                              ShowGridLines="False"
+                                              behaviors:MvvmBehaviors.UseSpaceNumberAxisLabels="True" />
+                </syncfusion:FastLineSeries.YAxis>
+                <syncfusion:FastLineSeries.TrackBallLabelTemplate>
+                    <DataTemplate>
+                        <Border Padding="6,2" CornerRadius="2" Background="{Binding Interior}" BorderBrush="White" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Item.Date, StringFormat=yyyy-MM-dd}" Foreground="White" FontSize="11" />
+                                <TextBlock Text=": " Foreground="White" FontSize="11" />
+                                <TextBlock Text="{Binding Item.CumulativeNetDividendsBase, Converter={StaticResource SpaceNum}, ConverterParameter=N2}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </syncfusion:FastLineSeries.TrackBallLabelTemplate>
+            </syncfusion:FastLineSeries>
+        </syncfusion:SfChart>
+
+        <syncfusion:SfDataGrid Grid.Row="1"
+                               ItemsSource="{Binding PortfolioHistory}"
+                               behaviors:MvvmBehaviors.ClearFiltersRequest="{Binding ClearFiltersRequest}"
+                               ToolTip="{Binding [Tip_HistoryGrid], Source={x:Static services:LocalizationService.Instance}}"
+                               AutoGenerateColumns="False"
+                               AllowSorting="True"
+                               AllowFiltering="True"
+                               AllowResizingColumns="True">
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridDateTimeColumn MappingName="Date" HeaderText="{Binding [Col_Date], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Date" Pattern="CustomPattern" CustomPattern="yyyy-MM-dd" Width="115" />
+                <syncfusion:GridTextColumn MappingName="BaseCurrency" HeaderText="{Binding [Col_BaseCurrency], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_BaseCurrency" Width="80" />
+                <syncfusion:GridNumericColumn MappingName="CumulativeDepositsBase" HeaderText="{Binding [Col_CumDeposits], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CumDeposits" NumberDecimalDigits="2" Width="175" />
+                <syncfusion:GridNumericColumn MappingName="CumulativeInvestedBase" HeaderText="{Binding [Col_ActiveInvested], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_ActiveInvested" NumberDecimalDigits="2" Width="155" />
+                <syncfusion:GridNumericColumn MappingName="HoldingsMarketValueBase" HeaderText="{Binding [Col_HoldingsVal], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_HoldingsVal" NumberDecimalDigits="2" Width="165" />
+                <syncfusion:GridNumericColumn MappingName="RealizedCapitalProfitBase" HeaderText="{Binding [Col_RealizedPL], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_RealizedPL" NumberDecimalDigits="2" Width="165" />
+                <syncfusion:GridNumericColumn MappingName="CumulativeNetDividendsBase" HeaderText="{Binding [Col_CumNetDiv], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CumNetDiv" NumberDecimalDigits="2" Width="185" />
+                <syncfusion:GridNumericColumn MappingName="CumulativeNetInterestBase" HeaderText="{Binding [Col_CumNetInterest], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_CumNetInterest" NumberDecimalDigits="2" Width="180" />
+                <syncfusion:GridNumericColumn MappingName="TotalPortfolioValueBase" HeaderText="{Binding [Col_TotalPortVal], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TotalPortVal" NumberDecimalDigits="2" Width="145" />
+                <syncfusion:GridNumericColumn MappingName="TotalProfitBase" HeaderText="{Binding [Col_TotalProfitBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TotalProfitBase" NumberDecimalDigits="2" Width="145" />
+                <syncfusion:GridNumericColumn MappingName="TotalReturnPercent" HeaderText="{Binding [Col_ReturnPct], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_ReturnPct" NumberDecimalDigits="2" Width="115" />
+            </syncfusion:SfDataGrid.Columns>
+        </syncfusion:SfDataGrid>
+    </Grid>
+</UserControl>

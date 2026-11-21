@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>StockMonitor — Syncfusion Portfólio &amp; XTB Analytika</value></data>
+  <data name="Lbl_Account" xml:space="preserve"><value>Účet:</value></data>
+  <data name="Lbl_OpenLots" xml:space="preserve"><value>Otvorené pozície:</value></data>
+  <data name="Lbl_ClosedLots" xml:space="preserve"><value>Uzavreté pozície:</value></data>
+  <data name="Lbl_Tickers" xml:space="preserve"><value>Tituly (Tickery):</value></data>
+  <data name="Lbl_MyCurrency" xml:space="preserve"><value>Moja mena:</value></data>
+  <data name="Lbl_Language" xml:space="preserve"><value>Jazyk:</value></data>
+  <data name="Lbl_Theme" xml:space="preserve"><value>Téma:</value></data>
+  <data name="Btn_ImportXtb" xml:space="preserve"><value>Importovať XTB (.xlsx / .csv)</value></data>
+  <data name="Btn_Export" xml:space="preserve"><value>Exportovať (.xlsx / .csv)</value></data>
+  <data name="Btn_SyncMarket" xml:space="preserve"><value>Synchronizovať Yahoo &amp; ECB kurzy</value></data>
+  <data name="Tip_Account" xml:space="preserve"><value>Číslo obchodného účtu naimportované z XTB výpisu</value></data>
+  <data name="Tip_OpenLots" xml:space="preserve"><value>Celkový počet aktuálne otvorených nákupných pozícií (lotov)</value></data>
+  <data name="Tip_ClosedLots" xml:space="preserve"><value>Celkový počet uzavretých (predaných) pozícií</value></data>
+  <data name="Tip_Tickers" xml:space="preserve"><value>Počet unikátnych akciových a ETF titulov v portfóliu</value></data>
+  <data name="Tip_MyCurrency" xml:space="preserve"><value>Výber základnej meny portfólia (EUR, USD, CZK, CHF, GBP) pre okamžitý prepočet všetkých hodnôt</value></data>
+  <data name="Tip_Language" xml:space="preserve"><value>Prepnutie jazyka používateľského rozhrania medzi angličtinou (EN) a slovenčinou (SK)</value></data>
+  <data name="Tip_Theme" xml:space="preserve"><value>Výber vizuálnej témy (vzhľadu) aplikácie</value></data>
+  <data name="Tip_BtnImportXtb" xml:space="preserve"><value>Importovať výpis z brokerského účtu pomocou nainštalovaného importného pluginu a aktualizovať pozície, dividendy, peňažné operácie a mapovanie tickerov</value></data>
+  <data name="Tip_BtnExport" xml:space="preserve"><value>Exportovať pozície, dividendy, históriu portfólia a daňové pravidlá do Excelu (.xlsx) alebo CSV (.csv)</value></data>
+  <data name="Tip_BtnSyncMarket" xml:space="preserve"><value>Stiahnuť aktuálne trhové ceny z Yahoo Finance a online výmenné kurzy ECB (pre dnešok aj dni transakcií)</value></data>
+  <data name="Tab1_Header" xml:space="preserve"><value>1. Pozície (Otvorené &amp; Uzavreté)</value></data>
+  <data name="Tab2_Header" xml:space="preserve"><value>2. Súhrn &amp; Prehľad</value></data>
+  <data name="Tab3_Header" xml:space="preserve"><value>3. Dividendy</value></data>
+  <data name="Tab4_Header" xml:space="preserve"><value>4. Vývoj portfólia</value></data>
+  <data name="Tab5_Header" xml:space="preserve"><value>5. Tickery, Dane z dividend, Cash Flow &amp; Nastavenia</value></data>
+  <data name="Tip_Tab1" xml:space="preserve"><value>Prehľad otvorených a uzavretých pozícií, interaktívny cenový graf, detaily pozície a Yahoo Finance stránka na celú šírku</value></data>
+  <data name="Tip_Tab2" xml:space="preserve"><value>Súhrnné KPI ukazovatele, koláčové grafy alokácie podľa firiem a krajín a detailná súhrnná tabuľka</value></data>
+  <data name="Tip_Tab3" xml:space="preserve"><value>Ročné grafy dividend a kompletná história vyplatených dividend a zrážkových daní</value></data>
+  <data name="Tip_Tab4" xml:space="preserve"><value>Historický vývoj hodnoty portfólia, aktívne investovaného kapitálu a kumulatívnych čistých dividend</value></data>
+  <data name="Tip_Tab5" xml:space="preserve"><value>Správa dynamického mapovania tickerov, sadzieb zrážkovej dane podľa krajín a prehľad všetkých importovaných peňažných operácií</value></data>
+  <data name="SubTab_Chart" xml:space="preserve"><value>Cenový graf akcie &amp; Detaily pozície</value></data>
+  <data name="SubTab_Yahoo" xml:space="preserve"><value>Stránka Yahoo Finance (Celá šírka)</value></data>
+  <data name="Tip_SubTabChart" xml:space="preserve"><value>Interaktívny cenový graf (približovanie iba osi X) spolu s panelom detailov vybranej pozície</value></data>
+  <data name="Tip_SubTabYahoo" xml:space="preserve"><value>Vstavaný Chromium prehliadač na celú šírku okna so stránkou Yahoo Finance pre vybraný titul</value></data>
+  <data name="Lbl_Open" xml:space="preserve"><value>Nákup:</value></data>
+  <data name="Lbl_CurrentClose" xml:space="preserve"><value>Aktuálna/Predaj:</value></data>
+  <data name="Lbl_TotalProfit" xml:space="preserve"><value>Celkový zisk:</value></data>
+  <data name="Axis_DateDragZoom" xml:space="preserve"><value>Dátum (Potiahnutím myšou na tejto lište osi X priblížite časové obdobie)</value></data>
+  <data name="Axis_PriceNative" xml:space="preserve"><value>Cena (Mena inštrumentu)</value></data>
+  <data name="Series_ClosePrice" xml:space="preserve"><value>Uzávierková cena</value></data>
+  <data name="Ctx_ResetZoom100" xml:space="preserve"><value>Resetovať 100 % (Dátum nákupu → Dátum predaja / Dnes)</value></data>
+  <data name="Ctx_UndoZoom" xml:space="preserve"><value>Späť priblíženie (Undo Zoom)</value></data>
+  <data name="Ctx_RedoZoom" xml:space="preserve"><value>Znova priblíženie (Redo Zoom)</value></data>
+  <data name="Tip_CtxResetZoom100" xml:space="preserve"><value>Obnoviť mierku osi X na 100 % v presnom rozsahu od dátumu otvorenia po dátum uzavretia (alebo dnešný dátum)</value></data>
+  <data name="Tip_CtxUndoZoom" xml:space="preserve"><value>Vrátiť predchádzajúci rozsah priblíženia osi X</value></data>
+  <data name="Tip_CtxRedoZoom" xml:space="preserve"><value>Znova použiť nasledujúci rozsah priblíženia osi X</value></data>
+  <data name="Tip_PriceChart" xml:space="preserve"><value>Historický cenový graf od dátumu otvorenia po dátum uzavretia/dnešok. Ťahaním v grafe alebo na lište osi X priblížite os X. Pravým tlačidlom otvoríte menu Reset 100 % a Undo/Redo.</value></data>
+  <data name="Tip_VertSplitterChartDetails" xml:space="preserve"><value>Potiahnutím doľava alebo doprava zmeníte šírku grafu a panelu detailov pozície</value></data>
+  <data name="Tip_HorizSplitterPositions" xml:space="preserve"><value>Potiahnutím hore alebo dole zmeníte výšku horného panela a spodnej tabuľky pozícií</value></data>
+  <data name="Btn_OpenExternalBrowser" xml:space="preserve"><value>Otvoriť v externom prehliadači</value></data>
+  <data name="Btn_ReloadEmbeddedPage" xml:space="preserve"><value>Načítať / Obnoviť stránku</value></data>
+  <data name="Tip_YahooUrlBox" xml:space="preserve"><value>Adresa Yahoo Finance pre aktuálne vybranú pozíciu</value></data>
+  <data name="Tip_BtnOpenExternal" xml:space="preserve"><value>Otvoriť stránku Yahoo Finance vo vašom predvolenom webovom prehliadači</value></data>
+  <data name="Tip_BtnReloadEmbedded" xml:space="preserve"><value>Načítať alebo obnoviť vstavanú stránku Yahoo Finance pre vybraný ticker</value></data>
+  <data name="Tip_YahooBrowserHost" xml:space="preserve"><value>Vstavaný prehliadač Chromium WebView2 zobrazujúci stránku Yahoo Finance</value></data>
+  <data name="Hdr_LotDetails" xml:space="preserve"><value>Detaily vybranej pozície &amp; Manuálne úpravy</value></data>
+  <data name="Lbl_CompanyName" xml:space="preserve"><value>Názov spoločnosti:</value></data>
+  <data name="Lbl_TickerYahoo" xml:space="preserve"><value>Ticker / Yahoo:</value></data>
+  <data name="Lbl_CountryCurrency" xml:space="preserve"><value>Krajina / Mena:</value></data>
+  <data name="Lbl_Quantity" xml:space="preserve"><value>Množstvo (ks):</value></data>
+  <data name="Lbl_OpenDateUtc" xml:space="preserve"><value>Dátum nákupu (UTC):</value></data>
+  <data name="Lbl_OpenPrice" xml:space="preserve"><value>Nákupná cena:</value></data>
+  <data name="Lbl_CloseDateUtc" xml:space="preserve"><value>Dátum predaja (UTC):</value></data>
+  <data name="Lbl_CurrClosePrice" xml:space="preserve"><value>Aktuálna / Predajná cena:</value></data>
+  <data name="Lbl_DivTaxOverride" xml:space="preserve"><value>Vlastná daň z div. %:</value></data>
+  <data name="Lbl_XtbPosId" xml:space="preserve"><value>XTB ID pozície:</value></data>
+  <data name="Lbl_Manual" xml:space="preserve"><value>Manuálne</value></data>
+  <data name="Lbl_CommentsNotes" xml:space="preserve"><value>Komentár / Poznámky k vybranému riadku:</value></data>
+  <data name="Btn_SaveLotOverrides" xml:space="preserve"><value>Prepočítať</value></data>
+  <data name="Tip_EditCompanyName" xml:space="preserve"><value>Upraviť názov spoločnosti alebo ETF inštrumentu pre vybranú pozíciu a mapovanie tickera</value></data>
+  <data name="Tip_EditTicker" xml:space="preserve"><value>Obchodný symbol tickera u brokera (napr. AAPL.US, LYPG.DE)</value></data>
+  <data name="Tip_EditYahooSymbol" xml:space="preserve"><value>Symbol na Yahoo Finance pre sťahovanie cien a grafov (napr. AAPL, LYPG.DE)</value></data>
+  <data name="Tip_EditCountryCode" xml:space="preserve"><value>Dvojmiestny ISO kód krajiny registrácie (napr. US, DE, NL, FR, AT, CH, CZ, IE) pre výpočet dane z dividend</value></data>
+  <data name="Tip_EditStockCurrency" xml:space="preserve"><value>Pôvodná obchodná mena inštrumentu (napr. USD, EUR, CZK, CHF, GBP)</value></data>
+  <data name="Tip_EditQuantity" xml:space="preserve"><value>Počet nakúpených akcií alebo ETF jednotiek v tejto pozícii</value></data>
+  <data name="Tip_EditOpenDate" xml:space="preserve"><value>Dátum a čas otvorenia (nákupu) pozície v UTC</value></data>
+  <data name="Tip_EditOpenPrice" xml:space="preserve"><value>Nákupná cena za 1 kus v pôvodnej mene inštrumentu</value></data>
+  <data name="Tip_ChkOpenPriceManual" xml:space="preserve"><value>Uzamknúť manuálnu nákupnú cenu, aby ju import alebo synchronizácia neprepísali</value></data>
+  <data name="Tip_EditCloseDate" xml:space="preserve"><value>Dátum a čas uzavretia (predaja) pozície v UTC (nechajte prázdne, ak je pozícia stále otvorená)</value></data>
+  <data name="Tip_EditCurrentPrice" xml:space="preserve"><value>Aktuálna trhová cena (pre otvorené pozície) alebo predajná cena (pre uzavreté pozície) v mene inštrumentu</value></data>
+  <data name="Tip_ChkClosePriceManual" xml:space="preserve"><value>Uzamknúť manuálnu aktuálnu/predajnú cenu, aby ju synchronizácia s Yahoo Finance neprepísala</value></data>
+  <data name="Tip_EditDivTaxOverride" xml:space="preserve"><value>Voliteľná vlastná sadzba zrážkovej dane z dividend v % pre túto pozíciu (prázdne = podľa krajiny)</value></data>
+  <data name="Tip_EffectiveDivTax" xml:space="preserve"><value>Efektívna sadzba dane z dividend v % použitá pre túto pozíciu</value></data>
+  <data name="Tip_XtbPositionId" xml:space="preserve"><value>Unikátne identifikačné číslo pozície z XTB výpisu (alebo manuálne ID)</value></data>
+  <data name="Tip_EditComment" xml:space="preserve"><value>Vlastné poznámky a komentáre uložené v JSON súbore pre vybranú pozíciu</value></data>
+  <data name="Tip_BtnSaveLotOverrides" xml:space="preserve"><value>Aktualizovať dynamické mapovanie tickera, načítať chýbajúce ceny/dividendy a kurzy ECB a prepočítať portfólio</value></data>
+  <data name="Lbl_StatusFilter" xml:space="preserve"><value>Filter stavu:</value></data>
+  <data name="Lbl_Search" xml:space="preserve"><value>Hľadať:</value></data>
+  <data name="Btn_ExpandAll" xml:space="preserve"><value>Rozbaliť všetky skupiny</value></data>
+  <data name="Btn_CollapseAll" xml:space="preserve"><value>Zbaliť všetky skupiny</value></data>
+  <data name="Btn_AddPosition" xml:space="preserve"><value>+ Pridať pozíciu</value></data>
+  <data name="Btn_DeleteSelected" xml:space="preserve"><value>Vymazať vybranú</value></data>
+  <data name="Tip_StatusFilter" xml:space="preserve"><value>Filtrovať pozície podľa stavu: Všetky (All), Iba otvorené (Open Only) alebo Iba uzavreté (Closed Only)</value></data>
+  <data name="Tip_SearchBox" xml:space="preserve"><value>Vyhľadávať pozície podľa názvu firmy, tickera, Yahoo symbolu, XTB ID alebo komentára</value></data>
+  <data name="Tip_BtnExpandAll" xml:space="preserve"><value>Rozbaliť všetky skupiny spoločností v tabuľke pozícií</value></data>
+  <data name="Tip_BtnCollapseAll" xml:space="preserve"><value>Zbaliť všetky skupiny spoločností v tabuľke pozícií</value></data>
+  <data name="Tip_BtnAddPosition" xml:space="preserve"><value>Pridať novú manuálnu pozíciu do portfólia</value></data>
+  <data name="Tip_BtnDeletePosition" xml:space="preserve"><value>Odstrániť aktuálne vybranú pozíciu z portfólia</value></data>
+  <data name="Tip_PositionsGrid" xml:space="preserve"><value>Tabuľka otvorených a uzavretých pozícií zoskupená podľa spoločností. Kliknutím na riadok zobrazíte graf a detaily.</value></data>
+  <data name="Kpi_OpenInvested" xml:space="preserve"><value>Investované v otvorených (Zákl. mena)</value></data>
+  <data name="Kpi_OpenMarketVal" xml:space="preserve"><value>Trhová hodnota otvorených (Zákl. mena)</value></data>
+  <data name="Kpi_CapitalGain" xml:space="preserve"><value>Kapitálový zisk (Otvorené + Uzavreté)</value></data>
+  <data name="Kpi_NetDividends" xml:space="preserve"><value>Čisté dividendy (Zákl. mena)</value></data>
+  <data name="Kpi_TotalProfit" xml:space="preserve"><value>Celkový čistý zisk (Zákl. mena)</value></data>
+  <data name="Kpi_TotalReturn" xml:space="preserve"><value>Celkový výnos % / Vklady</value></data>
+  <data name="Tip_KpiOpenInvested" xml:space="preserve"><value>Celková nákupná hodnota všetkých aktuálne otvorených pozícií v základnej mene</value></data>
+  <data name="Tip_KpiOpenMarketVal" xml:space="preserve"><value>Aktuálna trhová hodnota všetkých otvorených pozícií v základnej mene</value></data>
+  <data name="Tip_KpiCapitalGain" xml:space="preserve"><value>Súčet nerealizovaného zisku otvorených pozícií a realizovaného zisku uzavretých pozícií v základnej mene</value></data>
+  <data name="Tip_KpiNetDividends" xml:space="preserve"><value>Celkové čisté dividendy po odpočítaní zrážkovej dane v základnej mene</value></data>
+  <data name="Tip_KpiTotalProfit" xml:space="preserve"><value>Celkový zisk vrátane kapitálového zisku, čistých dividend, spinoffov a úrokov z voľných prostriedkov</value></data>
+  <data name="Tip_KpiTotalReturn" xml:space="preserve"><value>Celkové percentuálne zhodnotenie portfólia a celková suma peňažných vkladov</value></data>
+  <data name="Chart_AllocCompany" xml:space="preserve"><value>Alokácia otvorených pozícií podľa spoločnosti</value></data>
+  <data name="Chart_AllocCountry" xml:space="preserve"><value>Alokácia otvorených pozícií podľa krajiny</value></data>
+  <data name="Tip_ChartAllocCompany" xml:space="preserve"><value>Koláčový graf podielov trhovej hodnoty otvorených pozícií podľa firiem v základnej mene</value></data>
+  <data name="Tip_ChartAllocCountry" xml:space="preserve"><value>Koláčový graf podielov trhovej hodnoty otvorených pozícií podľa krajiny registrácie v základnej mene</value></data>
+  <data name="Tip_SummaryGrid" xml:space="preserve"><value>Podrobná súhrnná tabuľka pozícií so súčtami investovanej sumy, trhovej hodnoty, zisku a dividend</value></data>
+  <data name="Chart_AnnualDividends" xml:space="preserve"><value>Ročné čisté dividendy vs. Zrážková daň (Základná mena)</value></data>
+  <data name="Axis_Year" xml:space="preserve"><value>Rok</value></data>
+  <data name="Axis_AmountBase" xml:space="preserve"><value>Suma (Základná mena)</value></data>
+  <data name="Series_NetDivBase" xml:space="preserve"><value>Čisté dividendy (Zákl. mena)</value></data>
+  <data name="Series_WhtBase" xml:space="preserve"><value>Zrážková daň (Zákl. mena)</value></data>
+  <data name="Tip_ChartAnnualDiv" xml:space="preserve"><value>Ročné porovnanie vyplatených čistých dividend a zrazenej dane v základnej mene</value></data>
+  <data name="Tip_DividendsGrid" xml:space="preserve"><value>Kompletný prehľad vyplatených dividend a daňových úprav prepočítaný kurzom ECB z dňa výplaty</value></data>
+  <data name="Chart_PortfolioHistory" xml:space="preserve"><value>Kumulatívne investície vs. Hodnota portfólia &amp; Dividendy v čase</value></data>
+  <data name="Axis_Date" xml:space="preserve"><value>Dátum</value></data>
+  <data name="Axis_ValueBase" xml:space="preserve"><value>Hodnota (Základná mena)</value></data>
+  <data name="Series_TotalPortValue" xml:space="preserve"><value>Celková hodnota portfólia (Zákl. mena)</value></data>
+  <data name="Series_ActiveInvested" xml:space="preserve"><value>Aktívne investovaný kapitál (Zákl. mena)</value></data>
+  <data name="Series_CumNetDividends" xml:space="preserve"><value>Kumulatívne čisté dividendy (Zákl. mena)</value></data>
+  <data name="Tip_ChartHistory" xml:space="preserve"><value>Historický vývoj aktívne investovaného kapitálu, celkovej hodnoty portfólia a kumulatívnych dividend</value></data>
+  <data name="Tip_HistoryGrid" xml:space="preserve"><value>Historická tabuľka štvrťročných míľnikov vývoja portfólia v základnej mene</value></data>
+  <data name="Hdr_TickerMappings" xml:space="preserve"><value>Dynamické mapovanie tickerov (JSON / XLS / Editovateľné)</value></data>
+  <data name="Btn_AddTicker" xml:space="preserve"><value>+ Pridať ticker</value></data>
+  <data name="Btn_DeleteTicker" xml:space="preserve"><value>Vymazať vybraný</value></data>
+  <data name="Btn_SaveTickers" xml:space="preserve"><value>Uložiť tickery &amp; Prepočítať</value></data>
+  <data name="Tip_BtnAddTicker" xml:space="preserve"><value>Pridať nový riadok mapovania tickera</value></data>
+  <data name="Tip_BtnDeleteTicker" xml:space="preserve"><value>Odstrániť vybraný riadok mapovania tickera</value></data>
+  <data name="Tip_BtnSaveTickers" xml:space="preserve"><value>Uložiť upravené mapovania tickerov do JSON súboru, uzamknúť manuálne zmeny a prepočítať portfólio</value></data>
+  <data name="Tip_TickersGrid" xml:space="preserve"><value>Dynamický zoznam tickerov uložený v JSON, automaticky aktualizovaný z XTB .xls/.xlsx výpisov a manuálne upraviteľný</value></data>
+  <data name="Hdr_TaxRules" xml:space="preserve"><value>Pravidlá zrážkovej dane podľa krajiny (Editovateľné)</value></data>
+  <data name="Btn_ResetSeed" xml:space="preserve"><value>Obnoviť predvolené XTB dáta</value></data>
+  <data name="Btn_SaveTaxRules" xml:space="preserve"><value>Uložiť daňové pravidlá &amp; Prepočítať</value></data>
+  <data name="Tip_BtnResetSeed" xml:space="preserve"><value>Znova načítať vstavaný XTB výpis a obnoviť dáta portfólia</value></data>
+  <data name="Tip_BtnSaveTaxRules" xml:space="preserve"><value>Uložiť upravené sadzby zrážkovej dane podľa krajín a prepočítať dividendy</value></data>
+  <data name="Tip_TaxRulesGrid" xml:space="preserve"><value>Editovateľná tabuľka sadzieb zrážkovej dane z dividend podľa krajiny registrácie cenného papiera</value></data>
+  <data name="Tip_SettingsSplitVert" xml:space="preserve"><value>Potiahnutím doľava alebo doprava zmeníte šírku mapovania tickerov a pravidiel zrážkovej dane</value></data>
+  <data name="Tip_SettingsSplitHoriz" xml:space="preserve"><value>Potiahnutím hore alebo dole zmeníte výšku hornej časti a spodnej tabuľky peňažných operácií</value></data>
+  <data name="Hdr_CashOperations" xml:space="preserve"><value>Všetky importované peňažné operácie (Vklady, Úroky, Dividendy, Dane, Nákupy/Predaje, Poplatky)</value></data>
+  <data name="Tip_CashFlowsGrid" xml:space="preserve"><value>Kompletný denník peňažných operácií z importovaných výpisov prepočítaný online kurzom ECB platným v deň operácie</value></data>
+  <data name="Tip_StatusProgress" xml:space="preserve"><value>Indikátor priebehu aktívny počas behu asynchrónnej operácie na pozadí</value></data>
+  <data name="Tip_StatusTimer" xml:space="preserve"><value>Čas trvania aktuálnej alebo naposledy dokončenej asynchrónnej operácie</value></data>
+  <data name="Tip_StatusMessage" xml:space="preserve"><value>Popis aktuálne prebiehajúcej alebo dokončenej operácie</value></data>
+  <data name="Tip_StoragePath" xml:space="preserve"><value>Cesta k lokálnemu JSON súboru portfólia (%LocalAppData%\StockMonitor\portfolio.json)</value></data>
+  <data name="Col_CompanyName" xml:space="preserve"><value>Názov spoločnosti</value></data>
+  <data name="Tip_Col_CompanyName" xml:space="preserve"><value>Celý názov akciovej spoločnosti alebo ETF fondu</value></data>
+  <data name="Col_Ticker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="Tip_Col_Ticker" xml:space="preserve"><value>Symbol inštrumentu u brokera (napr. AAPL.US, LYPG.DE)</value></data>
+  <data name="Col_YahooSymbol" xml:space="preserve"><value>Yahoo symbol</value></data>
+  <data name="Tip_Col_YahooSymbol" xml:space="preserve"><value>Symbol na Yahoo Finance používaný pre živé ceny a historické grafy</value></data>
+  <data name="Col_Category" xml:space="preserve"><value>Typ</value></data>
+  <data name="Tip_Col_Category" xml:space="preserve"><value>Kategória inštrumentu (STOCK = akcia, ETF = fond)</value></data>
+  <data name="Col_Status" xml:space="preserve"><value>Stav</value></data>
+  <data name="Tip_Col_Status" xml:space="preserve"><value>Stav pozície (Open = otvorená, Closed = uzavretá)</value></data>
+  <data name="Col_OpenDate" xml:space="preserve"><value>Dátum nákupu</value></data>
+  <data name="Tip_Col_OpenDate" xml:space="preserve"><value>Dátum otvorenia (nákupu) pozície v UTC</value></data>
+  <data name="Col_Quantity" xml:space="preserve"><value>Množstvo</value></data>
+  <data name="Tip_Col_Quantity" xml:space="preserve"><value>Počet kusov akcií alebo ETF jednotiek v pozícii</value></data>
+  <data name="Col_Currency" xml:space="preserve"><value>Mena</value></data>
+  <data name="Tip_Col_Currency" xml:space="preserve"><value>Pôvodná obchodná mena cenného papiera</value></data>
+  <data name="Col_OpenPrice" xml:space="preserve"><value>Nákupná cena</value></data>
+  <data name="Tip_Col_OpenPrice" xml:space="preserve"><value>Nákupná cena za 1 kus v pôvodnej mene inštrumentu</value></data>
+  <data name="Col_OpenCost" xml:space="preserve"><value>Nákupná hodnota</value></data>
+  <data name="Tip_Col_OpenCost" xml:space="preserve"><value>Celková nákupná cena pozície v pôvodnej mene vrátane poplatkov</value></data>
+  <data name="Col_OpenPriceBase" xml:space="preserve"><value>Nákupná cena (Zákl.)</value></data>
+  <data name="Tip_Col_OpenPriceBase" xml:space="preserve"><value>Nákupná cena za 1 kus prepočítaná do vašej základnej meny kurzom zo dňa nákupu</value></data>
+  <data name="Col_OpenCostBase" xml:space="preserve"><value>Investované (Zákl.)</value></data>
+  <data name="Tip_Col_OpenCostBase" xml:space="preserve"><value>Celková investovaná suma v základnej mene prepočítaná kurzom zo dňa nákupu</value></data>
+  <data name="Col_CloseDate" xml:space="preserve"><value>Dátum predaja</value></data>
+  <data name="Tip_Col_CloseDate" xml:space="preserve"><value>Dátum predaja pozície (prázdne pre otvorené pozície)</value></data>
+  <data name="Col_CloseCurrPrice" xml:space="preserve"><value>Akt. / Predajná cena</value></data>
+  <data name="Tip_Col_CloseCurrPrice" xml:space="preserve"><value>Aktuálna trhová cena (pre otvorené) alebo predajná cena (pre uzavreté) v pôvodnej mene</value></data>
+  <data name="Col_CloseCurrVal" xml:space="preserve"><value>Akt. / Predajná hodnota</value></data>
+  <data name="Tip_Col_CloseCurrVal" xml:space="preserve"><value>Aktuálna trhová hodnota alebo hodnota predaja v pôvodnej mene inštrumentu</value></data>
+  <data name="Col_CloseCurrPriceBase" xml:space="preserve"><value>Akt. / Predaj (Zákl.)</value></data>
+  <data name="Tip_Col_CloseCurrPriceBase" xml:space="preserve"><value>Aktuálna alebo predajná cena za kus v základnej mene</value></data>
+  <data name="Col_MarketValBase" xml:space="preserve"><value>Trhová hodnota (Zákl.)</value></data>
+  <data name="Tip_Col_MarketValBase" xml:space="preserve"><value>Aktuálna trhová hodnota (alebo hodnota predaja) v základnej mene</value></data>
+  <data name="Col_DiffNative" xml:space="preserve"><value>Rozdiel (Pôv. mena)</value></data>
+  <data name="Tip_Col_DiffNative" xml:space="preserve"><value>Kapitálový zisk alebo strata v pôvodnej mene inštrumentu</value></data>
+  <data name="Col_DiffBase" xml:space="preserve"><value>Kapitálový zisk (Zákl.)</value></data>
+  <data name="Tip_Col_DiffBase" xml:space="preserve"><value>Kapitálový zisk alebo strata prepočítaná do základnej meny</value></data>
+  <data name="Col_GrossDivBase" xml:space="preserve"><value>Hrubé div. (Zákl.)</value></data>
+  <data name="Tip_Col_GrossDivBase" xml:space="preserve"><value>Celkové hrubé dividendy priradené k tejto pozícii v základnej mene</value></data>
+  <data name="Col_WhtBase" xml:space="preserve"><value>Daň z div. (Zákl.)</value></data>
+  <data name="Tip_Col_WhtBase" xml:space="preserve"><value>Celková zrážková daň z dividend priradená k tejto pozícii v základnej mene</value></data>
+  <data name="Col_NetDivBase" xml:space="preserve"><value>Čisté div. (Zákl.)</value></data>
+  <data name="Tip_Col_NetDivBase" xml:space="preserve"><value>Celkové čisté dividendy po zdanení pre túto pozíciu v základnej mene</value></data>
+  <data name="Col_SpinoffsBase" xml:space="preserve"><value>Spinoffy (Zákl.)</value></data>
+  <data name="Tip_Col_SpinoffsBase" xml:space="preserve"><value>Výnosy zo spinoffov priradené k tejto pozícii v základnej mene</value></data>
+  <data name="Col_TotalProfitBase" xml:space="preserve"><value>Celkový zisk (Zákl.)</value></data>
+  <data name="Tip_Col_TotalProfitBase" xml:space="preserve"><value>Celkový čistý zisk pozície (Kapitálový zisk + Čisté dividendy + Spinoffy) v základnej mene</value></data>
+  <data name="Col_ReturnPct" xml:space="preserve"><value>Výnos %</value></data>
+  <data name="Tip_Col_ReturnPct" xml:space="preserve"><value>Celkové percentuálne zhodnotenie pozície v základnej mene</value></data>
+  <data name="Col_Sparkline" xml:space="preserve"><value>Trend (Sparkline)</value></data>
+  <data name="Tip_Col_Sparkline" xml:space="preserve"><value>Mini stĺpcový graf priebehu zisku pozície v základnej mene</value></data>
+  <data name="Col_Comment" xml:space="preserve"><value>Komentár</value></data>
+  <data name="Tip_Col_Comment" xml:space="preserve"><value>Poznámka brokera alebo používateľa k záznamu</value></data>
+  <data name="Col_PayDate" xml:space="preserve"><value>Dátum výplaty</value></data>
+  <data name="Tip_Col_PayDate" xml:space="preserve"><value>Dátum a čas pripísania dividendy v UTC</value></data>
+  <data name="Col_DivPerShare" xml:space="preserve"><value>Dividenda / Akcia</value></data>
+  <data name="Tip_Col_DivPerShare" xml:space="preserve"><value>Výška hrubej dividendy na 1 akciu v pôvodnej mene</value></data>
+  <data name="Col_DivCcy" xml:space="preserve"><value>Mena div.</value></data>
+  <data name="Tip_Col_DivCcy" xml:space="preserve"><value>Pôvodná mena, v ktorej bola dividenda vyhlásená</value></data>
+  <data name="Col_TaxRatePct" xml:space="preserve"><value>Sadzba dane %</value></data>
+  <data name="Tip_Col_TaxRatePct" xml:space="preserve"><value>Percentuálna sadzba zrážkovej dane pri zdroji</value></data>
+  <data name="Col_AnnualYieldPct" xml:space="preserve"><value>Ročný výnos %</value></data>
+  <data name="Tip_Col_AnnualYieldPct" xml:space="preserve"><value>Odhadovaný anualizovaný dividendový výnos voči nákupnej cene pozície</value></data>
+  <data name="Col_PosId" xml:space="preserve"><value>XTB ID pozície</value></data>
+  <data name="Tip_Col_PosId" xml:space="preserve"><value>ID priradenej pozície z XTB výpisu</value></data>
+  <data name="Col_Source" xml:space="preserve"><value>Zdroj</value></data>
+  <data name="Tip_Col_Source" xml:space="preserve"><value>Zdroj záznamu o dividende (XTB Report alebo Yahoo API)</value></data>
+  <data name="Col_Date" xml:space="preserve"><value>Dátum</value></data>
+  <data name="Tip_Col_Date" xml:space="preserve"><value>Dátum historického záznamu</value></data>
+  <data name="Col_CumDeposits" xml:space="preserve"><value>Kumulatívne vklady (Zákl.)</value></data>
+  <data name="Tip_Col_CumDeposits" xml:space="preserve"><value>Celková suma peňažných vkladov na účet do daného dátumu v základnej mene</value></data>
+  <data name="Col_ActiveInvested" xml:space="preserve"><value>Aktívne investované (Zákl.)</value></data>
+  <data name="Tip_Col_ActiveInvested" xml:space="preserve"><value>Nákupná hodnota všetkých otvorených pozícií držaných k danému dátumu v základnej mene</value></data>
+  <data name="Col_HoldingsVal" xml:space="preserve"><value>Trhová hodnota akcií (Zákl.)</value></data>
+  <data name="Tip_Col_HoldingsVal" xml:space="preserve"><value>Trhová hodnota držaných akcií a ETF k danému dátumu v základnej mene</value></data>
+  <data name="Col_RealizedPL" xml:space="preserve"><value>Realizovaný zisk uzavretých (Zákl.)</value></data>
+  <data name="Tip_Col_RealizedPL" xml:space="preserve"><value>Kumulatívny realizovaný zisk/strata z predaných pozícií k danému dátumu v základnej mene</value></data>
+  <data name="Col_CumNetDiv" xml:space="preserve"><value>Kumulatívne čisté dividendy (Zákl.)</value></data>
+  <data name="Tip_Col_CumNetDiv" xml:space="preserve"><value>Kumulatívna suma prijatých čistých dividend k danému dátumu v základnej mene</value></data>
+  <data name="Col_CumNetInterest" xml:space="preserve"><value>Čisté úroky z voľných prostriedkov (Zákl.)</value></data>
+  <data name="Tip_Col_CumNetInterest" xml:space="preserve"><value>Kumulatívne čisté úroky z neinvestovanej hotovosti k danému dátumu v základnej mene</value></data>
+  <data name="Col_TotalPortVal" xml:space="preserve"><value>Celková hodnota (Zákl.)</value></data>
+  <data name="Tip_Col_TotalPortVal" xml:space="preserve"><value>Celková hodnota portfólia k danému dátumu v základnej mene</value></data>
+  <data name="Col_CountryCode" xml:space="preserve"><value>Krajina</value></data>
+  <data name="Tip_Col_CountryCode" xml:space="preserve"><value>Dvojmiestny ISO kód krajiny registrácie inštrumentu</value></data>
+  <data name="Col_ManualLock" xml:space="preserve"><value>Manuálny zámok</value></data>
+  <data name="Tip_Col_ManualLock" xml:space="preserve"><value>Ak je začiarknuté, import XTB súboru nikdy neprepíše toto manuálne nastavenie tickera</value></data>
+  <data name="Col_CountryName" xml:space="preserve"><value>Názov krajiny</value></data>
+  <data name="Tip_Col_CountryName" xml:space="preserve"><value>Plný názov krajiny registrácie</value></data>
+  <data name="Col_SampleTickers" xml:space="preserve"><value>Tickery v portfóliu</value></data>
+  <data name="Tip_Col_SampleTickers" xml:space="preserve"><value>Zoznam tickerov vo vašom portfóliu registrovaných v tejto krajine (automaticky aktualizované)</value></data>
+  <data name="Col_StatutoryTax" xml:space="preserve"><value>Zákonná daň %</value></data>
+  <data name="Tip_Col_StatutoryTax" xml:space="preserve"><value>Zákonná sadzba zrážkovej dane v krajine pôvodu v %</value></data>
+  <data name="Col_AppliedTax" xml:space="preserve"><value>Uplatnená daň %</value></data>
+  <data name="Tip_Col_AppliedTax" xml:space="preserve"><value>Skutočne uplatnená sadzba zrážkovej dane v % na vašom účte</value></data>
+  <data name="Col_TaxNotes" xml:space="preserve"><value>Poznámky &amp; Zmluvy o zamedzení dvojitého zdanenia</value></data>
+  <data name="Tip_Col_TaxNotes" xml:space="preserve"><value>Detaily k daňovým zmluvám a špecifickým poplatkom (napr. W-8BEN, francúzska daň IFTT)</value></data>
+  <data name="Col_TimeUtc" xml:space="preserve"><value>Čas (UTC)</value></data>
+  <data name="Tip_Col_TimeUtc" xml:space="preserve"><value>Dátum a čas peňažnej operácie v UTC</value></data>
+  <data name="Col_OpType" xml:space="preserve"><value>Typ operácie</value></data>
+  <data name="Tip_Col_OpType" xml:space="preserve"><value>Typ peňažnej operácie u brokera (Vklad, Dividenda, Zrážková daň, Nákup/Predaj akcie, Úrok)</value></data>
+  <data name="Col_AmountEur" xml:space="preserve"><value>Suma (EUR)</value></data>
+  <data name="Tip_Col_AmountEur" xml:space="preserve"><value>Suma operácie v mene účtu (EUR) podľa XTB výpisu</value></data>
+  <data name="Col_AmountBase" xml:space="preserve"><value>Suma (Zákl. mena)</value></data>
+  <data name="Tip_Col_AmountBase" xml:space="preserve"><value>Suma operácie prepočítaná do základnej meny online kurzom ECB zo dňa operácie</value></data>
+  <data name="Col_CashOpId" xml:space="preserve"><value>ID operácie</value></data>
+  <data name="Tip_Col_CashOpId" xml:space="preserve"><value>Unikátne číslo peňažnej operácie v XTB</value></data>
+  <data name="Col_BaseCurrency" xml:space="preserve"><value>Zákl. mena</value></data>
+  <data name="Tip_Col_BaseCurrency" xml:space="preserve"><value>Vybraná základná mena použitá pre všetky prepočítané stĺpce (Zákl.)</value></data>
+  <data name="Err_DialogTitle" xml:space="preserve"><value>Chyba aplikácie StockMonitor</value></data>
+  <data name="Err_LogSavedTo" xml:space="preserve"><value>Podrobnosti uložené do:</value></data>
+  <data name="Btn_OpenLogInExplorer" xml:space="preserve"><value>Otvoriť súbor denníka v Prieskumníkovi</value></data>
+  <data name="Btn_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Zrušiť</value></data>
+  <data name="Btn_Save" xml:space="preserve"><value>Uložiť</value></data>
+  <data name="Btn_DontSave" xml:space="preserve"><value>Zavrieť bez uloženia</value></data>
+  <data name="Btn_RemovePassword" xml:space="preserve"><value>Odstrániť heslo</value></data>
+  <data name="Menu_File" xml:space="preserve"><value>_Súbor</value></data>
+  <data name="Menu_New" xml:space="preserve"><value>_Nový</value></data>
+  <data name="Tip_Menu_New" xml:space="preserve"><value>Vytvoriť nový prázdny dokument portfólia (Ctrl+N)</value></data>
+  <data name="Menu_Open" xml:space="preserve"><value>_Otvoriť...</value></data>
+  <data name="Tip_Menu_Open" xml:space="preserve"><value>Otvoriť existujúci JSON súbor portfólia (Ctrl+O)</value></data>
+  <data name="Menu_Save" xml:space="preserve"><value>_Uložiť</value></data>
+  <data name="Tip_Menu_Save" xml:space="preserve"><value>Uložiť aktuálny dokument portfólia (Ctrl+S)</value></data>
+  <data name="Menu_SaveAs" xml:space="preserve"><value>Uložiť _ako...</value></data>
+  <data name="Tip_Menu_SaveAs" xml:space="preserve"><value>Uložiť aktuálny dokument portfólia do nového súboru (Ctrl+Shift+S)</value></data>
+  <data name="Menu_Password" xml:space="preserve"><value>_Heslo...</value></data>
+  <data name="Tip_Menu_Password" xml:space="preserve"><value>Nastaviť, zmeniť alebo odstrániť heslo šifrovania pre tento dokument (heslo sa nikam neukladá)</value></data>
+  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Importovať</value></data>
+  <data name="Menu_Export" xml:space="preserve"><value>_Exportovať výpis...</value></data>
+  <data name="Menu_Exit" xml:space="preserve"><value>_Ukončiť</value></data>
+  <data name="Dlg_OpenPortfolioTitle" xml:space="preserve"><value>Otvoriť StockMonitor portfólio (.json)</value></data>
+  <data name="Dlg_SavePortfolioTitle" xml:space="preserve"><value>Uložiť StockMonitor portfólio (.json)</value></data>
+  <data name="Dlg_UnsavedTitle" xml:space="preserve"><value>Neuložené zmeny</value></data>
+  <data name="Dlg_UnsavedMessage" xml:space="preserve"><value>Chcete pred pokračovaním uložiť zmeny v dokumente „{0}“?</value></data>
+  <data name="Dlg_EnterPasswordTitle" xml:space="preserve"><value>Zadajte heslo dokumentu</value></data>
+  <data name="Dlg_EnterPasswordPrompt" xml:space="preserve"><value>Súbor „{0}“ je zašifrovaný. Zadajte heslo na jeho otvorenie:</value></data>
+  <data name="Dlg_InvalidPasswordError" xml:space="preserve"><value>Nesprávne heslo. Skúste to prosím znova.</value></data>
+  <data name="Dlg_PasswordEmptyError" xml:space="preserve"><value>Heslo nemôže byť prázdne.</value></data>
+  <data name="Dlg_PasswordMismatchError" xml:space="preserve"><value>Heslá sa nezhodujú.</value></data>
+  <data name="Dlg_ManagePasswordTitle" xml:space="preserve"><value>Heslo šifrovania dokumentu</value></data>
+  <data name="Dlg_ManagePasswordHintProtected" xml:space="preserve"><value>Tento dokument je chránený heslom. Pre jeho zmenu alebo odstránenie najskôr zadajte aktuálne heslo. Heslá sa nikdy neukladajú na disk.</value></data>
+  <data name="Dlg_ManagePasswordHintUnprotected" xml:space="preserve"><value>Tento dokument momentálne nie je šifrovaný. Zadajte heslo na zašifrovanie JSON súboru pri ukladaní. Heslá sa nikdy neukladajú na disk.</value></data>
+  <data name="Dlg_CurrentPasswordLabel" xml:space="preserve"><value>Aktuálne heslo:</value></data>
+  <data name="Dlg_CurrentPasswordInvalidError" xml:space="preserve"><value>Aktuálne heslo je nesprávne.</value></data>
+  <data name="Dlg_NewPasswordLabel" xml:space="preserve"><value>Nové heslo:</value></data>
+  <data name="Dlg_ConfirmPasswordLabel" xml:space="preserve"><value>Potvrdiť heslo:</value></data>
+  <data name="Dlg_ShowPassword" xml:space="preserve"><value>Zobraziť heslo</value></data>
+  <data name="Lbl_UntitledDocument" xml:space="preserve"><value>Bez názvu</value></data>
+  <data name="Lbl_UnsavedFile" xml:space="preserve"><value>Neuložený dokument</value></data>
+  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Importovať výpis</value></data>
+  <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>Aktuálny dokument už obsahuje dáta. Ako chcete importovať súbor „{0}“?</value></data>
+  <data name="Btn_ImportReplace" xml:space="preserve"><value>Nahradiť aktuálny obsah</value></data>
+  <data name="Btn_ImportAppend" xml:space="preserve"><value>Pridať k aktuálnemu obsahu</value></data>
+  <data name="Menu_Demo" xml:space="preserve"><value>_Demo</value></data>
+  <data name="Tip_Menu_Demo" xml:space="preserve"><value>Načítať anonymizované demo portfólio (US a EU akcie, dlhopisy a ETF fondy) ako nový neuložený dokument</value></data>
+  <data name="Btn_AddCountry" xml:space="preserve"><value>Pridať</value></data>
+  <data name="Tip_BtnAddCountry" xml:space="preserve"><value>Pridať nové pravidlo zrážkovej dane pre krajinu</value></data>
+  <data name="Btn_DeleteCountry" xml:space="preserve"><value>Odstrániť</value></data>
+  <data name="Tip_BtnDeleteCountry" xml:space="preserve"><value>Odstrániť vybrané pravidlo zrážkovej dane pre krajinu</value></data>
+  <data name="Btn_ResetTaxRules" xml:space="preserve"><value>Reset</value></data>
+  <data name="Tip_BtnResetTaxRules" xml:space="preserve"><value>Obnoviť iba preddefinovaný zoznam zrážkových daní podľa krajín bez zmeny portfólia</value></data>
+  <data name="Lbl_TaxRulesMemo" xml:space="preserve"><value>Poznámka k overeniu daní (nenájdené na Yahoo / ECB alebo neznáma daň):</value></data>
+</root>
