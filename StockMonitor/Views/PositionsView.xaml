@@ -456,6 +456,13 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
+                    <Style x:Key="SparklineCellStyle" TargetType="sfgrid:GridCell" BasedOn="{StaticResource LotCellStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                <Setter Property="Opacity" Value="1.0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
                 </syncfusion:SfDataGrid.Resources>
                 <syncfusion:SfDataGrid.CellStyle>
                     <StaticResource ResourceKey="LotCellStyle" />
@@ -514,12 +521,11 @@
                     <syncfusion:GridNumericColumn MappingName="NetDividendsBase" HeaderText="{Binding [Col_NetDivBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_NetDivBase" NumberDecimalDigits="2" AllowEditing="False" Width="108" />
                     <syncfusion:GridNumericColumn MappingName="TotalProfitBase" HeaderText="{Binding [Col_TotalProfitBase], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_TotalProfitBase" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="122" />
                     <syncfusion:GridNumericColumn MappingName="TotalReturnPercent" HeaderText="{Binding [Col_ReturnPct], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_ReturnPct" CellStyle="{StaticResource ProfitLossCellStyle}" NumberDecimalDigits="2" AllowEditing="False" Width="86" />
-                    <syncfusion:GridTemplateColumn MappingName="SparklinePoints" HeaderText="{Binding [Col_Sparkline], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Sparkline" Width="125" AllowEditing="False" AllowFiltering="False" AllowSorting="False">
+                    <syncfusion:GridTemplateColumn MappingName="SparklinePoints" HeaderText="{Binding [Col_Sparkline], Source={x:Static services:LocalizationService.Instance}}" behaviors:GridColumnHelp.ToolTipKey="Tip_Col_Sparkline" CellStyle="{StaticResource SparklineCellStyle}" Width="125" AllowEditing="False" AllowFiltering="False" AllowSorting="False">
                         <syncfusion:GridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <syncfusion:SfColumnSparkline ItemsSource="{Binding SparklinePoints}"
-                                                              YBindingPath="ProfitBase"
-                                                              Margin="4,2" />
+                                <behaviors:ProfitSparklineControl ItemsSource="{Binding SparklinePoints}"
+                                                                    Margin="4,2" />
                             </DataTemplate>
                         </syncfusion:GridTemplateColumn.CellTemplate>
                     </syncfusion:GridTemplateColumn>
