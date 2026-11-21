@@ -76,7 +76,7 @@
                         <StackPanel>
                             <TextBlock Text="{Binding Item.Label}" FontWeight="Bold" Foreground="White" FontSize="12" />
                             <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                                <TextBlock Text="{Binding Item.ValueBase, StringFormat=N2}" Foreground="#E2E8F0" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Item.ValueBase, Converter={StaticResource SpaceNum}, ConverterParameter=N2}" Foreground="#E2E8F0" FontWeight="SemiBold" />
                                 <TextBlock Text=" (" Foreground="#94A3B8" />
                                 <TextBlock Text="{Binding Item.SharePercent, StringFormat={}{0:N2}%}" Foreground="#38BDF8" FontWeight="SemiBold" />
                                 <TextBlock Text=")" Foreground="#94A3B8" />

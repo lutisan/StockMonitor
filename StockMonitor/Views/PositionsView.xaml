@@ -79,6 +79,7 @@
                                 <syncfusion:DateTimeAxis Header="{Binding [Axis_DateDragZoom], Source={x:Static services:LocalizationService.Instance}}"
                                                          LabelFormat="yyyy-MM-dd"
                                                          ShowGridLines="True"
+                                                         ShowTrackBallInfo="True"
                                                          Minimum="{Binding ChartXMinimum}"
                                                          Maximum="{Binding ChartXMaximum}"
                                                          ZoomPosition="{Binding ChartXZoomPosition, Mode=TwoWay}"
@@ -87,7 +88,8 @@
 
                             <syncfusion:SfChart.SecondaryAxis>
                                 <syncfusion:NumericalAxis Header="{Binding [Axis_PriceNative], Source={x:Static services:LocalizationService.Instance}}"
-                                                          StartRangeFromZero="False" />
+                                                          StartRangeFromZero="False"
+                                                          behaviors:MvvmBehaviors.UseSpaceNumberAxisLabels="True" />
                             </syncfusion:SfChart.SecondaryAxis>
 
                             <syncfusion:SfChart.Behaviors>
@@ -103,8 +105,19 @@
                                                        XBindingPath="Date"
                                                        YBindingPath="Close"
                                                        Label="{Binding [Series_ClosePrice], Source={x:Static services:LocalizationService.Instance}}"
-                                                       StrokeThickness="2"
-                                                       ShowTooltip="True" />
+                                                       StrokeThickness="2">
+                                <syncfusion:FastLineSeries.TrackBallLabelTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="6,2" CornerRadius="2" Background="{Binding Interior}" BorderBrush="White" BorderThickness="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Item.Date, StringFormat=yyyy-MM-dd}" Foreground="White" FontSize="11" />
+                                                <TextBlock Text=": " Foreground="White" FontSize="11" />
+                                                <TextBlock Text="{Binding Item.Close, Converter={StaticResource SpaceNum}, ConverterParameter=N2}" Foreground="White" FontWeight="Bold" FontSize="11" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </syncfusion:FastLineSeries.TrackBallLabelTemplate>
+                            </syncfusion:FastLineSeries>
                         </syncfusion:SfChart>
                     </Grid>
 

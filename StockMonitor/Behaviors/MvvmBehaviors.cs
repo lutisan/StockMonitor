@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Syncfusion.SfSkinManager;
+using Syncfusion.UI.Xaml.Charts;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace StockMonitor.Behaviors;
@@ -289,5 +290,54 @@ public static class MvvmBehaviors
                 // Ignore if grid view is not yet initialized (e.g., tab not yet visited)
             }
         }
+    }
+
+    // 5. SfChart NumericalAxis space thousand-separator label formatter
+    /// <summary>
+    /// Identifies the <c>UseSpaceNumberAxisLabels</c> attached dependency property for formatting
+    /// <see cref="NumericalAxis"/> labels with a space as the thousands separator.
+    /// </summary>
+    public static readonly DependencyProperty UseSpaceNumberAxisLabelsProperty =
+        DependencyProperty.RegisterAttached(
+            "UseSpaceNumberAxisLabels",
+            typeof(bool),
+            typeof(MvvmBehaviors),
+            new PropertyMetadata(false, OnUseSpaceNumberAxisLabelsChanged));
+
+    /// <summary>Gets whether space thousand-separator formatting is enabled on the axis.</summary>
+    public static bool GetUseSpaceNumberAxisLabels(DependencyObject obj) => (bool)obj.GetValue(UseSpaceNumberAxisLabelsProperty);
+
+    /// <summary>Sets whether space thousand-separator formatting is enabled on the axis.</summary>
+    public static void SetUseSpaceNumberAxisLabels(DependencyObject obj, bool value) => obj.SetValue(UseSpaceNumberAxisLabelsProperty, value);
+
+    private static void OnUseSpaceNumberAxisLabelsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not ChartAxisBase2D axis)
+        {
+            return;
+        }
+
+        axis.LabelCreated -= OnNumericalAxisLabelCreated;
+        if (e.NewValue is true)
+        {
+            axis.LabelCreated += OnNumericalAxisLabelCreated;
+        }
+    }
+
+    private static void OnNumericalAxisLabelCreated(object? sender, LabelCreatedEventArgs e)
+    {
+        if (e.AxisLabel == null)
+        {
+            return;
+        }
+
+        double val = e.AxisLabel.Position;
+        if (double.IsNaN(val) || double.IsInfinity(val))
+        {
+            return;
+        }
+
+        string format = Math.Abs(val - Math.Round(val)) < 1e-6 ? "#,##0" : "#,##0.##";
+        e.AxisLabel.LabelContent = SpaceNumberConverter.FormatNumber(val, format);
     }
 }

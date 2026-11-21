@@ -63,6 +63,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private (double Position, double Factor) _committedZoom = (0.0, 1.0);
     private bool _isApplyingZoomHistory;
 
+    private CancellationTokenSource? _historyZoomHistoryCts;
+    private readonly Stack<(double Position, double Factor)> _historyZoomUndoStack = new();
+    private readonly Stack<(double Position, double Factor)> _historyZoomRedoStack = new();
+    private (double Position, double Factor) _historyCommittedZoom = (0.0, 1.0);
+    private bool _isApplyingHistoryZoomHistory;
+
     /// <summary>Gets or sets the currently selected position lot in the Positions grid.</summary>
     [ObservableProperty]
     private PositionLot? _selectedLot;
@@ -126,6 +132,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Gets or sets the normalized X-axis zoom factor (1.0 = full range) on the stock price chart.</summary>
     [ObservableProperty]
     private double _chartXZoomFactor = 1.0;
+
+    /// <summary>Gets or sets the normalized X-axis zoom start position (0.0 to 1.0) on the Portfolio History chart.</summary>
+    [ObservableProperty]
+    private double _historyChartXZoomPosition;
+
+    /// <summary>Gets or sets the normalized X-axis zoom factor (1.0 = full range) on the Portfolio History chart.</summary>
+    [ObservableProperty]
+    private double _historyChartXZoomFactor = 1.0;
 
     /// <summary>Gets or sets the portfolio allocation breakdown by company/instrument for the Summary doughnut chart.</summary>
     [ObservableProperty]
@@ -564,6 +578,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _chartLoadCts?.Dispose();
         _filterCts?.Dispose();
         _zoomHistoryCts?.Dispose();
+        _historyZoomHistoryCts?.Dispose();
     }
 
     private async Task<(PortfolioDocument? Document, DocumentEncryptionKey? EncryptionKey, bool Cancelled)> TryLoadFromPathWithPasswordAsync(
@@ -1198,6 +1213,122 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _committedZoom = (pos, factor);
         _isApplyingZoomHistory = false;
         NotifyZoomCommandsCanExecuteChanged();
+    }
+
+    partial void OnHistoryChartXZoomPositionChanged(double value) => ScheduleHistoryZoomHistoryPush();
+
+    partial void OnHistoryChartXZoomFactorChanged(double value) => ScheduleHistoryZoomHistoryPush();
+
+    private void ScheduleHistoryZoomHistoryPush()
+    {
+        if (_isApplyingHistoryZoomHistory)
+        {
+            return;
+        }
+
+        _historyZoomHistoryCts?.Cancel();
+        _historyZoomHistoryCts?.Dispose();
+        CancellationTokenSource cts = new();
+        _historyZoomHistoryCts = cts;
+        _ = CommitHistoryZoomSnapshotAsync(cts.Token);
+    }
+
+    private async Task CommitHistoryZoomSnapshotAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(60, token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+
+        (double Position, double Factor) current = (Math.Round(HistoryChartXZoomPosition, 6), Math.Round(HistoryChartXZoomFactor, 6));
+        (double Position, double Factor) prev = (Math.Round(_historyCommittedZoom.Position, 6), Math.Round(_historyCommittedZoom.Factor, 6));
+        if (current == prev)
+        {
+            return;
+        }
+
+        _historyZoomUndoStack.Push(_historyCommittedZoom);
+        _historyZoomRedoStack.Clear();
+        _historyCommittedZoom = (HistoryChartXZoomPosition, HistoryChartXZoomFactor);
+        NotifyHistoryZoomCommandsCanExecuteChanged();
+    }
+
+    private void NotifyHistoryZoomCommandsCanExecuteChanged()
+    {
+        UndoHistoryChartZoomCommand.NotifyCanExecuteChanged();
+        RedoHistoryChartZoomCommand.NotifyCanExecuteChanged();
+        ResetHistoryChartZoom100Command.NotifyCanExecuteChanged();
+    }
+
+    private bool CanUndoHistoryChartZoom() => _historyZoomUndoStack.Count > 0;
+    private bool CanRedoHistoryChartZoom() => _historyZoomRedoStack.Count > 0;
+    private bool CanResetHistoryChartZoom100() =>
+        PortfolioHistory.Count > 0 &&
+        (Math.Abs(HistoryChartXZoomPosition) > 0.0001 || Math.Abs(HistoryChartXZoomFactor - 1.0) > 0.0001);
+
+    /// <summary>Resets the Portfolio History chart horizontal zoom back to 100% (full date range).</summary>
+    [RelayCommand(CanExecute = nameof(CanResetHistoryChartZoom100))]
+    private void ResetHistoryChartZoom100()
+    {
+        _historyZoomHistoryCts?.Cancel();
+        if (Math.Abs(_historyCommittedZoom.Position) > 0.0001 || Math.Abs(_historyCommittedZoom.Factor - 1.0) > 0.0001)
+        {
+            _historyZoomUndoStack.Push(_historyCommittedZoom);
+            _historyZoomRedoStack.Clear();
+        }
+
+        _isApplyingHistoryZoomHistory = true;
+        HistoryChartXZoomPosition = 0.0;
+        HistoryChartXZoomFactor = 1.0;
+        _historyCommittedZoom = (0.0, 1.0);
+        _isApplyingHistoryZoomHistory = false;
+        NotifyHistoryZoomCommandsCanExecuteChanged();
+    }
+
+    /// <summary>Restores the previous horizontal zoom state on the Portfolio History chart from the undo stack.</summary>
+    [RelayCommand(CanExecute = nameof(CanUndoHistoryChartZoom))]
+    private void UndoHistoryChartZoom()
+    {
+        if (_historyZoomUndoStack.Count == 0)
+        {
+            return;
+        }
+
+        _historyZoomHistoryCts?.Cancel();
+        _historyZoomRedoStack.Push(_historyCommittedZoom);
+        (double pos, double factor) = _historyZoomUndoStack.Pop();
+
+        _isApplyingHistoryZoomHistory = true;
+        HistoryChartXZoomPosition = pos;
+        HistoryChartXZoomFactor = factor;
+        _historyCommittedZoom = (pos, factor);
+        _isApplyingHistoryZoomHistory = false;
+        NotifyHistoryZoomCommandsCanExecuteChanged();
+    }
+
+    /// <summary>Reapplies the most recently undone horizontal zoom state on the Portfolio History chart.</summary>
+    [RelayCommand(CanExecute = nameof(CanRedoHistoryChartZoom))]
+    private void RedoHistoryChartZoom()
+    {
+        if (_historyZoomRedoStack.Count == 0)
+        {
+            return;
+        }
+
+        _historyZoomHistoryCts?.Cancel();
+        _historyZoomUndoStack.Push(_historyCommittedZoom);
+        (double pos, double factor) = _historyZoomRedoStack.Pop();
+
+        _isApplyingHistoryZoomHistory = true;
+        HistoryChartXZoomPosition = pos;
+        HistoryChartXZoomFactor = factor;
+        _historyCommittedZoom = (pos, factor);
+        _isApplyingHistoryZoomHistory = false;
+        NotifyHistoryZoomCommandsCanExecuteChanged();
     }
 
     private async Task LoadSelectedLotChartAsync(PositionLot lot, string yahooSym, CancellationToken cancellationToken)
