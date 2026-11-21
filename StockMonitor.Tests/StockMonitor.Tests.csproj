@@ -33,4 +33,14 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <Target Name="CopyExportPluginsForTests" AfterTargets="Build">
+    <ItemGroup>
+      <_TestExportPluginFiles Include="..\StockMonitor\bin\$(Configuration)\$(TargetFramework)\Exports\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_TestExportPluginFiles)"
+          DestinationFolder="$(TargetDir)Exports"
+          SkipUnchangedFiles="true"
+          Condition="Exists('%(FullPath)')" />
+  </Target>
+
 </Project>

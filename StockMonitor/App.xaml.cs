@@ -48,7 +48,7 @@ public partial class App : Application
         services.AddSingleton<XtbWorkbookImportService>();
         services.AddSingleton<PortfolioStorageService>();
         services.AddSingleton<PortfolioCalculationService>();
-        services.AddSingleton<ExportService>();
+        ExportPluginLoader.RegisterExportPlugins(services);
         services.AddSingleton<MainViewModel>();
         services.AddTransient<MainWindow>();
 

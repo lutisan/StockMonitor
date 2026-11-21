@@ -20,7 +20,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly YahooFinanceMarketDataProvider _marketDataProvider;
     private readonly FrankfurterFxRateProvider _fxRateProvider;
     private readonly XtbWorkbookImportService _xtbImportService;
-    private readonly ExportService _exportService;
     private readonly IFileDialogService _fileDialogService;
 
     private static readonly HashSet<string> EditableLotProperties = new(StringComparer.Ordinal)
@@ -303,7 +302,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <param name="marketDataProvider">Yahoo Finance quote and historical chart provider.</param>
     /// <param name="fxRateProvider">Online ECB exchange rate provider.</param>
     /// <param name="xtbImportService">XTB Excel/CSV report importer.</param>
-    /// <param name="exportService">Excel/CSV portfolio exporter.</param>
+    /// <param name="exportServices">Discovered portfolio export providers displayed under File -&gt; Export.</param>
     /// <param name="fileDialogService">UI-decoupled file dialog and browser launcher service.</param>
     public MainViewModel(
         PortfolioStorageService storageService,
@@ -312,7 +311,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         YahooFinanceMarketDataProvider marketDataProvider,
         FrankfurterFxRateProvider fxRateProvider,
         XtbWorkbookImportService xtbImportService,
-        ExportService exportService,
+        IEnumerable<IExportService> exportServices,
         IFileDialogService fileDialogService)
     {
         _storageService = storageService;
@@ -321,13 +320,21 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _marketDataProvider = marketDataProvider;
         _fxRateProvider = fxRateProvider;
         _xtbImportService = xtbImportService;
-        _exportService = exportService;
+        ExportServices = exportServices
+            .OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
         _fileDialogService = fileDialogService;
 
         _currentFilePath = _storageService.StorageFilePath;
         UpdateDocumentTitleAndPath();
         _ = InitializePortfolioAsync();
     }
+
+    /// <summary>Gets the discovered portfolio export providers displayed under <c>File -&gt; Export</c>.</summary>
+    public IReadOnlyList<IExportService> ExportServices { get; }
+
+    /// <summary>Gets a value indicating whether at least one <see cref="IExportService"/> plugin is available.</summary>
+    public bool HasExportServices => ExportServices.Count > 0;
 
     /// <summary>Gets the list of supported portfolio base currencies.</summary>
     public IReadOnlyList<string> AvailableCurrencies => FrankfurterFxRateProvider.SupportedCurrencies;
@@ -696,7 +703,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SaveFileAsCommand.NotifyCanExecuteChanged();
         ManagePasswordCommand.NotifyCanExecuteChanged();
         ImportXtbCommand.NotifyCanExecuteChanged();
-        ExportPortfolioCommand.NotifyCanExecuteChanged();
+        ExportWithServiceCommand.NotifyCanExecuteChanged();
         RefreshMarketDataCommand.NotifyCanExecuteChanged();
         AddNewPositionCommand.NotifyCanExecuteChanged();
         DeleteSelectedPositionCommand.NotifyCanExecuteChanged();
@@ -2094,12 +2101,21 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    /// <summary>Opens a save dialog to export the current portfolio positions, dividends, and history to Excel (<c>.xlsx</c>) or CSV.</summary>
+    /// <summary>Opens a save dialog and exports the current portfolio using the chosen <see cref="IExportService"/> plugin.</summary>
     [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
-    private async Task ExportPortfolioAsync()
+    private async Task ExportWithServiceAsync(IExportService? exportService)
     {
+        if (exportService == null)
+        {
+            return;
+        }
+
         string defaultFileName = $"StockMonitor_{SelectedBaseCurrency}_{DateTime.Now:yyyyMMdd}";
-        string? filePath = _fileDialogService.ShowSaveExportFileDialog(defaultFileName);
+        string? filePath = _fileDialogService.ShowSaveExportFileDialog(
+            defaultFileName,
+            exportService.FileDialogFilter,
+            exportService.DefaultExtension,
+            $"Export - {exportService.DisplayName}");
         if (string.IsNullOrWhiteSpace(filePath))
         {
             return;
@@ -2107,7 +2123,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         try
         {
-            await ExportPortfolioFileAsync(filePath);
+            await ExportPortfolioFileAsync(exportService, filePath);
         }
         catch (Exception ex)
         {
@@ -2211,18 +2227,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-    /// Exports the portfolio positions, dividends, history, and tax rules asynchronously to Excel or CSV.
+    /// Exports the portfolio positions, dividends, history, and tax rules asynchronously using the specified <see cref="IExportService"/>.
     /// </summary>
+    /// <param name="exportService">The export provider to execute.</param>
     /// <param name="filePath">Destination file path.</param>
-    public async Task ExportPortfolioFileAsync(string filePath)
+    public async Task ExportPortfolioFileAsync(IExportService exportService, string filePath)
     {
+        ArgumentNullException.ThrowIfNull(exportService);
         string fileName = System.IO.Path.GetFileName(filePath);
         List<PortfolioHistoryPoint> historySnapshot = PortfolioHistory.ToList();
         await RunWithStatusTimerAsync(
-            $"Exporting portfolio report to '{fileName}'...",
+            $"Exporting portfolio report ({exportService.DisplayName}) to '{fileName}'...",
             async (_, ct) =>
             {
-                await Task.Run(() => _exportService.ExportPortfolio(_document, historySnapshot, filePath), ct);
+                await Task.Run(() => exportService.ExportPortfolio(_document, historySnapshot, filePath), ct);
                 return $"Exported portfolio report to '{filePath}'";
             });
     }

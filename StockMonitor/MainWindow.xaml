@@ -73,8 +73,17 @@
                                                 AutomationProperties.AutomationId="BtnImportXtb" />
                         <syncfusion:MenuItemAdv Header="{Binding [Menu_Export], Source={x:Static services:LocalizationService.Instance}}"
                                                 ToolTip="{Binding [Tip_BtnExport], Source={x:Static services:LocalizationService.Instance}}"
-                                                Command="{Binding ExportPortfolioCommand}"
-                                                AutomationProperties.AutomationId="BtnExportPortfolio" />
+                                                ItemsSource="{Binding ExportServices}"
+                                                IsEnabled="{Binding HasExportServices}"
+                                                AutomationProperties.AutomationId="BtnExportPortfolio">
+                            <syncfusion:MenuItemAdv.ItemContainerStyle>
+                                <Style TargetType="{x:Type syncfusion:MenuItemAdv}">
+                                    <Setter Property="Header" Value="{Binding DisplayName}" />
+                                    <Setter Property="Command" Value="{Binding DataContext.ExportWithServiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                </Style>
+                            </syncfusion:MenuItemAdv.ItemContainerStyle>
+                        </syncfusion:MenuItemAdv>
                         <syncfusion:MenuItemSeparator />
                         <syncfusion:MenuItemAdv Header="{Binding [Menu_Exit], Source={x:Static services:LocalizationService.Instance}}"
                                                 InputGestureText="Alt+F4"

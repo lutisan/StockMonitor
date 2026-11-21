@@ -588,12 +588,14 @@ public sealed class WpfFileDialogService : IFileDialogService
     }
 
     /// <inheritdoc />
-    public string? ShowSaveExportFileDialog(string defaultFileName)
+    public string? ShowSaveExportFileDialog(string defaultFileName, string filter, string defaultExtension, string? title = null)
     {
         SaveFileDialog dlg = new()
         {
-            Title = "Export Portfolio Report (.xlsx or .csv)",
-            Filter = "Excel Workbook (*.xlsx)|*.xlsx|CSV File (*.csv)|*.csv",
+            Title = string.IsNullOrWhiteSpace(title) ? "Export Portfolio Report" : title,
+            Filter = filter,
+            DefaultExt = defaultExtension,
+            AddExtension = true,
             FileName = defaultFileName
         };
 

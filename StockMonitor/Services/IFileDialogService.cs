@@ -91,11 +91,14 @@ public interface IFileDialogService
     ImportModeChoice ShowImportModeDialog(string fileName);
 
     /// <summary>
-    /// Displays a save-file dialog for exporting the portfolio report to Excel or CSV.
+    /// Displays a save-file dialog for exporting the portfolio report using the selected <see cref="IExportService"/>.
     /// </summary>
     /// <param name="defaultFileName">Suggested default filename without extension.</param>
+    /// <param name="filter">WPF SaveFileDialog filter string supplied by the export provider.</param>
+    /// <param name="defaultExtension">Default file extension including leading dot (e.g. <c>".xlsx"</c>).</param>
+    /// <param name="title">Optional dialog title.</param>
     /// <returns>The chosen output path, or <see langword="null"/> if cancelled.</returns>
-    string? ShowSaveExportFileDialog(string defaultFileName);
+    string? ShowSaveExportFileDialog(string defaultFileName, string filter, string defaultExtension, string? title = null);
 
     /// <summary>
     /// Displays an error message prompt to the user.

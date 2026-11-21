@@ -49,9 +49,32 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StockMonitor.Core\StockMonitor.Core.csproj" />
+    <ProjectReference Include="..\StockMonitor.Export.Default\StockMonitor.Export.Default.csproj"
+                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\StockMonitor.Export.Pdf\StockMonitor.Export.Pdf.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Data\xtb_seed.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <Target Name="CopyExportPlugins" AfterTargets="Build">
+    <ItemGroup>
+      <_ExportPluginFiles Include="..\StockMonitor.Export.Default\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Default.export.dll" />
+      <_ExportPluginFiles Include="..\StockMonitor.Export.Default\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Default.export.pdb" />
+      <_ExportPluginFiles Include="..\StockMonitor.Export.Default\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Default.export.deps.json" />
+      <_ExportPluginFiles Include="..\StockMonitor.Export.Pdf\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Pdf.export.dll" />
+      <_ExportPluginFiles Include="..\StockMonitor.Export.Pdf\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Pdf.export.pdb" />
+      <_ExportPluginFiles Include="..\StockMonitor.Export.Pdf\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Pdf.export.deps.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_ExportPluginFiles)"
+          DestinationFolder="$(TargetDir)Exports"
+          SkipUnchangedFiles="true"
+          Condition="Exists('%(FullPath)')" />
+  </Target>
 
 </Project>
