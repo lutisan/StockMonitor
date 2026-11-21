@@ -1,5 +1,15 @@
 # StockMonitor
 
+## Background
+
+To get a clear overview of my investments, the built-in features of the XTB app didn't quite meet my needs. While services like Yahoo Finance and similar platforms exist, I initially turned to Google Drive and built a spreadsheet to automatically calculate the profit for each ticker, along with dividend yields and taxation. However, I wasn't comfortable storing my financial data in the cloud on Google Drive, nor did I want to keep manually entering data into a spreadsheet.
+
+Over the course of two days, I built **StockMonitor** using almost pure vibe coding, followed by manual design adjustments, a final code review, and refactoring. A full user manual and architecture overview follow below.
+
+> **Disclaimer:** This application is not intended to be a showcase of vibe coding—it is simply a lightweight tool built for personal use. No guarantees are made regarding its functionality, and the displayed financial or tax figures may not be accurate. Nothing in this application constitutes financial or tax advice.
+
+## Introduction
+
 **StockMonitor** is a Windows desktop portfolio analytics application built with **.NET 10**, **WPF**, **Syncfusion Essential Studio for WPF (`31.1.17`)**, and **`CommunityToolkit.Mvvm`**. It tracks open and closed stock/ETF lots, multi-currency valuations with date-exact European Central Bank (ECB) exchange rates, live Yahoo Finance quotes and price history, dividend withholding tax rules, encrypted local JSON storage, and a runtime plugin system for broker importers (`*.import.dll`) and report exporters (`*.export.dll`).
 
 ---
