@@ -15,15 +15,18 @@ public sealed class PortfolioStorageService
         WriteIndented = true
     };
 
-    private readonly XtbWorkbookImportService _xtbImportService;
+    private readonly IImportService? _seedImportService;
     private readonly SemaphoreSlim _ioLock = new(1, 1);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PortfolioStorageService"/> class.
     /// </summary>
-    /// <param name="xtbImportService">Importer used to seed initial data from <c>xtb_seed.csv</c>.</param>
-    public PortfolioStorageService(XtbWorkbookImportService xtbImportService)
-        : this(xtbImportService, Path.Combine(ResolveDefaultDataDirectory(), "portfolio.json"))
+    /// <param name="importServices">Discovered broker import providers used to seed initial data from <c>xtb_seed.csv</c>.</param>
+    public PortfolioStorageService(IEnumerable<IImportService> importServices)
+        : this(
+            importServices.FirstOrDefault(s => s.Id.Equals("xtb", StringComparison.OrdinalIgnoreCase))
+                ?? importServices.FirstOrDefault(),
+            Path.Combine(ResolveDefaultDataDirectory(), "portfolio.json"))
     {
     }
 
@@ -35,9 +38,9 @@ public sealed class PortfolioStorageService
             : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StockMonitor");
     }
 
-    internal PortfolioStorageService(XtbWorkbookImportService xtbImportService, string storageFilePath)
+    internal PortfolioStorageService(IImportService? seedImportService, string storageFilePath)
     {
-        _xtbImportService = xtbImportService;
+        _seedImportService = seedImportService;
         string? dir = Path.GetDirectoryName(storageFilePath);
         if (!string.IsNullOrWhiteSpace(dir))
         {
@@ -232,9 +235,9 @@ public sealed class PortfolioStorageService
                 }
             }
 
-            if (File.Exists(seedPath))
+            if (File.Exists(seedPath) && _seedImportService != null)
             {
-                _xtbImportService.ImportFile(seedPath, doc, replaceExistingXtbData: true);
+                _seedImportService.ImportFile(seedPath, doc, replaceExistingBrokerData: true);
             }
 
             if (saveToDisk)

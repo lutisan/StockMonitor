@@ -76,7 +76,7 @@
   <data name="Tip_MyCurrency" xml:space="preserve"><value>Select base currency (EUR, USD, CZK, CHF, GBP) to recalculate all values</value></data>
   <data name="Tip_Language" xml:space="preserve"><value>Switch application interface language between English (EN) and Slovak (SK)</value></data>
   <data name="Tip_Theme" xml:space="preserve"><value>Switch Syncfusion visual skin/theme for the application</value></data>
-  <data name="Tip_BtnImportXtb" xml:space="preserve"><value>Import an XTB account report (.xlsx, .xls, or .csv) and update positions, dividends, cash flows, and ticker mappings</value></data>
+  <data name="Tip_BtnImportXtb" xml:space="preserve"><value>Import a broker account report using an installed import plugin and update positions, dividends, cash flows, and ticker mappings</value></data>
   <data name="Tip_BtnExport" xml:space="preserve"><value>Export portfolio positions, dividends, history, and tax rules to Excel (.xlsx) or CSV (.csv)</value></data>
   <data name="Tip_BtnSyncMarket" xml:space="preserve"><value>Fetch live stock quotes from Yahoo Finance and online ECB exchange rates (for today and all transaction dates)</value></data>
   <data name="Tab1_Header" xml:space="preserve"><value>1. Positions (Open &amp; Closed)</value></data>
@@ -88,7 +88,7 @@
   <data name="Tip_Tab2" xml:space="preserve"><value>Portfolio KPI cards, company/country allocation charts, and per-lot financial summary</value></data>
   <data name="Tip_Tab3" xml:space="preserve"><value>Annual dividend charts and complete dividend &amp; withholding tax history</value></data>
   <data name="Tip_Tab4" xml:space="preserve"><value>Historical portfolio value, active invested capital, and cumulative dividend timeline</value></data>
-  <data name="Tip_Tab5" xml:space="preserve"><value>Manage dynamic ticker mappings, country withholding tax rules, and inspect all XTB cash operations</value></data>
+  <data name="Tip_Tab5" xml:space="preserve"><value>Manage dynamic ticker mappings, country withholding tax rules, and inspect all imported cash operations</value></data>
   <data name="SubTab_Chart" xml:space="preserve"><value>Stock Price Chart &amp; Lot Details</value></data>
   <data name="SubTab_Yahoo" xml:space="preserve"><value>Yahoo Finance Page (Full Width)</value></data>
   <data name="Tip_SubTabChart" xml:space="preserve"><value>Interactive stock price chart (X-axis zoom only) alongside Selected Lot Details</value></data>
@@ -206,8 +206,8 @@
   <data name="Tip_TaxRulesGrid" xml:space="preserve"><value>Editable withholding tax rates by country of instrument registration</value></data>
   <data name="Tip_SettingsSplitVert" xml:space="preserve"><value>Drag left or right to resize Dynamic Ticker Mappings and Country Tax Rules panels</value></data>
   <data name="Tip_SettingsSplitHoriz" xml:space="preserve"><value>Drag up or down to resize the top mappings/tax rules area and bottom Cash Operations table</value></data>
-  <data name="Hdr_CashOperations" xml:space="preserve"><value>All Imported XTB Cash Operations (Deposits, Free-Funds Interest, Dividends, WHT, Stock Purchases/Sales, Fees)</value></data>
-  <data name="Tip_CashFlowsGrid" xml:space="preserve"><value>Complete ledger of cash operations imported from the XTB report, converted to Base Currency on each operation's exact date</value></data>
+  <data name="Hdr_CashOperations" xml:space="preserve"><value>All Imported Cash Operations (Deposits, Free-Funds Interest, Dividends, WHT, Stock Purchases/Sales, Fees)</value></data>
+  <data name="Tip_CashFlowsGrid" xml:space="preserve"><value>Complete ledger of cash operations imported from broker reports, converted to Base Currency on each operation's exact date</value></data>
   <data name="Tip_StatusProgress" xml:space="preserve"><value>Indeterminate indicator active while an asynchronous background operation is running</value></data>
   <data name="Tip_StatusTimer" xml:space="preserve"><value>Elapsed execution time of the current or most recently completed asynchronous operation</value></data>
   <data name="Tip_StatusMessage" xml:space="preserve"><value>Description of the current or most recently completed background operation</value></data>
@@ -341,7 +341,7 @@
   <data name="Tip_Menu_SaveAs" xml:space="preserve"><value>Save the current portfolio document to a new file (Ctrl+Shift+S)</value></data>
   <data name="Menu_Password" xml:space="preserve"><value>_Password...</value></data>
   <data name="Tip_Menu_Password" xml:space="preserve"><value>Set, change, or remove the encryption password for this document (never stored on disk)</value></data>
-  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Import XTB...</value></data>
+  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Import</value></data>
   <data name="Menu_Export" xml:space="preserve"><value>_Export Report...</value></data>
   <data name="Menu_Exit" xml:space="preserve"><value>E_xit</value></data>
   <data name="Dlg_OpenPortfolioTitle" xml:space="preserve"><value>Open StockMonitor Portfolio (.json)</value></data>
@@ -363,7 +363,7 @@
   <data name="Dlg_ShowPassword" xml:space="preserve"><value>Show password</value></data>
   <data name="Lbl_UntitledDocument" xml:space="preserve"><value>Untitled</value></data>
   <data name="Lbl_UnsavedFile" xml:space="preserve"><value>Unsaved document</value></data>
-  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Import XTB Report</value></data>
+  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Import Report</value></data>
   <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>The current document already contains data. How would you like to import "{0}"?</value></data>
   <data name="Btn_ImportReplace" xml:space="preserve"><value>Replace Current Content</value></data>
   <data name="Btn_ImportAppend" xml:space="preserve"><value>Add to Current Content</value></data>

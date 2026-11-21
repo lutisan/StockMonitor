@@ -573,12 +573,12 @@ public sealed class WpfFileDialogService : IFileDialogService
     }
 
     /// <inheritdoc />
-    public string? ShowOpenXtbFileDialog()
+    public string? ShowOpenImportFileDialog(string filter, string? title = null)
     {
         OpenFileDialog dlg = new()
         {
-            Title = "Import XTB Excel (.xlsx) or CSV Report",
-            Filter = "XTB Excel & CSV Files (*.xlsx;*.xls;*.csv)|*.xlsx;*.xls;*.csv|Excel Workbook (*.xlsx)|*.xlsx|CSV File (*.csv)|*.csv|All Files (*.*)|*.*"
+            Title = string.IsNullOrWhiteSpace(title) ? "Import Portfolio Report" : title,
+            Filter = filter
         };
 
         Window? owner = GetActiveOwnerWindow();

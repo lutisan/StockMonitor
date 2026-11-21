@@ -76,7 +76,7 @@
   <data name="Tip_MyCurrency" xml:space="preserve"><value>Výber základnej meny portfólia (EUR, USD, CZK, CHF, GBP) pre okamžitý prepočet všetkých hodnôt</value></data>
   <data name="Tip_Language" xml:space="preserve"><value>Prepnutie jazyka používateľského rozhrania medzi angličtinou (EN) a slovenčinou (SK)</value></data>
   <data name="Tip_Theme" xml:space="preserve"><value>Výber vizuálnej témy (vzhľadu) aplikácie</value></data>
-  <data name="Tip_BtnImportXtb" xml:space="preserve"><value>Importovať výpis z XTB (.xlsx, .xls alebo .csv) a aktualizovať pozície, dividendy, peňažné operácie a mapovanie tickerov</value></data>
+  <data name="Tip_BtnImportXtb" xml:space="preserve"><value>Importovať výpis z brokerského účtu pomocou nainštalovaného importného pluginu a aktualizovať pozície, dividendy, peňažné operácie a mapovanie tickerov</value></data>
   <data name="Tip_BtnExport" xml:space="preserve"><value>Exportovať pozície, dividendy, históriu portfólia a daňové pravidlá do Excelu (.xlsx) alebo CSV (.csv)</value></data>
   <data name="Tip_BtnSyncMarket" xml:space="preserve"><value>Stiahnuť aktuálne trhové ceny z Yahoo Finance a online výmenné kurzy ECB (pre dnešok aj dni transakcií)</value></data>
   <data name="Tab1_Header" xml:space="preserve"><value>1. Pozície (Otvorené &amp; Uzavreté)</value></data>
@@ -88,7 +88,7 @@
   <data name="Tip_Tab2" xml:space="preserve"><value>Súhrnné KPI ukazovatele, koláčové grafy alokácie podľa firiem a krajín a detailná súhrnná tabuľka</value></data>
   <data name="Tip_Tab3" xml:space="preserve"><value>Ročné grafy dividend a kompletná história vyplatených dividend a zrážkových daní</value></data>
   <data name="Tip_Tab4" xml:space="preserve"><value>Historický vývoj hodnoty portfólia, aktívne investovaného kapitálu a kumulatívnych čistých dividend</value></data>
-  <data name="Tip_Tab5" xml:space="preserve"><value>Správa dynamického mapovania tickerov, sadzieb zrážkovej dane podľa krajín a prehľad peňažných operácií XTB</value></data>
+  <data name="Tip_Tab5" xml:space="preserve"><value>Správa dynamického mapovania tickerov, sadzieb zrážkovej dane podľa krajín a prehľad všetkých importovaných peňažných operácií</value></data>
   <data name="SubTab_Chart" xml:space="preserve"><value>Cenový graf akcie &amp; Detaily pozície</value></data>
   <data name="SubTab_Yahoo" xml:space="preserve"><value>Stránka Yahoo Finance (Celá šírka)</value></data>
   <data name="Tip_SubTabChart" xml:space="preserve"><value>Interaktívny cenový graf (približovanie iba osi X) spolu s panelom detailov vybranej pozície</value></data>
@@ -206,8 +206,8 @@
   <data name="Tip_TaxRulesGrid" xml:space="preserve"><value>Editovateľná tabuľka sadzieb zrážkovej dane z dividend podľa krajiny registrácie cenného papiera</value></data>
   <data name="Tip_SettingsSplitVert" xml:space="preserve"><value>Potiahnutím doľava alebo doprava zmeníte šírku mapovania tickerov a pravidiel zrážkovej dane</value></data>
   <data name="Tip_SettingsSplitHoriz" xml:space="preserve"><value>Potiahnutím hore alebo dole zmeníte výšku hornej časti a spodnej tabuľky peňažných operácií</value></data>
-  <data name="Hdr_CashOperations" xml:space="preserve"><value>Všetky importované peňažné operácie XTB (Vklady, Úroky, Dividendy, Dane, Nákupy/Predaje, Poplatky)</value></data>
-  <data name="Tip_CashFlowsGrid" xml:space="preserve"><value>Kompletný denník peňažných operácií z XTB výpisu prepočítaný online kurzom ECB platným v deň operácie</value></data>
+  <data name="Hdr_CashOperations" xml:space="preserve"><value>Všetky importované peňažné operácie (Vklady, Úroky, Dividendy, Dane, Nákupy/Predaje, Poplatky)</value></data>
+  <data name="Tip_CashFlowsGrid" xml:space="preserve"><value>Kompletný denník peňažných operácií z importovaných výpisov prepočítaný online kurzom ECB platným v deň operácie</value></data>
   <data name="Tip_StatusProgress" xml:space="preserve"><value>Indikátor priebehu aktívny počas behu asynchrónnej operácie na pozadí</value></data>
   <data name="Tip_StatusTimer" xml:space="preserve"><value>Čas trvania aktuálnej alebo naposledy dokončenej asynchrónnej operácie</value></data>
   <data name="Tip_StatusMessage" xml:space="preserve"><value>Popis aktuálne prebiehajúcej alebo dokončenej operácie</value></data>
@@ -341,7 +341,7 @@
   <data name="Tip_Menu_SaveAs" xml:space="preserve"><value>Uložiť aktuálny dokument portfólia do nového súboru (Ctrl+Shift+S)</value></data>
   <data name="Menu_Password" xml:space="preserve"><value>_Heslo...</value></data>
   <data name="Tip_Menu_Password" xml:space="preserve"><value>Nastaviť, zmeniť alebo odstrániť heslo šifrovania pre tento dokument (heslo sa nikam neukladá)</value></data>
-  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Importovať XTB...</value></data>
+  <data name="Menu_ImportXtb" xml:space="preserve"><value>_Importovať</value></data>
   <data name="Menu_Export" xml:space="preserve"><value>_Exportovať výpis...</value></data>
   <data name="Menu_Exit" xml:space="preserve"><value>_Ukončiť</value></data>
   <data name="Dlg_OpenPortfolioTitle" xml:space="preserve"><value>Otvoriť StockMonitor portfólio (.json)</value></data>
@@ -363,7 +363,7 @@
   <data name="Dlg_ShowPassword" xml:space="preserve"><value>Zobraziť heslo</value></data>
   <data name="Lbl_UntitledDocument" xml:space="preserve"><value>Bez názvu</value></data>
   <data name="Lbl_UnsavedFile" xml:space="preserve"><value>Neuložený dokument</value></data>
-  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Importovať XTB výpis</value></data>
+  <data name="Dlg_ImportModeTitle" xml:space="preserve"><value>Importovať výpis</value></data>
   <data name="Dlg_ImportModePrompt" xml:space="preserve"><value>Aktuálny dokument už obsahuje dáta. Ako chcete importovať súbor „{0}“?</value></data>
   <data name="Btn_ImportReplace" xml:space="preserve"><value>Nahradiť aktuálny obsah</value></data>
   <data name="Btn_ImportAppend" xml:space="preserve"><value>Pridať k aktuálnemu obsahu</value></data>

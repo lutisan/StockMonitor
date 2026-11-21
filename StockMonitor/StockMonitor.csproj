@@ -54,6 +54,8 @@
                       ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\StockMonitor.Export.Pdf\StockMonitor.Export.Pdf.csproj"
                       ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\StockMonitor.Import.Xtb\StockMonitor.Import.Xtb.csproj"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,7 +64,7 @@
     </Content>
   </ItemGroup>
 
-  <Target Name="CopyExportPlugins" AfterTargets="Build">
+  <Target Name="CopyPlugins" AfterTargets="Build">
     <ItemGroup>
       <_ExportPluginFiles Include="..\StockMonitor.Export.Default\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Default.export.dll" />
       <_ExportPluginFiles Include="..\StockMonitor.Export.Default\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Default.export.pdb" />
@@ -70,9 +72,16 @@
       <_ExportPluginFiles Include="..\StockMonitor.Export.Pdf\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Pdf.export.dll" />
       <_ExportPluginFiles Include="..\StockMonitor.Export.Pdf\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Pdf.export.pdb" />
       <_ExportPluginFiles Include="..\StockMonitor.Export.Pdf\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Export.Pdf.export.deps.json" />
+      <_ImportPluginFiles Include="..\StockMonitor.Import.Xtb\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Import.Xtb.import.dll" />
+      <_ImportPluginFiles Include="..\StockMonitor.Import.Xtb\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Import.Xtb.import.pdb" />
+      <_ImportPluginFiles Include="..\StockMonitor.Import.Xtb\bin\$(Configuration)\$(TargetFramework)\StockMonitor.Import.Xtb.import.deps.json" />
     </ItemGroup>
     <Copy SourceFiles="@(_ExportPluginFiles)"
           DestinationFolder="$(TargetDir)Exports"
+          SkipUnchangedFiles="true"
+          Condition="Exists('%(FullPath)')" />
+    <Copy SourceFiles="@(_ImportPluginFiles)"
+          DestinationFolder="$(TargetDir)Imports"
           SkipUnchangedFiles="true"
           Condition="Exists('%(FullPath)')" />
   </Target>

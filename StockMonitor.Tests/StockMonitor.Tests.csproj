@@ -27,18 +27,24 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StockMonitor\StockMonitor.csproj" />
+    <ProjectReference Include="..\StockMonitor.Import.Xtb\StockMonitor.Import.Xtb.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <Target Name="CopyExportPluginsForTests" AfterTargets="Build">
+  <Target Name="CopyPluginsForTests" AfterTargets="Build">
     <ItemGroup>
       <_TestExportPluginFiles Include="..\StockMonitor\bin\$(Configuration)\$(TargetFramework)\Exports\*" />
+      <_TestImportPluginFiles Include="..\StockMonitor\bin\$(Configuration)\$(TargetFramework)\Imports\*" />
     </ItemGroup>
     <Copy SourceFiles="@(_TestExportPluginFiles)"
           DestinationFolder="$(TargetDir)Exports"
+          SkipUnchangedFiles="true"
+          Condition="Exists('%(FullPath)')" />
+    <Copy SourceFiles="@(_TestImportPluginFiles)"
+          DestinationFolder="$(TargetDir)Imports"
           SkipUnchangedFiles="true"
           Condition="Exists('%(FullPath)')" />
   </Target>

@@ -8,16 +8,19 @@ using StockMonitor.Tests.Helpers;
 namespace StockMonitor.Tests;
 
 /// <summary>
-/// Verifies dynamic <c>*.export.dll</c> discovery via <see cref="ExportPluginLoader"/> and
-/// end-to-end execution of the discovered <see cref="IExportService"/> implementations.
+/// Verifies dynamic <c>*.export.dll</c> and <c>*.import.dll</c> discovery via <see cref="PluginLoader"/> and
+/// end-to-end execution of the discovered <see cref="IExportService"/> and <see cref="IImportService"/> implementations.
 /// </summary>
 public sealed class ExportPluginLoaderTests
 {
     private static string DefaultExportsDirectory =>
-        Path.Combine(AppContext.BaseDirectory, ExportPluginLoader.DefaultPluginsFolderName);
+        Path.Combine(AppContext.BaseDirectory, PluginLoader.DefaultExportsFolderName);
+
+    private static string DefaultImportsDirectory =>
+        Path.Combine(AppContext.BaseDirectory, PluginLoader.DefaultImportsFolderName);
 
     /// <summary>
-    /// Verifies that <see cref="ExportPluginLoader.RegisterExportPlugins"/> discovers the Excel and CSV
+    /// Verifies that <see cref="PluginLoader.RegisterExportPlugins"/> discovers the Excel and CSV
     /// implementations from <c>StockMonitor.Export.Default.export.dll</c> and the PDF implementation from
     /// <c>StockMonitor.Export.Pdf.export.dll</c> and registers all of them into DI.
     /// </summary>
@@ -25,7 +28,7 @@ public sealed class ExportPluginLoaderTests
     public void RegisterExportPlugins_DiscoversDefaultExcelCsvAndPdfExporters()
     {
         ServiceCollection services = new();
-        int count = ExportPluginLoader.RegisterExportPlugins(services, DefaultExportsDirectory);
+        int count = PluginLoader.RegisterExportPlugins(services, DefaultExportsDirectory);
 
         Assert.Equal(3, count);
 
@@ -39,15 +42,36 @@ public sealed class ExportPluginLoaderTests
     }
 
     /// <summary>
-    /// Verifies that non-<c>*.export.dll</c> files and missing directories are safely ignored.
+    /// Verifies that <see cref="PluginLoader.RegisterImportPlugins"/> discovers the XTB importer
+    /// from <c>StockMonitor.Import.Xtb.import.dll</c> and registers it into DI.
     /// </summary>
     [Fact]
-    public void DiscoverExportServiceTypes_IgnoresNonExportDllsAndMissingDirectories()
+    public void RegisterImportPlugins_DiscoversXtbImporter()
+    {
+        ServiceCollection services = new();
+        int count = PluginLoader.RegisterImportPlugins(services, DefaultImportsDirectory);
+
+        Assert.Equal(1, count);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IImportService importer = Assert.Single(provider.GetServices<IImportService>());
+
+        Assert.Equal("xtb", importer.Id);
+        Assert.Contains("XTB", importer.DisplayName, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("*.xlsx", importer.FileDialogFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Verifies that non-matching DLL files and missing directories are safely ignored.
+    /// </summary>
+    [Fact]
+    public void DiscoverPluginTypes_IgnoresNonMatchingDllsAndMissingDirectories()
     {
         using TempTestDirectory temp = new();
         File.WriteAllText(temp.FilePath("RegularLibrary.dll"), "not a plugin");
 
-        IReadOnlyList<Type> discovered = ExportPluginLoader.DiscoverExportServiceTypes(
+        IReadOnlyList<Type> discovered = PluginLoader.DiscoverPluginTypes<IExportService>(
+            PluginLoader.ExportSearchPattern,
             [temp.Path, Path.Combine(temp.Path, "DoesNotExist")]);
 
         Assert.Empty(discovered);
@@ -60,7 +84,7 @@ public sealed class ExportPluginLoaderTests
     public void DiscoveredExporters_WriteValidCsvAndExcelFiles()
     {
         ServiceCollection services = new();
-        ExportPluginLoader.RegisterExportPlugins(services, DefaultExportsDirectory);
+        PluginLoader.RegisterExportPlugins(services, DefaultExportsDirectory);
         using ServiceProvider provider = services.BuildServiceProvider();
         List<IExportService> exporters = provider.GetServices<IExportService>().ToList();
 

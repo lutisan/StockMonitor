@@ -19,7 +19,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly PortfolioCalculationService _calculationService;
     private readonly YahooFinanceMarketDataProvider _marketDataProvider;
     private readonly FrankfurterFxRateProvider _fxRateProvider;
-    private readonly XtbWorkbookImportService _xtbImportService;
     private readonly IFileDialogService _fileDialogService;
 
     private static readonly HashSet<string> EditableLotProperties = new(StringComparer.Ordinal)
@@ -301,7 +300,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <param name="calculationService">Portfolio valuation and tax calculation service.</param>
     /// <param name="marketDataProvider">Yahoo Finance quote and historical chart provider.</param>
     /// <param name="fxRateProvider">Online ECB exchange rate provider.</param>
-    /// <param name="xtbImportService">XTB Excel/CSV report importer.</param>
+    /// <param name="importServices">Discovered broker/portfolio import providers displayed under File -&gt; Import.</param>
     /// <param name="exportServices">Discovered portfolio export providers displayed under File -&gt; Export.</param>
     /// <param name="fileDialogService">UI-decoupled file dialog and browser launcher service.</param>
     public MainViewModel(
@@ -310,7 +309,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         PortfolioCalculationService calculationService,
         YahooFinanceMarketDataProvider marketDataProvider,
         FrankfurterFxRateProvider fxRateProvider,
-        XtbWorkbookImportService xtbImportService,
+        IEnumerable<IImportService> importServices,
         IEnumerable<IExportService> exportServices,
         IFileDialogService fileDialogService)
     {
@@ -319,7 +318,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _calculationService = calculationService;
         _marketDataProvider = marketDataProvider;
         _fxRateProvider = fxRateProvider;
-        _xtbImportService = xtbImportService;
+        ImportServices = importServices
+            .OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
         ExportServices = exportServices
             .OrderBy(s => s.DisplayName, StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -329,6 +330,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         UpdateDocumentTitleAndPath();
         _ = InitializePortfolioAsync();
     }
+
+    /// <summary>Gets the discovered broker/portfolio import providers displayed under <c>File -&gt; Import</c>.</summary>
+    public IReadOnlyList<IImportService> ImportServices { get; }
+
+    /// <summary>Gets a value indicating whether at least one <see cref="IImportService"/> plugin is available.</summary>
+    public bool HasImportServices => ImportServices.Count > 0;
 
     /// <summary>Gets the discovered portfolio export providers displayed under <c>File -&gt; Export</c>.</summary>
     public IReadOnlyList<IExportService> ExportServices { get; }
@@ -702,7 +709,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SaveFileCommand.NotifyCanExecuteChanged();
         SaveFileAsCommand.NotifyCanExecuteChanged();
         ManagePasswordCommand.NotifyCanExecuteChanged();
-        ImportXtbCommand.NotifyCanExecuteChanged();
+        ImportWithServiceCommand.NotifyCanExecuteChanged();
         ExportWithServiceCommand.NotifyCanExecuteChanged();
         RefreshMarketDataCommand.NotifyCanExecuteChanged();
         AddNewPositionCommand.NotifyCanExecuteChanged();
@@ -2067,11 +2074,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
             });
     }
 
-    /// <summary>Opens a file picker to import an XTB Excel (<c>.xls</c>/<c>.xlsx</c>) or CSV report. Prompts whether to replace or append if the document is not empty.</summary>
+    /// <summary>Opens a file picker and imports a broker report using the chosen <see cref="IImportService"/> plugin. Prompts whether to replace or append if the document is not empty.</summary>
     [RelayCommand(CanExecute = nameof(CanRunWhenNotBusy))]
-    private async Task ImportXtbAsync()
+    private async Task ImportWithServiceAsync(IImportService? importService)
     {
-        string? filePath = _fileDialogService.ShowOpenXtbFileDialog();
+        if (importService == null)
+        {
+            return;
+        }
+
+        string? filePath = _fileDialogService.ShowOpenImportFileDialog(
+            importService.FileDialogFilter,
+            $"Import - {importService.DisplayName}");
         if (string.IsNullOrWhiteSpace(filePath))
         {
             return;
@@ -2093,11 +2107,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         try
         {
-            await ImportXtbFileAsync(filePath, importMode);
+            await ImportFileAsync(importService, filePath, importMode);
         }
         catch (Exception ex)
         {
-            _fileDialogService.ShowError("Import Error", $"Failed to import XTB file:\n{ex.Message}");
+            _fileDialogService.ShowError("Import Error", $"Failed to import file:\n{ex.Message}");
         }
     }
 
@@ -2184,12 +2198,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-    /// Imports an XTB Excel or CSV report asynchronously, fetches online ECB FX rates, and recalculates the portfolio.
+    /// Imports a broker report asynchronously using the specified <see cref="IImportService"/>, fetches online ECB FX rates, and recalculates the portfolio.
     /// </summary>
-    /// <param name="filePath">Path to the XTB report file.</param>
+    /// <param name="importService">The import provider to execute.</param>
+    /// <param name="filePath">Path to the report file.</param>
     /// <param name="importMode">Whether to replace all existing content or add the imported records to the current document.</param>
-    public async Task ImportXtbFileAsync(string filePath, ImportModeChoice importMode = ImportModeChoice.ReplaceAll)
+    public async Task ImportFileAsync(IImportService importService, string filePath, ImportModeChoice importMode = ImportModeChoice.ReplaceAll)
     {
+        ArgumentNullException.ThrowIfNull(importService);
         if (importMode == ImportModeChoice.Cancel)
         {
             return;
@@ -2197,7 +2213,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         string fileName = System.IO.Path.GetFileName(filePath);
         await RunWithStatusTimerAsync(
-            $"Importing XTB file '{fileName}' and updating dynamic ticker mappings...",
+            $"Importing '{fileName}' ({importService.DisplayName}) and updating dynamic ticker mappings...",
             async (progress, ct) =>
             {
                 await Task.Run(() =>
@@ -2209,11 +2225,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
                         _document.Dividends.Clear();
                         _document.CashFlows.Clear();
                         _document.TickerMappings.Clear();
-                        _xtbImportService.ImportFile(filePath, _document, replaceExistingXtbData: true);
+                        importService.ImportFile(filePath, _document, replaceExistingBrokerData: true);
                     }
                     else
                     {
-                        _xtbImportService.ImportFile(filePath, _document, replaceExistingXtbData: false);
+                        importService.ImportFile(filePath, _document, replaceExistingBrokerData: false);
                     }
                 }, ct);
 
@@ -2222,7 +2238,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 progress($"Recalculating imported portfolio from '{fileName}'...");
                 await ReloadFromDocumentAsync(reloadSelectedChart: true, ct);
                 MarkDirty();
-                return $"Imported XTB file '{fileName}': {_document.Lots.Count} lots ({OpenLotsCount} open, {ClosedLotsCount} closed), {_document.Dividends.Count} dividends";
+                return $"Imported '{fileName}': {_document.Lots.Count} lots ({OpenLotsCount} open, {ClosedLotsCount} closed), {_document.Dividends.Count} dividends";
             });
     }
 

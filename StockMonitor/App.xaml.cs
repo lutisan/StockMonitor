@@ -45,10 +45,10 @@ public partial class App : Application
         services.AddSingleton<AppPreferencesService>();
         services.AddSingleton<FrankfurterFxRateProvider>();
         services.AddSingleton<YahooFinanceMarketDataProvider>();
-        services.AddSingleton<XtbWorkbookImportService>();
+        PluginLoader.RegisterImportPlugins(services);
         services.AddSingleton<PortfolioStorageService>();
         services.AddSingleton<PortfolioCalculationService>();
-        ExportPluginLoader.RegisterExportPlugins(services);
+        PluginLoader.RegisterExportPlugins(services);
         services.AddSingleton<MainViewModel>();
         services.AddTransient<MainWindow>();
 

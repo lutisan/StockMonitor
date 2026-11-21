@@ -2,25 +2,34 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using StockMonitor.Models;
+using StockMonitor.Services;
 using Syncfusion.XlsIO;
 
-namespace StockMonitor.Services;
+namespace StockMonitor.Import.Xtb;
 
 /// <summary>
 /// Imports XTB Excel (.xlsx) and CSV reports containing Closed Positions, Cash Operations, and Open Positions.
 /// </summary>
-public sealed partial class XtbWorkbookImportService
+public sealed partial class XtbWorkbookImportService : IImportService
 {
+    /// <inheritdoc />
+    public string Id => "xtb";
+
+    /// <inheritdoc />
+    public string DisplayName => "XTB Report (.xlsx / .csv)";
+
+    /// <inheritdoc />
+    public string FileDialogFilter =>
+        "XTB Excel & CSV Files (*.xlsx;*.xls;*.csv)|*.xlsx;*.xls;*.csv|Excel Workbook (*.xlsx)|*.xlsx|CSV File (*.csv)|*.csv|All Files (*.*)|*.*";
+
     [GeneratedRegex(@"(?<ccy>[A-Z]{3})\s+(?<rate>\d+(?:\.\d+)?)\s*/\s*SHR", RegexOptions.IgnoreCase)]
     private static partial Regex DividendPerShareRegex();
 
     [GeneratedRegex(@"(?<ccy>[A-Z]{3})\s+WHT\s+(?<pct>\d+(?:\.\d+)?)\s*%", RegexOptions.IgnoreCase)]
     private static partial Regex WithholdingTaxRateRegex();
 
-    /// <summary>
-    /// Imports an XTB report from an .xlsx workbook or .csv file into the target portfolio document.
-    /// </summary>
-    public void ImportFile(string filePath, PortfolioDocument document, bool replaceExistingXtbData = true)
+    /// <inheritdoc />
+    public void ImportFile(string filePath, PortfolioDocument document, bool replaceExistingBrokerData = true)
     {
         if (!File.Exists(filePath))
         {
@@ -32,7 +41,7 @@ public sealed partial class XtbWorkbookImportService
             ? ReadExcelRows(filePath)
             : ReadCsvRows(filePath);
 
-        ImportRows(allRows, document, replaceExistingXtbData);
+        ImportRows(allRows, document, replaceExistingBrokerData);
         document.Settings.LastImportedXtbPath = filePath;
     }
 

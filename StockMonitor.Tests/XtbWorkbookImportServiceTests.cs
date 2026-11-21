@@ -1,4 +1,5 @@
 using System.IO;
+using StockMonitor.Import.Xtb;
 using StockMonitor.Models;
 using StockMonitor.Services;
 using StockMonitor.Tests.Helpers;
@@ -49,7 +50,7 @@ public sealed class XtbWorkbookImportServiceTests
         PortfolioDocument doc = new() { TaxRules = TickerMappingHelper.CreateDefaultTaxRules() };
 
         // Act
-        importer.ImportFile(csvPath, doc, replaceExistingXtbData: true);
+        importer.ImportFile(csvPath, doc, replaceExistingBrokerData: true);
 
         // Assert: 1 closed lot (NVDA.US) + 1 open lot (LYPG.DE)
         Assert.Equal(2, doc.Lots.Count);
@@ -105,7 +106,7 @@ public sealed class XtbWorkbookImportServiceTests
         PortfolioDocument doc = new() { TaxRules = TickerMappingHelper.CreateDefaultTaxRules() };
 
         // First import
-        importer.ImportFile(csvPath, doc, replaceExistingXtbData: true);
+        importer.ImportFile(csvPath, doc, replaceExistingBrokerData: true);
 
         // User edits a comment and tax override on an XTB lot, and adds a manual lot
         PositionLot lypg = doc.Lots.Single(l => l.ExternalPositionId == "261950118");
@@ -123,7 +124,7 @@ public sealed class XtbWorkbookImportServiceTests
         });
 
         // Act: re-import XTB file
-        importer.ImportFile(csvPath, doc, replaceExistingXtbData: true);
+        importer.ImportFile(csvPath, doc, replaceExistingBrokerData: true);
 
         // Assert: manual lot survived and XTB lot comment/tax override survived
         Assert.Contains(doc.Lots, l => l.ExternalPositionId == "MAN-CUSTOM-1" && l.Source == DataSource.ManualEntry);
@@ -133,7 +134,7 @@ public sealed class XtbWorkbookImportServiceTests
     }
 
     /// <summary>
-    /// Verifies that importing an XTB report in Append mode (<c>replaceExistingXtbData: false</c>)
+    /// Verifies that importing an XTB report in Append mode (<c>replaceExistingBrokerData: false</c>)
     /// preserves all existing manual lots and existing XTB lots without duplicating broker dividends or cash flows.
     /// </summary>
     [Fact]
@@ -162,7 +163,7 @@ public sealed class XtbWorkbookImportServiceTests
         });
 
         // Append XTB report
-        importer.ImportFile(csvPath, doc, replaceExistingXtbData: false);
+        importer.ImportFile(csvPath, doc, replaceExistingBrokerData: false);
 
         Assert.Equal(3, doc.Lots.Count);
         Assert.Contains(doc.Lots, l => l.ExternalPositionId == "MAN-NEW-1" && l.Ticker == "MSFT.US");
@@ -171,7 +172,7 @@ public sealed class XtbWorkbookImportServiceTests
         Assert.Single(doc.Dividends);
 
         // Appending the same XTB report a second time must not duplicate XTB lots, cash flows, or dividends
-        importer.ImportFile(csvPath, doc, replaceExistingXtbData: false);
+        importer.ImportFile(csvPath, doc, replaceExistingBrokerData: false);
 
         Assert.Equal(3, doc.Lots.Count);
         Assert.Single(doc.Dividends);

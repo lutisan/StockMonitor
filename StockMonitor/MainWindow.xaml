@@ -69,8 +69,17 @@
                         <syncfusion:MenuItemSeparator />
                         <syncfusion:MenuItemAdv Header="{Binding [Menu_ImportXtb], Source={x:Static services:LocalizationService.Instance}}"
                                                 ToolTip="{Binding [Tip_BtnImportXtb], Source={x:Static services:LocalizationService.Instance}}"
-                                                Command="{Binding ImportXtbCommand}"
-                                                AutomationProperties.AutomationId="BtnImportXtb" />
+                                                ItemsSource="{Binding ImportServices}"
+                                                IsEnabled="{Binding HasImportServices}"
+                                                AutomationProperties.AutomationId="BtnImportXtb">
+                            <syncfusion:MenuItemAdv.ItemContainerStyle>
+                                <Style TargetType="{x:Type syncfusion:MenuItemAdv}">
+                                    <Setter Property="Header" Value="{Binding DisplayName}" />
+                                    <Setter Property="Command" Value="{Binding DataContext.ImportWithServiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                </Style>
+                            </syncfusion:MenuItemAdv.ItemContainerStyle>
+                        </syncfusion:MenuItemAdv>
                         <syncfusion:MenuItemAdv Header="{Binding [Menu_Export], Source={x:Static services:LocalizationService.Instance}}"
                                                 ToolTip="{Binding [Tip_BtnExport], Source={x:Static services:LocalizationService.Instance}}"
                                                 ItemsSource="{Binding ExportServices}"

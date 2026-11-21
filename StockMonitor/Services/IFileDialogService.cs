@@ -79,10 +79,12 @@ public interface IFileDialogService
     PasswordChangeResult ShowManagePasswordDialog(bool hasExistingPassword, Func<string, bool>? verifyCurrentPassword = null);
 
     /// <summary>
-    /// Displays an open-file dialog for selecting an XTB Excel or CSV report.
+    /// Displays an open-file dialog for selecting a broker report using the specified <see cref="IImportService"/> filter.
     /// </summary>
+    /// <param name="filter">WPF OpenFileDialog filter string supplied by the import provider.</param>
+    /// <param name="title">Optional dialog title.</param>
     /// <returns>The selected file path, or <see langword="null"/> if cancelled.</returns>
-    string? ShowOpenXtbFileDialog();
+    string? ShowOpenImportFileDialog(string filter, string? title = null);
 
     /// <summary>
     /// Prompts the user to replace existing content, add to existing content, or cancel when importing into a non-empty document.
